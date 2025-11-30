@@ -1,0 +1,5 @@
+{
+  "name": "Smart Mortgage Advisor",
+  "description": "An intelligent mortgage calculator featuring commercial, provident fund, and combination loan modes. Includes real-time repayment visualization and AI-powered financial advice to help with home buying decisions.",
+  "requestFramePermissions": []
+}
