@@ -1012,7 +1012,7 @@ const CustomStressTestModal = ({ isOpen, onClose, t, onApply }: { isOpen: boolea
   );
 };
 
-const StressTestPanel = ({ results, t, onAddCustom }: { results: StressTestResult[], t: any, onAddCustom: () => void }) => {
+const StressTestPanel = ({ results, t, onAddCustom, onDeleteCustom }: { results: StressTestResult[], t: any, onAddCustom: () => void, onDeleteCustom: (index: number) => void }) => {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -1026,38 +1026,54 @@ const StressTestPanel = ({ results, t, onAddCustom }: { results: StressTestResul
       </div>
       
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {results.map((res, idx) => (
-          <div key={idx} className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 border border-slate-100 dark:border-slate-800 hover:border-indigo-200 dark:hover:border-indigo-800 transition-all group">
-            <div className="flex justify-between items-start mb-3">
-              <h4 className="font-bold text-slate-700 dark:text-slate-200 text-sm">{res.scenarioName}</h4>
-              <div className={`text-xs font-bold px-2 py-1 rounded-md ${res.isNegative ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'}`}>
-                {res.isNegative ? '-' : '+'}{(Math.abs(res.diffRevenue)/10000).toFixed(1)}{t.unitWanSimple}
-              </div>
-            </div>
-            
-            <div className="space-y-2 mb-3">
-              <div className="flex justify-between text-xs">
-                <span className="text-slate-500">{t.metricTotalRevenue}</span>
-                <span className={`font-mono font-bold ${res.totalRevenue >= 0 ? 'text-slate-700 dark:text-slate-300' : 'text-red-500'}`}>
-                  {(res.totalRevenue/10000).toFixed(1)}{t.unitWanSimple}
-                </span>
-              </div>
-              <div className="flex justify-between text-xs">
-                <span className="text-slate-500">{t.metricComprehensive}</span>
-                <span className="font-mono text-slate-700 dark:text-slate-300">{res.returnRate.toFixed(1)}%</span>
-              </div>
-            </div>
+        {results.map((res, idx) => {
+          // 判断是否为自定义场景 (假设前13个是预设场景)
+          const isCustom = idx >= 13;
+          const customIndex = idx - 13;
 
-            {/* Explanation Section */}
-            {res.explanation && (
-              <div className="pt-3 border-t border-slate-200 dark:border-slate-700">
-                <p className="text-[10px] text-slate-400 leading-relaxed">
-                  {res.explanation}
-                </p>
+          return (
+            <div key={idx} className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 border border-slate-100 dark:border-slate-800 hover:border-indigo-200 dark:hover:border-indigo-800 transition-all group relative">
+              {isCustom && (
+                <button 
+                  onClick={() => onDeleteCustom(customIndex)}
+                  className="absolute top-2 right-2 p-1 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full opacity-0 group-hover:opacity-100 transition-all"
+                  title="Delete Scenario"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              )}
+              
+              <div className="flex justify-between items-start mb-3 pr-4">
+                <h4 className="font-bold text-slate-700 dark:text-slate-200 text-sm truncate" title={res.scenarioName}>{res.scenarioName}</h4>
+                <div className={`text-xs font-bold px-2 py-1 rounded-md shrink-0 ${res.isNegative ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'}`}>
+                  {res.isNegative ? '-' : '+'}{(Math.abs(res.diffRevenue)/10000).toFixed(1)}{t.unitWanSimple}
+                </div>
               </div>
-            )}
-          </div>
-        ))}
+              
+              <div className="space-y-2 mb-3">
+                <div className="flex justify-between text-xs">
+                  <span className="text-slate-500">{t.metricTotalRevenue}</span>
+                  <span className={`font-mono font-bold ${res.totalRevenue >= 0 ? 'text-slate-700 dark:text-slate-300' : 'text-red-500'}`}>
+                    {(res.totalRevenue/10000).toFixed(1)}{t.unitWanSimple}
+                  </span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-slate-500">{t.metricComprehensive}</span>
+                  <span className="font-mono text-slate-700 dark:text-slate-300">{res.returnRate.toFixed(1)}%</span>
+                </div>
+              </div>
+
+              {/* Explanation Section */}
+              {res.explanation && (
+                <div className="pt-3 border-t border-slate-200 dark:border-slate-700">
+                  <p className="text-[10px] text-slate-400 leading-relaxed">
+                    {res.explanation}
+                  </p>
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -1285,6 +1301,10 @@ function App() {
     setShowLocationGuide(false);
     // Auto trigger AI to analyze the score
     handleSendMessage(t.aiMsgLocation);
+  };
+
+  const handleDeleteCustomScenario = (index: number) => {
+    setCustomScenarios(prev => prev.filter((_, i) => i !== index));
   };
 
   const initialCostData = [
@@ -1519,7 +1539,14 @@ function App() {
                )}
 
                {activeTab === 'rentVsBuy' && <RentVsBuyPanel result={result} params={params} t={t} />}
-               {activeTab === 'stress' && <StressTestPanel result={result} params={params} t={t} />}
+               {activeTab === 'stress' && (
+                 <StressTestPanel 
+                   results={useMemo(() => calculateStressTest(params, t, customScenarios), [params, t, customScenarios])} 
+                   t={t} 
+                   onAddCustom={() => setShowCustomStressTest(true)}
+                   onDeleteCustom={handleDeleteCustomScenario}
+                 />
+               )}
                {activeTab === 'risk' && <RiskAssessmentPanel result={result} t={t} />}
             </div>
           </div>
@@ -1527,14 +1554,7 @@ function App() {
           {/* Right Column (1/3) */}
           <div className="xl:col-span-1 flex flex-col gap-6 h-full" id="ai-panel">
 
-            {/* Stress Test */}
-            <div id="stress-test-panel" className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-xl border border-slate-100 dark:border-slate-800">
-               <StressTestPanel 
-                 results={useMemo(() => calculateStressTest(params, t, customScenarios), [params, t, customScenarios])} 
-                 t={t} 
-                 onAddCustom={() => setShowCustomStressTest(true)} 
-               />
-            </div>
+
 
             {/* Payment Schedule Chart */}
             <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-xl border border-slate-100 dark:border-slate-800">
