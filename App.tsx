@@ -1045,8 +1045,8 @@ const StressTestPanel = ({ results, t, onAddCustom, onDeleteCustom }: { results:
               
               <div className="flex justify-between items-start mb-3 pr-4">
                 <h4 className="font-bold text-slate-700 dark:text-slate-200 text-sm truncate" title={res.scenarioName}>{res.scenarioName}</h4>
-                <div className={`text-xs font-bold px-2 py-1 rounded-md shrink-0 ${res.isNegative ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'}`}>
-                  {res.isNegative ? '-' : '+'}{(Math.abs(res.diffRevenue)/10000).toFixed(1)}{t.unitWanSimple}
+                <div className={`text-xs font-bold px-2 py-1 rounded-md shrink-0 ${res.diffRevenue < 0 ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'}`}>
+                  {res.diffRevenue < 0 ? '-' : '+'}{(Math.abs(res.diffRevenue)).toFixed(1)}{t.unitWanSimple}
                 </div>
               </div>
               
@@ -1054,7 +1054,7 @@ const StressTestPanel = ({ results, t, onAddCustom, onDeleteCustom }: { results:
                 <div className="flex justify-between text-xs">
                   <span className="text-slate-500">{t.metricTotalRevenue}</span>
                   <span className={`font-mono font-bold ${res.totalRevenue >= 0 ? 'text-slate-700 dark:text-slate-300' : 'text-red-500'}`}>
-                    {(res.totalRevenue/10000).toFixed(1)}{t.unitWanSimple}
+                    {(res.totalRevenue).toFixed(1)}{t.unitWanSimple}
                   </span>
                 </div>
                 <div className="flex justify-between text-xs">
@@ -1212,7 +1212,7 @@ function App() {
   });
 
   const result = useMemo(() => calculateInvestment(params, t), [params, t]);
-  const stressTest: StressTestResult[] = useMemo(() => calculateStressTest(params, t), [params, t]);
+  const stressTestResults = useMemo(() => calculateStressTest(params, t, customScenarios), [params, t, customScenarios]);
   const scheduleChartData = useMemo(() => {
       if (!result || !result.monthlyData || result.monthlyData.length === 0) {
           return [];
@@ -1541,7 +1541,7 @@ function App() {
                {activeTab === 'rentVsBuy' && <RentVsBuyPanel result={result} params={params} t={t} />}
                {activeTab === 'stress' && (
                  <StressTestPanel 
-                   results={useMemo(() => calculateStressTest(params, t, customScenarios), [params, t, customScenarios])} 
+                   results={stressTestResults} 
                    t={t} 
                    onAddCustom={() => setShowCustomStressTest(true)}
                    onDeleteCustom={handleDeleteCustomScenario}
