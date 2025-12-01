@@ -248,6 +248,18 @@ export interface StressTestResult {
   isNegative: boolean;
   description: string;
   totalRevenue: number; // Total revenue for this scenario
+  explanation?: string; // 计算说明 (Optional for backward compatibility initially)
+  changes?: string[]; // 参数变化列表
+}
+
+export interface CustomStressTestParams {
+  name: string;
+  priceChange: number; // %
+  rentChange: number; // %
+  rateChange: number; // %
+  vacancyRate: number; // %
+  holdingCostChange: number; // %
+  sellYear?: number;
 }
 
 export interface AppreciationPredictorParams {

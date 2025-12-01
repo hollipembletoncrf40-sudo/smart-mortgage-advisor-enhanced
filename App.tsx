@@ -10,7 +10,7 @@ import {
   List, X, History, BadgePercent, Settings, Key, Info, BookOpen, ArrowRightLeft,
   Landmark, Loader, Download, FileText, Image as ImageIcon, FileType2, Share2, ChevronDown, CheckCircle2, XCircle, PieChart as PieChartIcon, Coins, Building2, MapPin, Globe2, Lightbulb, ClipboardCheck, ArrowDown, Home, PiggyBank
 } from 'lucide-react';
-import { InvestmentParams, RepaymentMethod, CalculationResult, ChatMessage, PrepaymentStrategy, StressTestResult, LoanType, PurchaseScenario, LocationFactors, LocationScore, AssetComparisonItem, KnowledgeCardData, Language, Currency, TaxParams, TaxResult, AppreciationPredictorParams, AppreciationPrediction, MonthlyCashFlow } from './types';
+import { InvestmentParams, RepaymentMethod, CalculationResult, ChatMessage, PrepaymentStrategy, StressTestResult, LoanType, PurchaseScenario, LocationFactors, LocationScore, AssetComparisonItem, KnowledgeCardData, Language, Currency, TaxParams, TaxResult, AppreciationPredictorParams, AppreciationPrediction, MonthlyCashFlow, CustomStressTestParams } from './types';
 import { TRANSLATIONS } from './utils/translations';
 import { calculateInvestment, calculateStressTest, aggregateYearlyPaymentData, calculateLocationScore, calculateTaxes, predictAppreciation } from './utils/calculate';
 import { createInvestmentChat, sendMessageToAI } from './services/geminiService';
@@ -864,17 +864,198 @@ const AppreciationPredictorModal = ({ isOpen, onClose, t }: { isOpen: boolean; o
   );
 };
 
-const StressTestPanel = ({ result, params, t }: { result: CalculationResult, params: InvestmentParams, t: any }) => {
-  const stressTest: StressTestResult[] = useMemo(() => calculateStressTest(params, t), [params, t]);
+const CustomStressTestModal = ({ isOpen, onClose, t, onApply }: { isOpen: boolean; onClose: () => void; t: any; onApply: (params: CustomStressTestParams) => void }) => {
+  const [params, setParams] = useState<CustomStressTestParams>({
+    name: t.customScenario,
+    priceChange: 0,
+    rentChange: 0,
+    rateChange: 0,
+    vacancyRate: 0,
+    holdingCostChange: 0,
+    sellYear: undefined
+  });
+
+  if (!isOpen) return null;
+
   return (
-    <div>
-      <h3 className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-4">{t.stressTest}</h3>
-      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
-        {stressTest.map((test, idx) => (
-          <div key={idx} className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-200 dark:border-slate-700/50 hover:border-indigo-500 transition-all">
-            <div className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-2 truncate" title={test.scenarioName}>{test.scenarioName}</div>
-            <div className={`text-lg font-bold mb-1 ${test.totalRevenue < 0 ? 'text-red-500' : 'text-emerald-500'}`}>{test.totalRevenue.toFixed(1)} {t.unitWanSimple}</div>
-            <div className="flex justify-between text-xs text-slate-400"><span>{t.returnRate} {test.returnRate.toFixed(1)}%</span><span className={`${test.diffRevenue < 0 ? 'text-red-400' : 'text-emerald-400'}`}>{test.diffRevenue > 0 ? '+' : ''}{test.diffRevenue.toFixed(1)}{t.unitWanSimple}</span></div>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-md overflow-hidden border border-slate-200 dark:border-slate-800">
+        <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-900/50">
+          <h3 className="font-bold text-slate-800 dark:text-white flex items-center gap-2">
+            <Settings className="h-5 w-5 text-indigo-500" />
+            {t.addCustom}
+          </h3>
+          <button onClick={onClose} className="p-1 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-full transition-colors">
+            <X className="h-5 w-5 text-slate-500" />
+          </button>
+        </div>
+        
+        <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+          {/* Scenario Name */}
+          <div>
+            <label className="block text-xs font-medium text-slate-500 mb-1">{t.scenarioName}</label>
+            <input 
+              type="text" 
+              value={params.name}
+              onChange={(e) => setParams({...params, name: e.target.value})}
+              className="w-full p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm"
+            />
+          </div>
+
+          {/* Price Change */}
+          <div>
+            <label className="block text-xs font-medium text-slate-500 mb-1">{t.priceChange} (%)</label>
+            <div className="flex items-center gap-2">
+              <input 
+                type="range" min="-50" max="50" step="5"
+                value={params.priceChange}
+                onChange={(e) => setParams({...params, priceChange: Number(e.target.value)})}
+                className="flex-1"
+              />
+              <span className="w-12 text-right text-sm font-mono">{params.priceChange > 0 ? '+' : ''}{params.priceChange}%</span>
+            </div>
+          </div>
+
+          {/* Rent Change */}
+          <div>
+            <label className="block text-xs font-medium text-slate-500 mb-1">{t.rentChange} (%)</label>
+            <div className="flex items-center gap-2">
+              <input 
+                type="range" min="-50" max="50" step="5"
+                value={params.rentChange}
+                onChange={(e) => setParams({...params, rentChange: Number(e.target.value)})}
+                className="flex-1"
+              />
+              <span className="w-12 text-right text-sm font-mono">{params.rentChange > 0 ? '+' : ''}{params.rentChange}%</span>
+            </div>
+          </div>
+
+          {/* Rate Change */}
+          <div>
+            <label className="block text-xs font-medium text-slate-500 mb-1">{t.rateChange} (%)</label>
+            <div className="flex items-center gap-2">
+              <input 
+                type="range" min="-2" max="5" step="0.5"
+                value={params.rateChange}
+                onChange={(e) => setParams({...params, rateChange: Number(e.target.value)})}
+                className="flex-1"
+              />
+              <span className="w-12 text-right text-sm font-mono">{params.rateChange > 0 ? '+' : ''}{params.rateChange}%</span>
+            </div>
+          </div>
+
+          {/* Vacancy Rate */}
+          <div>
+            <label className="block text-xs font-medium text-slate-500 mb-1">{t.vacancyChange} (%)</label>
+            <div className="flex items-center gap-2">
+              <input 
+                type="range" min="0" max="50" step="5"
+                value={params.vacancyRate}
+                onChange={(e) => setParams({...params, vacancyRate: Number(e.target.value)})}
+                className="flex-1"
+              />
+              <span className="w-12 text-right text-sm font-mono">{params.vacancyRate}%</span>
+            </div>
+          </div>
+
+          {/* Holding Cost Change */}
+          <div>
+            <label className="block text-xs font-medium text-slate-500 mb-1">{t.holdingCostChange} (%)</label>
+            <div className="flex items-center gap-2">
+              <input 
+                type="range" min="-30" max="100" step="10"
+                value={params.holdingCostChange}
+                onChange={(e) => setParams({...params, holdingCostChange: Number(e.target.value)})}
+                className="flex-1"
+              />
+              <span className="w-12 text-right text-sm font-mono">{params.holdingCostChange > 0 ? '+' : ''}{params.holdingCostChange}%</span>
+            </div>
+          </div>
+          
+          {/* Sell Year */}
+          <div>
+            <label className="block text-xs font-medium text-slate-500 mb-1">{t.sellYearCustom} (Optional)</label>
+            <input 
+              type="number" min="1" max="30"
+              value={params.sellYear || ''}
+              onChange={(e) => setParams({...params, sellYear: e.target.value ? Number(e.target.value) : undefined})}
+              placeholder="Default holding period"
+              className="w-full p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm"
+            />
+          </div>
+        </div>
+
+        <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 flex gap-3">
+          <button 
+            onClick={() => setParams({
+              name: t.customScenario,
+              priceChange: 0,
+              rentChange: 0,
+              rateChange: 0,
+              vacancyRate: 0,
+              holdingCostChange: 0,
+              sellYear: undefined
+            })}
+            className="flex-1 py-2.5 rounded-xl font-bold text-sm bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all"
+          >
+            {t.resetScenario}
+          </button>
+          <button 
+            onClick={() => { onApply(params); onClose(); }}
+            className="flex-1 py-2.5 rounded-xl font-bold text-sm bg-gradient-to-r from-indigo-500 to-violet-500 text-white shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/30 active:scale-[0.98] transition-all"
+          >
+            {t.applyScenario}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const StressTestPanel = ({ results, t, onAddCustom }: { results: StressTestResult[], t: any, onAddCustom: () => void }) => {
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h3 className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t.stressTest}</h3>
+        <button 
+          onClick={onAddCustom}
+          className="flex items-center gap-1 text-xs font-bold text-indigo-500 hover:text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 px-3 py-1.5 rounded-lg transition-colors"
+        >
+          <Settings className="h-3.5 w-3.5" /> {t.addCustom}
+        </button>
+      </div>
+      
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {results.map((res, idx) => (
+          <div key={idx} className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 border border-slate-100 dark:border-slate-800 hover:border-indigo-200 dark:hover:border-indigo-800 transition-all group">
+            <div className="flex justify-between items-start mb-3">
+              <h4 className="font-bold text-slate-700 dark:text-slate-200 text-sm">{res.scenarioName}</h4>
+              <div className={`text-xs font-bold px-2 py-1 rounded-md ${res.isNegative ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'}`}>
+                {res.isNegative ? '-' : '+'}{(Math.abs(res.diffRevenue)/10000).toFixed(1)}{t.unitWanSimple}
+              </div>
+            </div>
+            
+            <div className="space-y-2 mb-3">
+              <div className="flex justify-between text-xs">
+                <span className="text-slate-500">{t.metricTotalRevenue}</span>
+                <span className={`font-mono font-bold ${res.totalRevenue >= 0 ? 'text-slate-700 dark:text-slate-300' : 'text-red-500'}`}>
+                  {(res.totalRevenue/10000).toFixed(1)}{t.unitWanSimple}
+                </span>
+              </div>
+              <div className="flex justify-between text-xs">
+                <span className="text-slate-500">{t.metricComprehensive}</span>
+                <span className="font-mono text-slate-700 dark:text-slate-300">{res.returnRate.toFixed(1)}%</span>
+              </div>
+            </div>
+
+            {/* Explanation Section */}
+            {res.explanation && (
+              <div className="pt-3 border-t border-slate-200 dark:border-slate-700">
+                <p className="text-[10px] text-slate-400 leading-relaxed">
+                  {res.explanation}
+                </p>
+              </div>
+            )}
           </div>
         ))}
       </div>
@@ -972,6 +1153,8 @@ function App() {
   const [showBuyingProcess, setShowBuyingProcess] = useState(false);
   const [showTaxCalculator, setShowTaxCalculator] = useState(false);
   const [showAppreciationPredictor, setShowAppreciationPredictor] = useState(false);
+  const [showCustomStressTest, setShowCustomStressTest] = useState(false);
+  const [customScenarios, setCustomScenarios] = useState<CustomStressTestParams[]>([]);
   const [locationScore, setLocationScore] = useState<LocationScore | null>(null);
 
   // Tour State
@@ -1122,6 +1305,14 @@ function App() {
       {showBuyingProcess && <BuyingProcessModal onClose={() => setShowBuyingProcess(false)} t={t} />}
       {showTaxCalculator && <TaxCalculatorModal isOpen={showTaxCalculator} onClose={() => setShowTaxCalculator(false)} t={t} initialPrice={params.totalPrice} />}
       {showAppreciationPredictor && <AppreciationPredictorModal isOpen={showAppreciationPredictor} onClose={() => setShowAppreciationPredictor(false)} t={t} />}
+      {showCustomStressTest && (
+        <CustomStressTestModal 
+          isOpen={showCustomStressTest} 
+          onClose={() => setShowCustomStressTest(false)} 
+          t={t} 
+          onApply={(newScenario) => setCustomScenarios([...customScenarios, newScenario])} 
+        />
+      )}
 
       {/* Header */}
       <header className="sticky top-0 z-30 backdrop-blur-xl bg-white/80 dark:bg-slate-950/80 border-b border-slate-200 dark:border-slate-800">
@@ -1335,6 +1526,15 @@ function App() {
 
           {/* Right Column (1/3) */}
           <div className="xl:col-span-1 flex flex-col gap-6 h-full" id="ai-panel">
+
+            {/* Stress Test */}
+            <div id="stress-test-panel" className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-xl border border-slate-100 dark:border-slate-800">
+               <StressTestPanel 
+                 results={useMemo(() => calculateStressTest(params, t, customScenarios), [params, t, customScenarios])} 
+                 t={t} 
+                 onAddCustom={() => setShowCustomStressTest(true)} 
+               />
+            </div>
 
             {/* Payment Schedule Chart */}
             <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-xl border border-slate-100 dark:border-slate-800">

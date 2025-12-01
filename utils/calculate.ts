@@ -1,6 +1,6 @@
 
 
-import { InvestmentParams, RepaymentMethod, MonthlyPayment, CalculationResult, PrepaymentStrategy, StrategyResult, PrepaymentComparisonResult, StressTestResult, LoanType, AssetComparison, PurchaseScenario, LocationFactors, LocationScore, AssetComparisonItem, KnowledgeCardData, TaxParams, TaxResult, AppreciationPredictorParams, AppreciationPrediction, MonthlyCashFlow } from '../types';
+import { InvestmentParams, RepaymentMethod, MonthlyPayment, CalculationResult, PrepaymentStrategy, StrategyResult, PrepaymentComparisonResult, StressTestResult, LoanType, AssetComparison, PurchaseScenario, LocationFactors, LocationScore, AssetComparisonItem, KnowledgeCardData, TaxParams, TaxResult, AppreciationPredictorParams, AppreciationPrediction, MonthlyCashFlow, CustomStressTestParams } from '../types';
 
 // Core Amortization Calculator
 // Returns the full schedule and summary stats
@@ -574,7 +574,7 @@ export const calculateInvestment = (params: InvestmentParams, t: any): Calculati
   };
 };
 
-export const calculateStressTest = (params: InvestmentParams, t: any): StressTestResult[] => {
+export const calculateStressTest = (params: InvestmentParams, t: any, customScenarios: CustomStressTestParams[] = []): StressTestResult[] => {
   const base = calculateInvestment(params, t);
   
   const scenarios = [
@@ -601,6 +601,24 @@ export const calculateStressTest = (params: InvestmentParams, t: any): StressTes
     { name: t.scenCombo2, transform: (p: InvestmentParams) => ({ ...p, interestRate: p.interestRate + 1, providentInterestRate: p.providentInterestRate + 1, vacancyRate: 20 }) },
   ];
 
+  // 添加自定义场景
+  customScenarios.forEach(custom => {
+    scenarios.push({
+      name: custom.name,
+      transform: (p: InvestmentParams) => ({
+        ...p,
+        totalPrice: p.totalPrice * (1 + custom.priceChange / 100),
+        monthlyRent: p.monthlyRent * (1 + custom.rentChange / 100),
+        interestRate: p.interestRate + custom.rateChange,
+        providentInterestRate: p.providentInterestRate + custom.rateChange,
+        vacancyRate: custom.vacancyRate,
+        holdingCostRatio: p.holdingCostRatio * (1 + custom.holdingCostChange / 100),
+        propertyMaintenanceCost: p.propertyMaintenanceCost * (1 + custom.holdingCostChange / 100),
+        holdingYears: custom.sellYear || p.holdingYears
+      })
+    });
+  });
+
   if (params.holdingYears > 5) {
     scenarios.push({ 
       name: t.scenSellYear.replace('{year}', '5'), 
@@ -621,6 +639,32 @@ export const calculateStressTest = (params: InvestmentParams, t: any): StressTes
   return scenarios.map(sc => {
     const newParams = sc.transform(params);
     const res = calculateInvestment(newParams, t);
+    
+    // 生成解释说明
+    let changes: string[] = [];
+    if (newParams.totalPrice !== params.totalPrice) {
+      const diff = ((newParams.totalPrice - params.totalPrice) / params.totalPrice) * 100;
+      changes.push(`${t.priceChange}: ${diff > 0 ? '+' : ''}${diff.toFixed(0)}%`);
+    }
+    if (newParams.monthlyRent !== params.monthlyRent) {
+      const diff = ((newParams.monthlyRent - params.monthlyRent) / params.monthlyRent) * 100;
+      changes.push(`${t.rentChange}: ${diff > 0 ? '+' : ''}${diff.toFixed(0)}%`);
+    }
+    if (newParams.interestRate !== params.interestRate) {
+      const diff = newParams.interestRate - params.interestRate;
+      changes.push(`${t.rateChange}: ${diff > 0 ? '+' : ''}${diff.toFixed(1)}%`);
+    }
+    if (newParams.vacancyRate !== params.vacancyRate) {
+      changes.push(`${t.vacancyChange}: ${newParams.vacancyRate}%`);
+    }
+    if (newParams.holdingCostRatio !== params.holdingCostRatio) {
+       const diff = ((newParams.holdingCostRatio - params.holdingCostRatio) / params.holdingCostRatio) * 100;
+       changes.push(`${t.holdingCostChange}: ${diff > 0 ? '+' : ''}${diff.toFixed(0)}%`);
+    }
+    if (newParams.holdingYears !== params.holdingYears) {
+      changes.push(`${t.sellYearCustom}: ${newParams.holdingYears}`);
+    }
+
     return {
       scenarioName: sc.name,
       totalReturnChange: res.totalRevenue - base.totalRevenue,
@@ -630,7 +674,9 @@ export const calculateStressTest = (params: InvestmentParams, t: any): StressTes
       diffRevenue: res.totalRevenue - base.totalRevenue,
       isNegative: res.totalRevenue < 0,
       description: '',
-      totalRevenue: res.totalRevenue
+      totalRevenue: res.totalRevenue,
+      explanation: changes.join(', '),
+      changes: changes
     };
   });
 };
