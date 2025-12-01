@@ -10,9 +10,9 @@ import {
   List, X, History, BadgePercent, Settings, Key, Info, BookOpen, ArrowRightLeft,
   Landmark, Loader, Download, FileText, Image as ImageIcon, FileType2, Share2, ChevronDown, CheckCircle2, XCircle, PieChart as PieChartIcon, Coins, Building2, MapPin, Globe2, Lightbulb, ClipboardCheck, ArrowDown, Home, PiggyBank
 } from 'lucide-react';
-import { InvestmentParams, RepaymentMethod, CalculationResult, ChatMessage, PrepaymentStrategy, StressTestResult, LoanType, PurchaseScenario, LocationFactors, LocationScore, AssetComparisonItem, KnowledgeCardData, Language, Currency } from './types';
+import { InvestmentParams, RepaymentMethod, CalculationResult, ChatMessage, PrepaymentStrategy, StressTestResult, LoanType, PurchaseScenario, LocationFactors, LocationScore, AssetComparisonItem, KnowledgeCardData, Language, Currency, TaxParams, TaxResult } from './types';
 import { TRANSLATIONS } from './utils/translations';
-import { calculateInvestment, calculateStressTest, aggregateYearlyPaymentData, calculateLocationScore } from './utils/calculate';
+import { calculateInvestment, calculateStressTest, aggregateYearlyPaymentData, calculateLocationScore, calculateTaxes } from './utils/calculate';
 import { createInvestmentChat, sendMessageToAI } from './services/geminiService';
 import { Chat } from '@google/genai';
 
@@ -458,6 +458,131 @@ const RentVsBuyPanel = ({ result, params, t }: { result: CalculationResult, para
 
 
 
+const TaxCalculatorModal = ({ isOpen, onClose, t, initialPrice }: { isOpen: boolean; onClose: () => void; t: any; initialPrice: number }) => {
+  const [params, setParams] = useState<TaxParams>({
+    cityTier: 'other',
+    isSecondHand: false,
+    area: 90,
+    buyerStatus: 'first',
+    yearsHeld: '<2',
+    isSellerOnlyHome: false,
+    price: initialPrice,
+  });
+
+  const [result, setResult] = useState<TaxResult | null>(null);
+
+  useEffect(() => {
+    setParams(p => ({ ...p, price: initialPrice }));
+  }, [initialPrice]);
+
+  const handleCalculate = () => {
+    const res = calculateTaxes(params);
+    setResult(res);
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={onClose}>
+      <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-lg w-full shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
+        <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-900/50">
+          <h3 className="text-lg font-bold dark:text-white flex items-center gap-2">
+            <Calculator className="h-5 w-5 text-indigo-500"/> {t.taxTitle}
+          </h3>
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-600"><X className="h-5 w-5"/></button>
+        </div>
+        
+        <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
+          {/* Inputs */}
+          <div className="grid grid-cols-2 gap-4">
+             <div className="space-y-2">
+               <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t.inputCityTier}</label>
+               <select value={params.cityTier} onChange={e => setParams({...params, cityTier: e.target.value as any})} className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white">
+                 <option value="tier1">{t.tier1}</option>
+                 <option value="other">{t.tierOther}</option>
+               </select>
+             </div>
+             <div className="space-y-2">
+               <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t.inputArea}</label>
+               <div className="relative">
+                 <input type="number" value={params.area} onChange={e => setParams({...params, area: Number(e.target.value)})} className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white" />
+                 <span className="absolute right-3 top-2 text-xs text-slate-400">㎡</span>
+               </div>
+             </div>
+             <div className="space-y-2">
+               <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t.inputFirstTime}</label>
+               <select value={params.buyerStatus} onChange={e => setParams({...params, buyerStatus: e.target.value as any})} className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white">
+                 <option value="first">{t.buyerFirst}</option>
+                 <option value="second">{t.buyerSecond}</option>
+                 <option value="other">{t.buyerOther}</option>
+               </select>
+             </div>
+             <div className="space-y-2">
+                <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 h-full pt-6">
+                  <input type="checkbox" checked={params.isSecondHand} onChange={e => setParams({...params, isSecondHand: e.target.checked})} className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" />
+                  Is Second Hand?
+                </label>
+             </div>
+          </div>
+
+          {params.isSecondHand && (
+            <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-100 dark:border-amber-800 space-y-4">
+               <div className="grid grid-cols-2 gap-4">
+                 <div className="space-y-2">
+                   <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t.inputYearsHeld}</label>
+                   <select value={params.yearsHeld} onChange={e => setParams({...params, yearsHeld: e.target.value as any})} className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-amber-500 dark:text-white">
+                     <option value="<2">{t.heldLess2}</option>
+                     <option value="2-5">{t.held2to5}</option>
+                     <option value=">5">{t.heldMore5}</option>
+                   </select>
+                 </div>
+                 <div className="space-y-2 flex items-end pb-2">
+                    <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300">
+                      <input type="checkbox" checked={params.isSellerOnlyHome} onChange={e => setParams({...params, isSellerOnlyHome: e.target.checked})} className="w-4 h-4 rounded border-slate-300 text-amber-600 focus:ring-amber-500" />
+                      {t.inputSellerOnly}
+                    </label>
+                 </div>
+               </div>
+            </div>
+          )}
+
+          <button onClick={handleCalculate} className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold shadow-lg shadow-indigo-500/20 transition-all active:scale-[0.98]">{t.calcTax}</button>
+
+          {/* Results */}
+          {result && (
+            <div className="space-y-4 pt-2 animate-in fade-in slide-in-from-bottom-4 duration-500">
+               <div className="flex justify-between items-end pb-2 border-b border-slate-100 dark:border-slate-800">
+                  <span className="text-sm text-slate-500">{t.taxTotal}</span>
+                  <span className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">{result.total.toFixed(2)} <span className="text-sm text-slate-400">{t.unitWanSimple}</span></span>
+               </div>
+               <div className="grid grid-cols-3 gap-2">
+                  <div className="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl text-center">
+                     <div className="text-xs text-slate-500 mb-1">{t.taxDeed}</div>
+                     <div className="font-bold dark:text-white">{result.deedTax.toFixed(2)}</div>
+                     <div className="text-[10px] text-slate-400">{(result.breakdown.deedRate * 100).toFixed(1)}%</div>
+                  </div>
+                  <div className="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl text-center">
+                     <div className="text-xs text-slate-500 mb-1">{t.taxVAT}</div>
+                     <div className="font-bold dark:text-white">{result.vat.toFixed(2)}</div>
+                     <div className="text-[10px] text-slate-400">{(result.breakdown.vatRate * 100).toFixed(1)}%</div>
+                  </div>
+                  <div className="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl text-center">
+                     <div className="text-xs text-slate-500 mb-1">{t.taxPIT}</div>
+                     <div className="font-bold dark:text-white">{result.pit.toFixed(2)}</div>
+                     <div className="text-[10px] text-slate-400">{(result.breakdown.pitRate * 100).toFixed(1)}%</div>
+                  </div>
+               </div>
+               <div className="text-xs text-slate-400 bg-slate-50 dark:bg-slate-800/50 p-3 rounded-lg">
+                 {t.taxExplanation}
+               </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const StressTestPanel = ({ result, params, t }: { result: CalculationResult, params: InvestmentParams, t: any }) => {
   const stressTest: StressTestResult[] = useMemo(() => calculateStressTest(params, t), [params, t]);
   return (
@@ -564,6 +689,7 @@ function App() {
   // New: Location Guide & Buying Process
   const [showLocationGuide, setShowLocationGuide] = useState(false);
   const [showBuyingProcess, setShowBuyingProcess] = useState(false);
+  const [showTaxCalculator, setShowTaxCalculator] = useState(false);
   const [locationScore, setLocationScore] = useState<LocationScore | null>(null);
 
   // Tour State
@@ -712,6 +838,7 @@ function App() {
       {/* New Modal */}
       {showLocationGuide && <LocationGuideModal onClose={() => setShowLocationGuide(false)} onApply={handleApplyLocationScore} t={t} />}
       {showBuyingProcess && <BuyingProcessModal onClose={() => setShowBuyingProcess(false)} t={t} />}
+      {showTaxCalculator && <TaxCalculatorModal isOpen={showTaxCalculator} onClose={() => setShowTaxCalculator(false)} t={t} initialPrice={params.totalPrice} />}
 
       {/* Header */}
       <header className="sticky top-0 z-30 backdrop-blur-xl bg-white/80 dark:bg-slate-950/80 border-b border-slate-200 dark:border-slate-800">
@@ -768,7 +895,10 @@ function App() {
                         <InputGroup label={t.totalPrice} value={params.totalPrice} onChange={v => handleInputChange('totalPrice', v)} tooltip={t.tipTotalPrice} />
                         <InputGroup label={t.downPaymentRatio} value={params.downPaymentRatio} onChange={v => handleInputChange('downPaymentRatio', v)} subtext={`${t.netDownPayment}: ${(result?.downPayment || 0).toFixed(2)}${t.unitWanSimple}`} tooltip={t.tipDownPayment} />
                         <div className="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-lg border border-slate-100 dark:border-slate-800">
-                            <div className="text-[10px] font-bold text-slate-400 uppercase mb-2">{t.oneTimeCost}</div>
+                            <div className="flex items-center justify-between mb-2">
+                                <div className="text-[10px] font-bold text-slate-400 uppercase">{t.oneTimeCost}</div>
+                                <button onClick={() => setShowTaxCalculator(true)} className="text-[10px] flex items-center gap-1 text-indigo-600 font-bold hover:underline"><Calculator className="h-3 w-3" /> {t.calcTax}</button>
+                            </div>
                             <div className="space-y-2">
                                 <InputGroup label={t.deedTax} value={params.deedTaxRate} onChange={v => handleInputChange('deedTaxRate', v)} step={0.1} tooltip={t.tipDeedTax} />
                                 <InputGroup label={t.agencyFee} value={params.agencyFeeRatio} onChange={v => handleInputChange('agencyFeeRatio', v)} step={0.1} tooltip={t.tipAgencyFee} />

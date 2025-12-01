@@ -134,7 +134,30 @@ export interface AssetComparisonItem {
 export interface KnowledgeCardData {
   title: string;
   content: string;
-  icon?: string; 
+  icon: string; 
+}
+
+export interface TaxParams {
+  cityTier: 'tier1' | 'other';
+  isSecondHand: boolean;
+  area: number;
+  buyerStatus: 'first' | 'second' | 'other';
+  yearsHeld: '<2' | '2-5' | '>5';
+  isSellerOnlyHome: boolean;
+  price: number; // Total Price in Wan
+  originalPrice?: number; // For VAT diff in Wan
+}
+
+export interface TaxResult {
+  deedTax: number;
+  vat: number;
+  pit: number;
+  total: number;
+  breakdown: {
+    deedRate: number;
+    vatRate: number;
+    pitRate: number;
+  };
 }
 
 export interface AssetComparison {

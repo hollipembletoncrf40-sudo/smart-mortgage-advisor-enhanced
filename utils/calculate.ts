@@ -1,5 +1,5 @@
 
-import { InvestmentParams, RepaymentMethod, MonthlyPayment, CalculationResult, PrepaymentStrategy, StrategyResult, PrepaymentComparisonResult, StressTestResult, LoanType, AssetComparison, PurchaseScenario, LocationFactors, LocationScore, AssetComparisonItem, KnowledgeCardData } from '../types';
+import { InvestmentParams, RepaymentMethod, MonthlyPayment, CalculationResult, PrepaymentStrategy, StrategyResult, PrepaymentComparisonResult, StressTestResult, LoanType, AssetComparison, PurchaseScenario, LocationFactors, LocationScore, AssetComparisonItem, KnowledgeCardData, TaxParams, TaxResult } from '../types';
 
 // Core Amortization Calculator
 // Returns the full schedule and summary stats
@@ -594,4 +594,74 @@ export const calculateStressTest = (params: InvestmentParams, t: any): StressTes
       totalRevenue: res.totalRevenue
     };
   });
+};
+
+export const calculateTaxes = (params: TaxParams): TaxResult => {
+  const { cityTier, isSecondHand, area, buyerStatus, yearsHeld, isSellerOnlyHome, price, originalPrice } = params;
+  const priceWan = price; // Input is in Wan
+  const priceYuan = price * 10000;
+  
+  // 1. Deed Tax (契税)
+  // First Home: <=90sqm 1%, >90sqm 1.5%
+  // Second Home: <=90sqm 1%, >90sqm 2% (Tier 1 is 3% for second home usually, but recent policies might vary. We stick to standard rule: Tier 1 3% for 2nd)
+  // Third+: 3%
+  let deedRate = 0.03;
+  if (buyerStatus === 'first') {
+    deedRate = area <= 90 ? 0.01 : 0.015;
+  } else if (buyerStatus === 'second') {
+    if (cityTier === 'tier1') {
+      deedRate = 0.03; // Beijing/Shanghai/Shenzhen/Guangzhou usually 3% for 2nd
+    } else {
+      deedRate = area <= 90 ? 0.01 : 0.02;
+    }
+  } else {
+    deedRate = 0.03;
+  }
+  const deedTax = priceWan * deedRate;
+
+  // 2. VAT (增值税)
+  // New home: Included in price usually, but for calculator we assume 0 extra or user inputs total price. 
+  // Second hand:
+  // < 2 years: 5% (approx 5.3% or 5.6% with surcharge). Let's use 5.3%.
+  // >= 2 years: Exempt (Ordinary). Tier 1 Non-ordinary pays on difference. 
+  // For simplicity: <2y = 5.3%, >=2y = 0.
+  let vatRate = 0;
+  let vat = 0;
+  if (isSecondHand) {
+    if (yearsHeld === '<2') {
+      vatRate = 0.053;
+      vat = priceWan * vatRate; // Simplified base
+    } else {
+      // Exempt for >=2y generally
+      vatRate = 0;
+      vat = 0;
+    }
+  }
+
+  // 3. PIT (个人所得税)
+  // New home: 0
+  // Second hand: 
+  // >5 years & Only home: Exempt
+  // Others: 1% of Total Price (or 20% of profit). We use 1% estimate.
+  let pitRate = 0;
+  if (isSecondHand) {
+    if (yearsHeld === '>5' && isSellerOnlyHome) {
+      pitRate = 0;
+    } else {
+      pitRate = 0.01;
+    }
+  }
+  const pit = priceWan * pitRate;
+
+  return {
+    deedTax,
+    vat,
+    pit,
+    total: deedTax + vat + pit,
+    breakdown: {
+      deedRate,
+      vatRate,
+      pitRate
+    }
+  };
 };
