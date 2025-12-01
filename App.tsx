@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { 
   PieChart, Pie, Cell, Tooltip as RechartsTooltip, Legend, ResponsiveContainer,
-  AreaChart, Area, XAxis, YAxis, CartesianGrid, LineChart, Line, BarChart, Bar, ComposedChart, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, LineChart, Line, BarChart, Bar, ComposedChart, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ReferenceLine
 } from 'recharts';
 import { 
   Calculator, TrendingUp, BrainCircuit, Moon, Sun, AlertTriangle, 
@@ -10,7 +10,7 @@ import {
   List, X, History, BadgePercent, Settings, Key, Info, BookOpen, ArrowRightLeft,
   Landmark, Loader, Download, FileText, Image as ImageIcon, FileType2, Share2, ChevronDown, CheckCircle2, XCircle, PieChart as PieChartIcon, Coins, Building2, MapPin, Globe2, Lightbulb, ClipboardCheck, ArrowDown, Home, PiggyBank
 } from 'lucide-react';
-import { InvestmentParams, RepaymentMethod, CalculationResult, ChatMessage, PrepaymentStrategy, StressTestResult, LoanType, PurchaseScenario, LocationFactors, LocationScore, AssetComparisonItem, KnowledgeCardData, Language, Currency, TaxParams, TaxResult, AppreciationPredictorParams, AppreciationPrediction } from './types';
+import { InvestmentParams, RepaymentMethod, CalculationResult, ChatMessage, PrepaymentStrategy, StressTestResult, LoanType, PurchaseScenario, LocationFactors, LocationScore, AssetComparisonItem, KnowledgeCardData, Language, Currency, TaxParams, TaxResult, AppreciationPredictorParams, AppreciationPrediction, MonthlyCashFlow } from './types';
 import { TRANSLATIONS } from './utils/translations';
 import { calculateInvestment, calculateStressTest, aggregateYearlyPaymentData, calculateLocationScore, calculateTaxes, predictAppreciation } from './utils/calculate';
 import { createInvestmentChat, sendMessageToAI } from './services/geminiService';
@@ -395,6 +395,66 @@ const RentVsBuyChart = ({ data, t }: { data: any[], t: any }) => {
           <Area type="monotone" dataKey="stockNetWorth" name={t.rentNetWorth} stroke="#fbbf24" fillOpacity={1} fill="url(#colorRent)" strokeWidth={2} />
         </AreaChart>
       </ResponsiveContainer>
+    </div>
+  );
+};
+
+const CashFlowChart = ({ data, t }: { data: MonthlyCashFlow[], t: any }) => {
+  const darkMode = document.documentElement.classList.contains('dark');
+  
+  // 转换数据格式以适配图表
+  const chartData = data.map(item => ({
+    month: t.monthLabel.replace('{n}', item.month.toString()),
+    [t.rentalIncome]: item.rentalIncome,
+    [t.mortgagePayment]: -item.mortgagePayment, // 负值表示支出
+    [t.holdingCost]: -item.holdingCost, // 负值表示支出
+    [t.netCashFlow]: item.netCashFlow
+  }));
+
+  // 计算平均值
+  const avgNetCashFlow = data.reduce((sum, item) => sum + item.netCashFlow, 0) / data.length;
+
+  return (
+    <div className="space-y-4">
+      {/* 平均现金流指示器 */}
+      <div className="flex items-center justify-between">
+        <h4 className="text-sm font-bold text-slate-700 dark:text-white">{t.cashFlowProjection}</h4>
+        <div className={`px-3 py-1 rounded-full text-xs font-bold ${avgNetCashFlow >= 0 ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'}`}>
+          {t.monthlyAverage}: {avgNetCashFlow.toFixed(0)}元 {avgNetCashFlow >= 0 ? '✓' : '✗'}
+        </div>
+      </div>
+
+      <div className="h-80 w-full">
+        <ResponsiveContainer width="100%" height="100%">
+          <ComposedChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke={darkMode ? '#334155' : '#e2e8f0'} />
+            <XAxis dataKey="month" tick={{fill: darkMode ? '#94a3b8' : '#64748b', fontSize: 11}} />
+            <YAxis tick={{fill: darkMode ? '#94a3b8' : '#64748b', fontSize: 11}} />
+            <RechartsTooltip 
+              contentStyle={{ backgroundColor: darkMode ? '#1e293b' : '#fff', borderRadius: '12px', border: 'none' }} 
+              formatter={(value: number) => [`${Math.abs(value).toFixed(0)}元`, '']}
+            />
+            <Legend wrapperStyle={{fontSize: '12px'}} />
+            
+            {/* 零线参考 */}
+            <ReferenceLine y={0} stroke={darkMode ? '#64748b' : '#94a3b8'} strokeDasharray="3 3" />
+            
+            {/* 堆积柱状图 */}
+            <Bar dataKey={t.rentalIncome} stackId="a" fill="#10b981" />
+            <Bar dataKey={t.mortgagePayment} stackId="a" fill="#ef4444" />
+            <Bar dataKey={t.holdingCost} stackId="a" fill="#f97316" />
+            
+            {/* 净现金流折线 */}
+            <Line 
+              type="monotone" 
+              dataKey={t.netCashFlow} 
+              stroke="#3b82f6" 
+              strokeWidth={3} 
+              dot={{ fill: '#3b82f6', r: 4 }}
+            />
+          </ComposedChart>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 };
@@ -1196,21 +1256,26 @@ function App() {
 
             {/* Asset Comparison & Cost */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-               {/* Initial Cost */}
+               {/* Initial Cost - 缩短高度 */}
                <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-xl border border-slate-100 dark:border-slate-800 md:col-span-1 flex flex-col">
                   <h2 className="text-sm font-bold flex items-center gap-2 dark:text-white mb-4"><PieChartIcon className="h-4 w-4 text-indigo-500" /> {t.chartInitialCost}</h2>
-                  <div className="flex-1 min-h-[160px] relative">
+                  <div className="flex-1 min-h-[120px] relative">
                      <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
-                          <Pie data={initialCostData} cx="50%" cy="50%" innerRadius={40} outerRadius={60} paddingAngle={5} dataKey="value">
+                          <Pie data={initialCostData} cx="50%" cy="50%" innerRadius={30} outerRadius={45} paddingAngle={5} dataKey="value">
                             {initialCostData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} stroke="none" />)}
                           </Pie>
                           <RechartsTooltip formatter={(v: number) => `${v.toFixed(1)}${t.unitWanSimple}`} contentStyle={{borderRadius:'8px', fontSize:'12px'}} />
                         </PieChart>
                      </ResponsiveContainer>
-                     <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none"><div className="text-lg font-bold text-slate-700 dark:text-white">{result.initialCosts.total.toFixed(0)}</div><div className="text-[10px] text-slate-400">{t.labelTotalInvest}</div></div>
+                     <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none"><div className="text-base font-bold text-slate-700 dark:text-white">{result.initialCosts.total.toFixed(0)}</div><div className="text-[9px] text-slate-400">{t.labelTotalInvest}</div></div>
                   </div>
                   <div className="mt-2 space-y-1">{initialCostData.map((item, i) => <div key={i} className="flex justify-between text-xs text-slate-500"><span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full" style={{background: item.color}}></span>{item.name}</span><span>{item.value.toFixed(1)}{t.unitWanSimple}</span></div>)}</div>
+                  
+                  {/* 现金流图表 */}
+                  <div className="mt-6 pt-6 border-t border-slate-100 dark:border-slate-800">
+                    <CashFlowChart data={result.monthlyCashFlow} t={t} />
+                  </div>
                </div>
 
                {/* Asset Comparison */}

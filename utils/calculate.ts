@@ -1,6 +1,6 @@
 
 
-import { InvestmentParams, RepaymentMethod, MonthlyPayment, CalculationResult, PrepaymentStrategy, StrategyResult, PrepaymentComparisonResult, StressTestResult, LoanType, AssetComparison, PurchaseScenario, LocationFactors, LocationScore, AssetComparisonItem, KnowledgeCardData, TaxParams, TaxResult, AppreciationPredictorParams, AppreciationPrediction } from '../types';
+import { InvestmentParams, RepaymentMethod, MonthlyPayment, CalculationResult, PrepaymentStrategy, StrategyResult, PrepaymentComparisonResult, StressTestResult, LoanType, AssetComparison, PurchaseScenario, LocationFactors, LocationScore, AssetComparisonItem, KnowledgeCardData, TaxParams, TaxResult, AppreciationPredictorParams, AppreciationPrediction, MonthlyCashFlow } from '../types';
 
 // Core Amortization Calculator
 // Returns the full schedule and summary stats
@@ -306,6 +306,7 @@ export const calculateInvestment = (params: InvestmentParams, t: any): Calculati
         projectedAppreciation: 0, totalRevenue: 0, totalInterestPaidInHolding: 0, riskScore: 0, riskLevel: 'Low', 
         cashFlowRisk: 0, leverageRisk: 0, breakEvenYear: null, yearlyData: [],
         assetComparison: { houseNetWorth: 0, stockNetWorth: 0, difference: 0, winner: 'Stock', housePros: [], stockPros: [], qualitative: [], knowledgeCards: [] },
+        monthlyCashFlow: [],
         totalMonthlyDebt: 0, dtiRatio: 0
       };
   }
@@ -513,6 +514,25 @@ export const calculateInvestment = (params: InvestmentParams, t: any): Calculati
     { title: t.cardDCA, content: t.cardDCADesc, icon: 'BarChart3' },
   ];
 
+  // 计算月度现金流（12个月）
+  const monthlyCashFlow: MonthlyCashFlow[] = [];
+  const monthlyRentIncome = params.monthlyRent * (1 - params.vacancyRate / 100); // 考虑空置率
+  const monthlyHoldingCost = (params.totalPrice * params.holdingCostRatio / 100 / 12) + params.propertyMaintenanceCost;
+  
+  for (let month = 1; month <= 12; month++) {
+    const rentalIncome = monthlyRentIncome;
+    const mortgagePayment = firstMonthPayment;
+    const holdingCost = monthlyHoldingCost;
+    const netCashFlow = rentalIncome - mortgagePayment - holdingCost;
+    
+    monthlyCashFlow.push({
+      month,
+      rentalIncome,
+      mortgagePayment,
+      holdingCost,
+      netCashFlow
+    });
+  }
 
   return {
     loanAmount,
@@ -548,6 +568,7 @@ export const calculateInvestment = (params: InvestmentParams, t: any): Calculati
        knowledgeCards: knowledgeCards
     },
     yearlyData,
+    monthlyCashFlow,
     totalMonthlyDebt,
     dtiRatio: dti
   };

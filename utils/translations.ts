@@ -438,6 +438,17 @@ export const TRANSLATIONS = {
     risks: '风险提示',
     opportunities: '投资机遇',
     dimensionAnalysis: '维度分析',
+    
+    // Cash Flow
+    cashFlowProjection: '现金流预测',
+    rentalIncome: '租金收入',
+    mortgagePayment: '贷款还款',
+    holdingCost: '持有成本',
+    netCashFlow: '净现金流',
+    monthlyAverage: '月均',
+    positiveFlow: '正现金流',
+    negativeFlow: '负现金流',
+    monthLabel: '第{n}月',
   },
   EN: {
     appTitle: "Smart Mortgage Advisor",

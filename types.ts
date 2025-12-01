@@ -233,6 +233,9 @@ export interface CalculationResult {
     stockNetWorth: number; // 对应机会成本的净资产
     realStockNetWorth: number; // 去除通胀后
   }[];
+  
+  // 月度现金流数据
+  monthlyCashFlow: MonthlyCashFlow[];
 }
 
 export interface StressTestResult {
@@ -272,4 +275,12 @@ export interface AppreciationPrediction {
     populationScore: number;
     industryScore: number;
   };
+}
+
+export interface MonthlyCashFlow {
+  month: number; // 1-12
+  rentalIncome: number; // 租金收入
+  mortgagePayment: number; // 贷款还款
+  holdingCost: number; // 持有成本
+  netCashFlow: number; // 净现金流
 }
