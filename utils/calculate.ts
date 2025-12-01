@@ -578,10 +578,27 @@ export const calculateStressTest = (params: InvestmentParams, t: any): StressTes
   const base = calculateInvestment(params, t);
   
   const scenarios = [
+    // 房价场景
     { name: t.scenPriceDrop, transform: (p: InvestmentParams) => ({ ...p, totalPrice: p.totalPrice * 0.9 }) },
+    { name: t.scenPriceDrop20, transform: (p: InvestmentParams) => ({ ...p, totalPrice: p.totalPrice * 0.8 }) },
+    { name: t.scenPriceUp, transform: (p: InvestmentParams) => ({ ...p, appreciationRate: p.appreciationRate + 10 }) },
+    
+    // 租金场景
     { name: t.scenRentDrop, transform: (p: InvestmentParams) => ({ ...p, monthlyRent: p.monthlyRent * 0.8 }) },
+    { name: t.scenRentDrop30, transform: (p: InvestmentParams) => ({ ...p, monthlyRent: p.monthlyRent * 0.7 }) },
+    { name: t.scenRentUp, transform: (p: InvestmentParams) => ({ ...p, monthlyRent: p.monthlyRent * 1.3 }) },
+    
+    // 利率场景
     { name: t.scenRateUp, transform: (p: InvestmentParams) => ({ ...p, interestRate: p.interestRate + 1, providentInterestRate: p.providentInterestRate + 1 }) },
-    { name: t.scenVacancy, transform: (p: InvestmentParams) => ({ ...p, vacancyRate: 20 }) }, 
+    { name: t.scenRateUp2, transform: (p: InvestmentParams) => ({ ...p, interestRate: p.interestRate + 2, providentInterestRate: p.providentInterestRate + 2 }) },
+    
+    // 其他场景
+    { name: t.scenVacancy, transform: (p: InvestmentParams) => ({ ...p, vacancyRate: 20 }) },
+    { name: t.scenHoldingCostUp, transform: (p: InvestmentParams) => ({ ...p, holdingCostRatio: p.holdingCostRatio * 1.5, propertyMaintenanceCost: p.propertyMaintenanceCost * 1.5 }) },
+    
+    // 组合场景
+    { name: t.scenCombo1, transform: (p: InvestmentParams) => ({ ...p, totalPrice: p.totalPrice * 0.9, monthlyRent: p.monthlyRent * 0.8 }) },
+    { name: t.scenCombo2, transform: (p: InvestmentParams) => ({ ...p, interestRate: p.interestRate + 1, providentInterestRate: p.providentInterestRate + 1, vacancyRate: 20 }) },
   ];
 
   if (params.holdingYears > 5) {
