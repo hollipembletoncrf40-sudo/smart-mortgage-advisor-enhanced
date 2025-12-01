@@ -1,5 +1,6 @@
 
-import { InvestmentParams, RepaymentMethod, MonthlyPayment, CalculationResult, PrepaymentStrategy, StrategyResult, PrepaymentComparisonResult, StressTestResult, LoanType, AssetComparison, PurchaseScenario, LocationFactors, LocationScore, AssetComparisonItem, KnowledgeCardData, TaxParams, TaxResult } from '../types';
+
+import { InvestmentParams, RepaymentMethod, MonthlyPayment, CalculationResult, PrepaymentStrategy, StrategyResult, PrepaymentComparisonResult, StressTestResult, LoanType, AssetComparison, PurchaseScenario, LocationFactors, LocationScore, AssetComparisonItem, KnowledgeCardData, TaxParams, TaxResult, AppreciationPredictorParams, AppreciationPrediction } from '../types';
 
 // Core Amortization Calculator
 // Returns the full schedule and summary stats
@@ -662,6 +663,126 @@ export const calculateTaxes = (params: TaxParams): TaxResult => {
       deedRate,
       vatRate,
       pitRate
+    }
+  };
+};
+
+export const predictAppreciation = (params: AppreciationPredictorParams): AppreciationPrediction => {
+  // 1. 城市等级评分 (30%)
+  let cityTierScore = 0;
+  switch (params.cityTier) {
+    case '一线': cityTierScore = 35; break;
+    case '新一线': cityTierScore = 30; break;
+    case '二线': cityTierScore = 20; break;
+    case '三线及以下': cityTierScore = 10; break;
+  }
+
+  // 2. 区域位置评分 (20%)
+  let districtScore = 0;
+  switch (params.district) {
+    case '核心区': districtScore = 20; break;
+    case '近郊': districtScore = 15; break;
+    case '远郊': districtScore = 8; break;
+  }
+
+  // 3. 政策环境评分 (15%)
+  let policyScore = 0;
+  switch (params.policyEnvironment) {
+    case '宽松': policyScore = 15; break;
+    case '中性': policyScore = 10; break;
+    case '严格': policyScore = 5; break;
+  }
+
+  // 4. 基建规划评分 (15%)
+  let infrastructureScore = 0;
+  switch (params.infrastructurePlan) {
+    case '重大规划': infrastructureScore = 15; break;
+    case '一般规划': infrastructureScore = 10; break;
+    case '无规划': infrastructureScore = 5; break;
+  }
+
+  // 5. 人口趋势评分 (10%)
+  let populationScore = 0;
+  switch (params.populationTrend) {
+    case '持续流入': populationScore = 10; break;
+    case '稳定': populationScore = 7; break;
+    case '流出': populationScore = 3; break;
+  }
+
+  // 6. 产业发展评分 (10%)
+  let industryScore = 0;
+  switch (params.industryDevelopment) {
+    case '强劲': industryScore = 10; break;
+    case '中等': industryScore = 7; break;
+    case '疲软': industryScore = 3; break;
+  }
+
+  // 总分计算
+  const score = cityTierScore + districtScore + policyScore + infrastructureScore + populationScore + industryScore;
+
+  // 等级判定和增长率预测
+  let level: 'S' | 'A' | 'B' | 'C' | 'D';
+  let baseRate: number;
+  let recommendation: string;
+  let risks: string[];
+  let opportunities: string[];
+
+  if (score >= 85) {
+    level = 'S';
+    baseRate = 6.5;
+    recommendation = '该区域具有极高的增值潜力，建议优先考虑投资。未来5年预计年均增长5-8%，适合长期持有。';
+    risks = ['市场过热风险', '政策调控可能收紧', '高位接盘风险'];
+    opportunities = ['核心地段稀缺性', '人口持续流入', '产业升级带动', '基建完善提升价值'];
+  } else if (score >= 70) {
+    level = 'A';
+    baseRate = 4;
+    recommendation = '该区域具有较高的增值潜力，投资价值良好。未来5年预计年均增长3-5%，适合中长期持有。';
+    risks = ['区域竞争加剧', '供应量增加压力', '政策不确定性'];
+    opportunities = ['城市发展红利', '配套逐步完善', '新兴产业聚集'];
+  } else if (score >= 50) {
+    level = 'B';
+    baseRate = 2;
+    recommendation = '该区域具有中等增值潜力，建议谨慎投资。未来5年预计年均增长1-3%，需关注市场变化。';
+    risks = ['增长动力不足', '人口流入放缓', '竞争激烈'];
+    opportunities = ['政策支持可能性', '基建改善空间', '价格相对合理'];
+  } else if (score >= 30) {
+    level = 'C';
+    baseRate = 0.5;
+    recommendation = '该区域增值潜力较低，不建议作为投资首选。未来5年预计年均增长0-1%，更适合自住。';
+    risks = ['市场需求疲软', '人口流出压力', '产业空心化', '政策限制'];
+    opportunities = ['价格低位', '政策转向可能', '长期自住价值'];
+  } else {
+    level = 'D';
+    baseRate = -0.5;
+    recommendation = '该区域存在较高投资风险，强烈不建议投资。未来5年可能面临价格下跌，建议避开。';
+    risks = ['市场严重过剩', '人口大量流出', '产业衰退', '政策严格限制', '流动性风险'];
+    opportunities = ['极低价抄底机会（高风险）', '政策大幅转向可能性（低概率）'];
+  }
+
+  // 生成未来5年增长率（带随机波动）
+  const yearlyRate: number[] = [];
+  for (let i = 0; i < 5; i++) {
+    // 基础增长率 + 年份衰减 + 随机波动
+    const yearDecay = i * 0.1; // 逐年递减
+    const randomFactor = (Math.random() - 0.5) * 0.5; // ±0.25%随机波动
+    const rate = Math.max(-2, Math.min(10, baseRate - yearDecay + randomFactor));
+    yearlyRate.push(Number(rate.toFixed(2)));
+  }
+
+  return {
+    score,
+    level,
+    yearlyRate,
+    recommendation,
+    risks,
+    opportunities,
+    breakdown: {
+      cityTierScore,
+      districtScore,
+      policyScore,
+      infrastructureScore,
+      populationScore,
+      industryScore
     }
   };
 };

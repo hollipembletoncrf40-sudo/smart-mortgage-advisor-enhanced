@@ -10,9 +10,9 @@ import {
   List, X, History, BadgePercent, Settings, Key, Info, BookOpen, ArrowRightLeft,
   Landmark, Loader, Download, FileText, Image as ImageIcon, FileType2, Share2, ChevronDown, CheckCircle2, XCircle, PieChart as PieChartIcon, Coins, Building2, MapPin, Globe2, Lightbulb, ClipboardCheck, ArrowDown, Home, PiggyBank
 } from 'lucide-react';
-import { InvestmentParams, RepaymentMethod, CalculationResult, ChatMessage, PrepaymentStrategy, StressTestResult, LoanType, PurchaseScenario, LocationFactors, LocationScore, AssetComparisonItem, KnowledgeCardData, Language, Currency, TaxParams, TaxResult } from './types';
+import { InvestmentParams, RepaymentMethod, CalculationResult, ChatMessage, PrepaymentStrategy, StressTestResult, LoanType, PurchaseScenario, LocationFactors, LocationScore, AssetComparisonItem, KnowledgeCardData, Language, Currency, TaxParams, TaxResult, AppreciationPredictorParams, AppreciationPrediction } from './types';
 import { TRANSLATIONS } from './utils/translations';
-import { calculateInvestment, calculateStressTest, aggregateYearlyPaymentData, calculateLocationScore, calculateTaxes } from './utils/calculate';
+import { calculateInvestment, calculateStressTest, aggregateYearlyPaymentData, calculateLocationScore, calculateTaxes, predictAppreciation } from './utils/calculate';
 import { createInvestmentChat, sendMessageToAI } from './services/geminiService';
 import { Chat } from '@google/genai';
 
@@ -583,6 +583,227 @@ const TaxCalculatorModal = ({ isOpen, onClose, t, initialPrice }: { isOpen: bool
   );
 };
 
+const AppreciationPredictorModal = ({ isOpen, onClose, t }: { isOpen: boolean; onClose: () => void; t: any }) => {
+  const [params, setParams] = useState<AppreciationPredictorParams>({
+    cityTier: '新一线',
+    district: '近郊',
+    propertyType: '住宅',
+    policyEnvironment: '中性',
+    infrastructurePlan: '一般规划',
+    populationTrend: '稳定',
+    industryDevelopment: '中等',
+  });
+
+  const [prediction, setPrediction] = useState<AppreciationPrediction | null>(null);
+
+  const handlePredict = () => {
+    const result = predictAppreciation(params);
+    setPrediction(result);
+  };
+
+  if (!isOpen) return null;
+
+  const darkMode = document.documentElement.classList.contains('dark');
+
+  const radarData = prediction ? [
+    { dimension: t.cityTier, value: prediction.breakdown.cityTierScore, fullMark: 35 },
+    { dimension: t.district, value: prediction.breakdown.districtScore, fullMark: 20 },
+    { dimension: t.policyEnv, value: prediction.breakdown.policyScore, fullMark: 15 },
+    { dimension: t.infrastructure, value: prediction.breakdown.infrastructureScore, fullMark: 15 },
+    { dimension: t.populationTrend, value: prediction.breakdown.populationScore, fullMark: 10 },
+    { dimension: t.industryDev, value: prediction.breakdown.industryScore, fullMark: 10 },
+  ] : [];
+
+  const trendData = prediction ? prediction.yearlyRate.map((rate, idx) => ({
+    year: `第${idx + 1}年`,
+    rate: rate
+  })) : [];
+
+  const getLevelColor = (level: string) => {
+    switch (level) {
+      case 'S': return 'from-purple-500 to-pink-500';
+      case 'A': return 'from-emerald-500 to-teal-500';
+      case 'B': return 'from-blue-500 to-indigo-500';
+      case 'C': return 'from-amber-500 to-orange-500';
+      case 'D': return 'from-red-500 to-rose-500';
+      default: return 'from-gray-500 to-slate-500';
+    }
+  };
+
+  const getLevelText = (level: string) => {
+    switch (level) {
+      case 'S': return t.levelS;
+      case 'A': return t.levelA;
+      case 'B': return t.levelB;
+      case 'C': return t.levelC;
+      case 'D': return t.levelD;
+      default: return '';
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={onClose}>
+      <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-4xl w-full shadow-2xl overflow-hidden max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
+        <div className="p-6 border-b border-slate-100 dark:border-slate-800 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20">
+          <div className="flex justify-between items-center">
+            <h3 className="text-xl font-bold dark:text-white flex items-center gap-2">
+              <TrendingUp className="h-6 w-6 text-indigo-500"/> {t.appreciationPredictor}
+            </h3>
+            <button onClick={onClose} className="text-slate-400 hover:text-slate-600"><X className="h-5 w-5"/></button>
+          </div>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">基于多维度分析预测房产未来增值潜力</p>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t.cityTier}</label>
+              <select value={params.cityTier} onChange={e => setParams({...params, cityTier: e.target.value as any})} className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white">
+                <option value="一线">{t.tier1}</option>
+                <option value="新一线">{t.tierNew1}</option>
+                <option value="二线">{t.tier2}</option>
+                <option value="三线及以下">{t.tier3}</option>
+              </select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t.district}</label>
+              <select value={params.district} onChange={e => setParams({...params, district: e.target.value as any})} className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white">
+                <option value="核心区">{t.districtCore}</option>
+                <option value="近郊">{t.districtNear}</option>
+                <option value="远郊">{t.districtFar}</option>
+              </select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t.propertyTypeLabel}</label>
+              <select value={params.propertyType} onChange={e => setParams({...params, propertyType: e.target.value as any})} className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white">
+                <option value="住宅">{t.propertyResidential}</option>
+                <option value="公寓">{t.propertyApartment}</option>
+                <option value="别墅">{t.propertyVilla}</option>
+              </select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t.policyEnv}</label>
+              <select value={params.policyEnvironment} onChange={e => setParams({...params, policyEnvironment: e.target.value as any})} className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white">
+                <option value="宽松">{t.policyLoose}</option>
+                <option value="中性">{t.policyNeutral}</option>
+                <option value="严格">{t.policyStrict}</option>
+              </select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t.infrastructure}</label>
+              <select value={params.infrastructurePlan} onChange={e => setParams({...params, infrastructurePlan: e.target.value as any})} className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white">
+                <option value="重大规划">{t.infraMajor}</option>
+                <option value="一般规划">{t.infraNormal}</option>
+                <option value="无规划">{t.infraNone}</option>
+              </select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t.populationTrend}</label>
+              <select value={params.populationTrend} onChange={e => setParams({...params, populationTrend: e.target.value as any})} className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white">
+                <option value="持续流入">{t.popInflow}</option>
+                <option value="稳定">{t.popStable}</option>
+                <option value="流出">{t.popOutflow}</option>
+              </select>
+            </div>
+            <div className="space-y-2 md:col-span-3">
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t.industryDev}</label>
+              <select value={params.industryDevelopment} onChange={e => setParams({...params, industryDevelopment: e.target.value as any})} className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white">
+                <option value="强劲">{t.industryStrong}</option>
+                <option value="中等">{t.industryMedium}</option>
+                <option value="疲软">{t.industryWeak}</option>
+              </select>
+            </div>
+          </div>
+
+          <button onClick={handlePredict} className="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-xl font-bold shadow-lg shadow-indigo-500/30 transition-all active:scale-[0.98]">
+            {t.predictBtn}
+          </button>
+
+          {prediction && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className={`p-6 rounded-2xl bg-gradient-to-br ${getLevelColor(prediction.level)} text-white relative overflow-hidden`}>
+                <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
+                <div className="relative z-10">
+                  <div className="text-sm font-medium opacity-90 mb-1">{t.predictionScore}</div>
+                  <div className="text-5xl font-black mb-2">{prediction.score}<span className="text-2xl opacity-75">/100</span></div>
+                  <div className="text-lg font-bold">{getLevelText(prediction.level)}</div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl">
+                  <h4 className="text-sm font-bold text-slate-700 dark:text-white mb-4">{t.dimensionAnalysis}</h4>
+                  <ResponsiveContainer width="100%" height={250}>
+                    <RadarChart data={radarData}>
+                      <PolarGrid stroke={darkMode ? '#475569' : '#cbd5e1'} />
+                      <PolarAngleAxis dataKey="dimension" tick={{fill: darkMode ? '#94a3b8' : '#64748b', fontSize: 11}} />
+                      <PolarRadiusAxis angle={90} domain={[0, 'dataMax']} tick={{fill: darkMode ? '#94a3b8' : '#64748b', fontSize: 10}} />
+                      <Radar name="评分" dataKey="value" stroke="#6366f1" fill="#6366f1" fillOpacity={0.6} />
+                    </RadarChart>
+                  </ResponsiveContainer>
+                </div>
+
+                <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl">
+                  <h4 className="text-sm font-bold text-slate-700 dark:text-white mb-4">{t.futureGrowth}</h4>
+                  <ResponsiveContainer width="100%" height={250}>
+                    <LineChart data={trendData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke={darkMode ? '#334155' : '#e2e8f0'} />
+                      <XAxis dataKey="year" tick={{fill: darkMode ? '#94a3b8' : '#64748b', fontSize: 11}} />
+                      <YAxis tick={{fill: darkMode ? '#94a3b8' : '#64748b', fontSize: 11}} />
+                      <RechartsTooltip contentStyle={{ backgroundColor: darkMode ? '#1e293b' : '#fff', borderRadius: '8px', border: 'none' }} />
+                      <Line type="monotone" dataKey="rate" stroke="#10b981" strokeWidth={3} dot={{ fill: '#10b981', r: 5 }} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+              <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl border border-blue-100 dark:border-blue-800">
+                <div className="flex items-start gap-3">
+                  <Lightbulb className="h-5 w-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
+                  <div>
+                    <div className="font-bold text-blue-900 dark:text-blue-100 mb-1">投资建议</div>
+                    <p className="text-sm text-blue-800 dark:text-blue-200 leading-relaxed">{prediction.recommendation}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-xl border border-red-100 dark:border-red-800">
+                  <div className="flex items-center gap-2 mb-3 text-red-700 dark:text-red-400 font-bold">
+                    <AlertTriangle className="h-4 w-4" /> {t.risks}
+                  </div>
+                  <ul className="space-y-2">
+                    {prediction.risks.map((risk, idx) => (
+                      <li key={idx} className="text-xs text-red-800 dark:text-red-200 flex items-start gap-2">
+                        <span className="text-red-500 mt-0.5">•</span>
+                        <span>{risk}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="bg-emerald-50 dark:bg-emerald-900/20 p-4 rounded-xl border border-emerald-100 dark:border-emerald-800">
+                  <div className="flex items-center gap-2 mb-3 text-emerald-700 dark:text-emerald-400 font-bold">
+                    <TrendingUp className="h-4 w-4" /> {t.opportunities}
+                  </div>
+                  <ul className="space-y-2">
+                    {prediction.opportunities.map((opp, idx) => (
+                      <li key={idx} className="text-xs text-emerald-800 dark:text-emerald-200 flex items-start gap-2">
+                        <span className="text-emerald-500 mt-0.5">•</span>
+                        <span>{opp}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const StressTestPanel = ({ result, params, t }: { result: CalculationResult, params: InvestmentParams, t: any }) => {
   const stressTest: StressTestResult[] = useMemo(() => calculateStressTest(params, t), [params, t]);
   return (
@@ -690,6 +911,7 @@ function App() {
   const [showLocationGuide, setShowLocationGuide] = useState(false);
   const [showBuyingProcess, setShowBuyingProcess] = useState(false);
   const [showTaxCalculator, setShowTaxCalculator] = useState(false);
+  const [showAppreciationPredictor, setShowAppreciationPredictor] = useState(false);
   const [locationScore, setLocationScore] = useState<LocationScore | null>(null);
 
   // Tour State
@@ -839,6 +1061,7 @@ function App() {
       {showLocationGuide && <LocationGuideModal onClose={() => setShowLocationGuide(false)} onApply={handleApplyLocationScore} t={t} />}
       {showBuyingProcess && <BuyingProcessModal onClose={() => setShowBuyingProcess(false)} t={t} />}
       {showTaxCalculator && <TaxCalculatorModal isOpen={showTaxCalculator} onClose={() => setShowTaxCalculator(false)} t={t} initialPrice={params.totalPrice} />}
+      {showAppreciationPredictor && <AppreciationPredictorModal isOpen={showAppreciationPredictor} onClose={() => setShowAppreciationPredictor(false)} t={t} />}
 
       {/* Header */}
       <header className="sticky top-0 z-30 backdrop-blur-xl bg-white/80 dark:bg-slate-950/80 border-b border-slate-200 dark:border-slate-800">
@@ -870,6 +1093,14 @@ function App() {
                 className="hidden md:flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-lg hover:bg-emerald-100 transition-colors border border-emerald-100 dark:border-emerald-900/30"
             >
                 <MapPin className="h-3.5 w-3.5" /> {t.locationGuide}
+            </button>
+
+            {/* New Button for Appreciation Predictor */}
+            <button 
+                onClick={() => setShowAppreciationPredictor(true)}
+                className="hidden md:flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 rounded-lg hover:bg-purple-100 transition-colors border border-purple-100 dark:border-purple-900/30"
+            >
+                <TrendingUp className="h-3.5 w-3.5" /> {t.appreciationPredictor}
             </button>
 
             <button onClick={() => setShowMethodology(true)} className="hidden md:flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"><BookOpen className="h-3.5 w-3.5" /> {t.methodology}</button>

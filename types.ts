@@ -246,3 +246,30 @@ export interface StressTestResult {
   description: string;
   totalRevenue: number; // Total revenue for this scenario
 }
+
+export interface AppreciationPredictorParams {
+  cityTier: '一线' | '新一线' | '二线' | '三线及以下';
+  district: '核心区' | '近郊' | '远郊';
+  propertyType: '住宅' | '公寓' | '别墅';
+  policyEnvironment: '宽松' | '中性' | '严格';
+  infrastructurePlan: '重大规划' | '一般规划' | '无规划';
+  populationTrend: '持续流入' | '稳定' | '流出';
+  industryDevelopment: '强劲' | '中等' | '疲软';
+}
+
+export interface AppreciationPrediction {
+  score: number; // 0-100
+  level: 'S' | 'A' | 'B' | 'C' | 'D';
+  yearlyRate: number[]; // 未来5年预测增长率
+  recommendation: string;
+  risks: string[];
+  opportunities: string[];
+  breakdown: {
+    cityTierScore: number;
+    districtScore: number;
+    policyScore: number;
+    infrastructureScore: number;
+    populationScore: number;
+    industryScore: number;
+  };
+}
