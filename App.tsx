@@ -8,7 +8,7 @@ import {
   Calculator, TrendingUp, BrainCircuit, Moon, Sun, AlertTriangle, 
   Wallet, ShieldAlert, BadgeCheck, Coffee, Send, User, Bot, BarChart3,
   List, X, History, BadgePercent, Settings, Key, Info, BookOpen, ArrowRightLeft,
-  Landmark, Loader, Download, FileText, Image as ImageIcon, FileType2, Share2, ChevronDown, CheckCircle2, XCircle, PieChart as PieChartIcon, Coins, Building2, MapPin, Globe2, Lightbulb, ClipboardCheck, ArrowDown
+  Landmark, Loader, Download, FileText, Image as ImageIcon, FileType2, Share2, ChevronDown, CheckCircle2, XCircle, PieChart as PieChartIcon, Coins, Building2, MapPin, Globe2, Lightbulb, ClipboardCheck, ArrowDown, Home, PiggyBank
 } from 'lucide-react';
 import { InvestmentParams, RepaymentMethod, CalculationResult, ChatMessage, PrepaymentStrategy, StressTestResult, LoanType, PurchaseScenario, LocationFactors, LocationScore, AssetComparisonItem, KnowledgeCardData, Language, Currency } from './types';
 import { TRANSLATIONS } from './utils/translations';
@@ -372,6 +372,86 @@ const WealthGrowthChart = ({ data, removeInflation, t }: { data: any[], removeIn
           </AreaChart>
         </ResponsiveContainer>
       ) : (<div className="flex items-center justify-center h-full text-slate-400 text-sm">{t.noData}</div>)}
+    </div>
+  );
+};
+
+const RentVsBuyChart = ({ data, t }: { data: any[], t: any }) => {
+  const darkMode = document.documentElement.classList.contains('dark');
+  return (
+    <div className="h-80 w-full min-w-0">
+      <ResponsiveContainer width="100%" height="100%">
+        <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+          <defs>
+            <linearGradient id="colorBuy" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#6366f1" stopOpacity={0.3}/><stop offset="95%" stopColor="#6366f1" stopOpacity={0}/></linearGradient>
+            <linearGradient id="colorRent" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#fbbf24" stopOpacity={0.3}/><stop offset="95%" stopColor="#fbbf24" stopOpacity={0}/></linearGradient>
+          </defs>
+          <CartesianGrid strokeDasharray="3 3" stroke={darkMode ? '#334155' : '#e2e8f0'} vertical={false} />
+          <XAxis dataKey="year" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} tickFormatter={(v)=>t.axisYear.replace('{v}', v)} />
+          <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} />
+          <RechartsTooltip contentStyle={{ backgroundColor: darkMode ? '#1e293b' : '#fff', borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} itemStyle={{ color: darkMode ? '#fff' : '#1e293b' }} formatter={(value: number) => [`${value.toFixed(2)} ${t.unitWanSimple}`, '']} />
+          <Legend iconType="circle" />
+          <Area type="monotone" dataKey="houseNetWorth" name={t.buyNetWorth} stroke="#6366f1" fillOpacity={1} fill="url(#colorBuy)" strokeWidth={2} />
+          <Area type="monotone" dataKey="stockNetWorth" name={t.rentNetWorth} stroke="#fbbf24" fillOpacity={1} fill="url(#colorRent)" strokeWidth={2} />
+        </AreaChart>
+      </ResponsiveContainer>
+    </div>
+  );
+};
+
+const RentVsBuyPanel = ({ result, params, t }: { result: CalculationResult, params: InvestmentParams, t: any }) => {
+  // Transform data for the chart: calculate houseNetWorth for each year
+  const chartData = result.yearlyData.map(d => ({
+    ...d,
+    houseNetWorth: d.propertyValue - d.remainingLoan
+  }));
+
+  const finalYear = chartData[chartData.length - 1];
+  const winner = finalYear.houseNetWorth > finalYear.stockNetWorth ? t.buyScenario : t.rentScenario;
+  const diff = Math.abs(finalYear.houseNetWorth - finalYear.stockNetWorth).toFixed(1);
+  // Note: result.breakEvenYear is based on Total Return > 0. 
+  // For Rent vs Buy, we want Net Worth Crossover.
+  const crossoverYear = chartData.find(d => d.houseNetWorth > d.stockNetWorth)?.year;
+
+  return (
+    <div className="space-y-6">
+      {params.monthlyRent === 0 && (
+        <div className="bg-amber-50 dark:bg-amber-900/20 p-3 rounded-lg flex items-start gap-3 text-sm text-amber-800 dark:text-amber-200">
+           <AlertTriangle className="w-5 h-5 shrink-0" />
+           <div>
+             For a valid "Buy vs Rent" comparison when self-occupying, please enter the <strong>Market Rent</strong> you would otherwise pay in the "Monthly Rent" field. Currently it is 0, so the "Rent" scenario assumes you live for free and invest all savings.
+           </div>
+        </div>
+      )}
+
+      <div className="flex items-center justify-between bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-100 dark:border-slate-800">
+         <div>
+           <div className="text-sm text-slate-500 dark:text-slate-400 mb-1">{t.breakevenPoint}</div>
+           <div className="text-lg font-bold text-slate-800 dark:text-white">
+             {crossoverYear ? t.breakevenDesc.replace('{year}', crossoverYear) : t.neverBreakeven}
+           </div>
+         </div>
+         <div className={`px-3 py-1 rounded-full text-xs font-bold ${finalYear.houseNetWorth > finalYear.stockNetWorth ? 'bg-indigo-100 text-indigo-600' : 'bg-amber-100 text-amber-600'}`}>
+           {t.diffAnalysis.replace('{year}', finalYear.year).replace('{winner}', winner).replace('{diff}', diff).replace('{unit}', t.unitWanSimple)}
+         </div>
+      </div>
+
+      <RentVsBuyChart data={chartData} t={t} />
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="p-4 bg-indigo-50/50 dark:bg-indigo-900/20 rounded-xl border border-indigo-100 dark:border-indigo-800">
+           <div className="flex items-center gap-2 mb-2 text-indigo-700 dark:text-indigo-400 font-bold"><Home className="h-4 w-4"/> {t.buyScenario}</div>
+           <div className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+             {t.housePro1} • {t.housePro2} • {t.housePro3}
+           </div>
+        </div>
+        <div className="p-4 bg-amber-50/50 dark:bg-amber-900/20 rounded-xl border border-amber-100 dark:border-amber-800">
+           <div className="flex items-center gap-2 mb-2 text-amber-700 dark:text-amber-400 font-bold"><PiggyBank className="h-4 w-4"/> {t.rentScenario}</div>
+           <div className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+             {t.stockPro1} • {t.stockPro2} • {t.stockPro3}
+           </div>
+        </div>
+      </div>
     </div>
   );
 };
@@ -804,6 +884,7 @@ function App() {
             <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-xl border border-slate-100 dark:border-slate-800">
                <div className="flex gap-2 mb-4 border-b border-slate-100 dark:border-slate-800 overflow-x-auto">
                    <button onClick={() => setActiveTab('chart')} className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${activeTab === 'chart' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-slate-500 hover:text-slate-700'}`}>{t.wealthCurve}</button>
+                   <button onClick={() => setActiveTab('rentVsBuy')} className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${activeTab === 'rentVsBuy' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-slate-500 hover:text-slate-700'}`}>{t.rentVsBuyAnalysis}</button>
                    <button onClick={() => setActiveTab('stress')} className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${activeTab === 'stress' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-slate-500 hover:text-slate-700'}`}>{t.stressTest}</button>
                    <button onClick={() => setActiveTab('risk')} className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${activeTab === 'risk' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-slate-500 hover:text-slate-700'}`}>{t.riskAssessment}</button>
                </div>
@@ -820,6 +901,7 @@ function App() {
                    </>
                )}
 
+               {activeTab === 'rentVsBuy' && <RentVsBuyPanel result={result} params={params} t={t} />}
                {activeTab === 'stress' && <StressTestPanel result={result} params={params} t={t} />}
                {activeTab === 'risk' && <RiskAssessmentPanel result={result} t={t} />}
             </div>
