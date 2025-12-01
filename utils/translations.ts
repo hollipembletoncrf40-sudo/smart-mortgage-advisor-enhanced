@@ -553,6 +553,22 @@ export const TRANSLATIONS = {
     tipDeedTax: 'Tax levied on property transfer. Usually 1-1.5%.',
     tipAgencyFee: 'Service fee paid to agent, usually 1-3% of price.',
     tipRenovation: 'Estimated cost for renovation and furniture. Sunk cost occupying cash flow.',
+    
+    // Tax Calculator
+    taxExplanation: 'Note: Tier 1 cities have 3% deed tax for 2nd homes. VAT applies if <2 years. Income tax exempt if >5 years & only home.',
+    calcTax: 'Calculate Taxes',
+    
+    // Cash Flow
+    cashFlowProjection: 'Cash Flow Projection',
+    rentalIncome: 'Rental Income',
+    mortgagePayment: 'Mortgage Payment',
+    holdingCost: 'Holding Cost',
+    netCashFlow: 'Net Cash Flow',
+    monthlyAverage: 'Monthly Avg',
+    positiveFlow: 'Positive Flow',
+    negativeFlow: 'Negative Flow',
+    monthLabel: 'Month {n}',
+    
     tipInterestRate: 'Annual interest rate for commercial loan.',
     tipProvidentRate: 'Annual interest rate for provident fund loan, usually lower.',
     tipProvidentQuota: 'Max loan amount allowed by Provident Fund Center.',
