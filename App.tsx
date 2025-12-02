@@ -1668,15 +1668,64 @@ function App() {
       )}
 
       {/* Footer */}
-      <footer className="bg-white dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 py-12 mt-12">
-        <div className="max-w-[1600px] mx-auto px-4 text-center">
-          <div className="text-slate-400 dark:text-slate-500 text-sm mb-4 italic">{t.footerQuote}</div>
-          <div className="flex items-center justify-center gap-2 text-slate-600 dark:text-slate-400 text-sm"><span>{t.footerCreated}</span><span>•</span><button onClick={() => setShowDonation(true)} className="text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1"><Coffee className="h-3 w-3" /> {t.footerDonate}</button><span>•</span><button onClick={() => setShowFeedback(true)} className="text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1"><Send className="h-3 w-3" /> {t.footerFeedback}</button></div>
+      <footer className="relative bg-gradient-to-br from-slate-50 via-white to-indigo-50 dark:from-slate-950 dark:via-slate-900 dark:to-indigo-950 border-t border-slate-200 dark:border-slate-800 py-16 mt-12 overflow-hidden">
+        {/* Background decoration */}
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute top-0 left-1/4 w-96 h-96 bg-indigo-500 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500 rounded-full blur-3xl"></div>
+        </div>
+        
+        <div className="max-w-[1600px] mx-auto px-4 relative z-10">
+          {/* Quote */}
+          <div className="text-center mb-8">
+            <p className="text-slate-400 dark:text-slate-500 text-sm italic max-w-2xl mx-auto">
+              {t.footerQuote}
+            </p>
+          </div>
+          
+          {/* Main content */}
+          <div className="flex flex-col items-center gap-6">
+            {/* Creator info with special styling */}
+            <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
+              <span className="text-sm">Crafted with</span>
+              <span className="text-red-500 animate-pulse">♥</span>
+              <span className="text-sm">by</span>
+              <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400">
+                Josephine
+              </span>
+            </div>
+            
+            {/* Action buttons */}
+            <div className="flex items-center gap-4 flex-wrap justify-center">
+              <button 
+                onClick={() => setShowDonation(true)} 
+                className="group flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white rounded-xl text-sm font-medium shadow-lg shadow-emerald-500/30 transition-all transform hover:scale-105"
+              >
+                <Coffee className="h-4 w-4 group-hover:rotate-12 transition-transform" />
+                {t.footerDonate}
+              </button>
+              
+              <button 
+                onClick={() => setShowFeedback(true)} 
+                className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-xl text-sm font-medium shadow-sm hover:shadow-md transition-all"
+              >
+                <Send className="h-4 w-4" />
+                {t.footerFeedback}
+              </button>
+            </div>
+            
+            {/* Appreciation message */}
+            <div className="mt-4 px-6 py-3 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm rounded-2xl border border-slate-200/50 dark:border-slate-700/50">
+              <p className="text-xs text-slate-500 dark:text-slate-400 text-center">
+                感谢您的支持 🙏 您的赞赏是我持续创作的动力
+              </p>
+            </div>
+          </div>
         </div>
       </footer>
       
       {showSettings && <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setShowSettings(false)}><div className="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}><div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center"><h3 className="text-lg font-bold dark:text-white flex items-center gap-2"><Key className="h-5 w-5 text-indigo-500"/> {t.settingsTitle}</h3><button onClick={() => setShowSettings(false)} className="text-slate-400 hover:text-slate-600"><X className="h-5 w-5"/></button></div><div className="p-6 space-y-4"><div className="space-y-2"><label className="text-sm font-medium text-slate-700 dark:text-slate-300">{t.settingsKeyLabel}</label><input type="password" value={tempApiKey} onChange={(e) => setTempApiKey(e.target.value)} placeholder={t.settingsKeyPlaceholder} className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white" /><p className="text-[10px] text-slate-400">{t.settingsKeyTip}</p></div><div className="flex gap-3 pt-2"><button onClick={() => { setTempApiKey(''); setCustomApiKey(''); localStorage.removeItem('user_gemini_api_key'); setShowSettings(false); }} className="flex-1 py-2.5 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 rounded-xl text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">{t.settingsClear}</button><button onClick={handleSaveApiKey} className="flex-1 py-2.5 bg-indigo-600 text-white rounded-xl text-sm font-bold hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-500/20">{t.settingsSave}</button></div></div></div></div>}
-      {showDonation && <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setShowDonation(false)}><div className="bg-white dark:bg-slate-900 rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl relative" onClick={e => e.stopPropagation()}><h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">{t.donationTitle}</h3><p className="text-slate-500 dark:text-slate-400 text-xs mb-6">{t.donationDesc}</p><div className="bg-emerald-500 p-4 rounded-xl inline-block mb-4 shadow-lg shadow-emerald-500/30"><div className="bg-white p-2 rounded-lg"><img src="/donation-qr.png" alt="Payment QR" className="w-48 h-48 object-contain"/></div></div><button onClick={() => setShowDonation(false)} className="block w-full text-sm text-slate-400 hover:text-slate-600 mt-2">{t.donationClose}</button></div></div>}
+      {showDonation && <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setShowDonation(false)}><div className="bg-white dark:bg-slate-900 rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl relative" onClick={e => e.stopPropagation()}><h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">{t.donationTitle}</h3><p className="text-slate-500 dark:text-slate-400 text-xs mb-6">{t.donationDesc}</p><div className="bg-emerald-500 p-4 rounded-xl inline-block mb-4 shadow-lg shadow-emerald-500/30"><div className="bg-white p-2 rounded-lg"><img src="/mm_reward_qrcode_1764664984491.png" alt="Payment QR" className="w-48 h-48 object-contain"/></div></div><button onClick={() => setShowDonation(false)} className="block w-full text-sm text-slate-400 hover:text-slate-600 mt-2">{t.donationClose}</button></div></div>}
       {showMethodology && <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setShowMethodology(false)}><div className="bg-white dark:bg-slate-900 rounded-2xl max-w-3xl w-full shadow-2xl max-h-[85vh] overflow-y-auto" onClick={e => e.stopPropagation()}><div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center sticky top-0 bg-white dark:bg-slate-900 z-10"><h3 className="text-lg font-bold dark:text-white flex items-center gap-2"><BookOpen className="h-5 w-5 text-indigo-500"/> {t.methodologyTitle}</h3><button onClick={() => setShowMethodology(false)} className="text-slate-400 hover:text-slate-600"><X className="h-5 w-5"/></button></div><div className="p-8 space-y-8 text-sm text-slate-600 dark:text-slate-300" dangerouslySetInnerHTML={{ __html: t.methodologyContent }} /></div></div>}
 
 
@@ -1697,3 +1746,4 @@ const ActionButton = ({ text, onClick }: any) => (<button onClick={onClick} clas
 const RiskBar = ({ label, score, max, color }: any) => { const colors: any = { amber: 'bg-amber-500', rose: 'bg-rose-500' }; return (<div><div className="flex justify-between mb-1.5 text-xs"><span className="text-slate-600 dark:text-slate-400">{label}</span><span className="font-bold dark:text-white">{score}/{max}</span></div><div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2.5 overflow-hidden"><div className={`h-full ${colors[color]} rounded-full transition-all duration-1000`} style={{ width: `${(score/max)*100}%` }}></div></div></div>); };
 
 export default App;
+
