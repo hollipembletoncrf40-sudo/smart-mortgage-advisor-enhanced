@@ -10,6 +10,7 @@ import {
   List, X, History, BadgePercent, Settings, Key, Info, BookOpen, ArrowRightLeft,
   Landmark, Loader, Download, FileText, Image as ImageIcon, FileType2, Share2, ChevronDown, CheckCircle2, XCircle, PieChart as PieChartIcon, Coins, Building2, MapPin, Globe2, Lightbulb, ClipboardCheck, ArrowDown, Home, PiggyBank
 } from 'lucide-react';
+import HousingTrendsPanel from './components/HousingTrendsPanel';
 import { InvestmentParams, RepaymentMethod, CalculationResult, ChatMessage, PrepaymentStrategy, StressTestResult, LoanType, PurchaseScenario, LocationFactors, LocationScore, AssetComparisonItem, KnowledgeCardData, Language, Currency, TaxParams, TaxResult, AppreciationPredictorParams, AppreciationPrediction, MonthlyCashFlow, CustomStressTestParams } from './types';
 import { TRANSLATIONS } from './utils/translations';
 import { calculateInvestment, calculateStressTest, aggregateYearlyPaymentData, calculateLocationScore, calculateTaxes, predictAppreciation } from './utils/calculate';
@@ -1169,6 +1170,7 @@ function App() {
   const [showBuyingProcess, setShowBuyingProcess] = useState(false);
   const [showTaxCalculator, setShowTaxCalculator] = useState(false);
   const [showAppreciationPredictor, setShowAppreciationPredictor] = useState(false);
+  const [showHousingTrends, setShowHousingTrends] = useState(false);
   const [showCustomStressTest, setShowCustomStressTest] = useState(false);
   const [customScenarios, setCustomScenarios] = useState<CustomStressTestParams[]>([]);
   const [locationScore, setLocationScore] = useState<LocationScore | null>(null);
@@ -1368,10 +1370,18 @@ function App() {
 
             {/* New Button for Appreciation Predictor */}
             <button 
-                onClick={() => setShowAppreciationPredictor(true)}
-                className="hidden md:flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 rounded-lg hover:bg-purple-100 transition-colors border border-purple-100 dark:border-purple-900/30"
+              onClick={() => setShowAppreciationPredictor(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-purple-50 dark:bg-purple-900/20 hover:bg-purple-100 dark:hover:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-xl transition-all text-sm font-medium border border-purple-100 dark:border-purple-900/30"
             >
-                <TrendingUp className="h-3.5 w-3.5" /> {t.appreciationPredictor}
+              <TrendingUp className="h-4 w-4" />
+              <span className="hidden sm:inline">{t.predictAppreciation}</span>
+            </button>
+            <button 
+              onClick={() => setShowHousingTrends(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-emerald-50 dark:bg-emerald-900/20 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-xl transition-all text-sm font-medium border border-emerald-100 dark:border-emerald-900/30"
+            >
+              <Building2 className="h-4 w-4" />
+              <span className="hidden sm:inline">{t.viewHousingTrends}</span>
             </button>
 
             <button onClick={() => setShowMethodology(true)} className="hidden md:flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"><BookOpen className="h-3.5 w-3.5" /> {t.methodology}</button>
@@ -1625,6 +1635,37 @@ function App() {
           </div>
         </div>
       </main>
+
+      {/* Housing Trends Modal */}
+      {showHousingTrends && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-6xl shadow-2xl border border-slate-100 dark:border-slate-800 relative animate-in fade-in zoom-in duration-200 max-h-[90vh] flex flex-col">
+            {/* Header Bar */}
+            <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-800 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 rounded-t-3xl">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-emerald-500 rounded-xl">
+                  <Building2 className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-slate-800 dark:text-white">全国房价排行榜</h2>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">住宅 2025年10月</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setShowHousingTrends(false)}
+                className="p-2.5 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl transition-colors shadow-md border border-slate-200 dark:border-slate-700"
+                title="关闭"
+              >
+                <X className="h-6 w-6 text-slate-700 dark:text-slate-300" />
+              </button>
+            </div>
+            {/* Content Area */}
+            <div className="p-6 overflow-y-auto flex-1">
+              <HousingTrendsPanel t={t} />
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Footer */}
       <footer className="bg-white dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 py-12 mt-12">

@@ -470,6 +470,18 @@ export const TRANSLATIONS = {
     positiveFlow: '正现金流',
     negativeFlow: '负现金流',
     monthLabel: '第{n}月',
+    // Housing Trends
+    housingTrendsTitle: '房价走势',
+    housingTrendsSubtitle: '全国重点城市二手房价格指数 (2022年5月=100)',
+    city: '城市',
+    latestIndex: '最新指数',
+    momChange: '环比上月',
+    yoyChange: '同比去年',
+    ytdChange: '今年以来',
+    sinceBase: '较基期',
+    dataSource: '数据来源',
+    nbs: '国家统计局',
+    viewHousingTrends: '查看房价走势',
   },
   EN: {
     appTitle: "Smart Mortgage Advisor",
