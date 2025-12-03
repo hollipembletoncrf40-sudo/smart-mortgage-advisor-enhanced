@@ -137,7 +137,7 @@ const FloatingAIAdvisor: React.FC<FloatingAIAdvisorProps> = ({ t, contextParams,
                     ? 'bg-indigo-600 text-white rounded-tr-none' 
                     : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 shadow-sm border border-slate-100 dark:border-slate-700 rounded-tl-none'
                 }`}>
-                  {msg.text}
+                  {msg.content}
                 </div>
               </div>
             ))}

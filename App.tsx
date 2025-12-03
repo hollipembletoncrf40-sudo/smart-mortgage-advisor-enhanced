@@ -15,11 +15,9 @@ import AffordabilityPanel from './components/AffordabilityPanel';
 import LifePathSimulator from './components/LifePathSimulator';
 import FloatingAIAdvisor from './components/FloatingAIAdvisor';
 import GameModePanel from './components/GameModePanel';
-import { InvestmentParams, RepaymentMethod, CalculationResult, ChatMessage, PrepaymentStrategy, StressTestResult, LoanType, PurchaseScenario, LocationFactors, LocationScore, AssetComparisonItem, KnowledgeCardData, Language, Currency, TaxParams, TaxResult, AppreciationPredictorParams, AppreciationPrediction, MonthlyCashFlow, CustomStressTestParams } from './types';
+import { InvestmentParams, RepaymentMethod, CalculationResult, PrepaymentStrategy, StressTestResult, LoanType, PurchaseScenario, LocationFactors, LocationScore, AssetComparisonItem, KnowledgeCardData, Language, Currency, TaxParams, TaxResult, AppreciationPredictorParams, AppreciationPrediction, MonthlyCashFlow, CustomStressTestParams } from './types';
 import { TRANSLATIONS } from './utils/translations';
 import { calculateInvestment, calculateStressTest, aggregateYearlyPaymentData, calculateLocationScore, calculateTaxes, predictAppreciation, calculateComprehensiveRisk, calculateAffordability } from './utils/calculate';
-import { createInvestmentChat, sendMessageToAI } from './services/geminiService';
-import { Chat } from '@google/genai';
 
 // --- Components ---
 
@@ -1381,11 +1379,7 @@ function App() {
       }
   }, [result, result?.monthlyData, chartGranularity, t]);
 
-  const [chatInstance, setChatInstance] = useState<Chat | null>(null);
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [inputMessage, setInputMessage] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+
   const [activeTab, setActiveTab] = useState('chart'); // For the new tabbed panel
 
   // --- Effects ---
@@ -1399,23 +1393,7 @@ function App() {
 
   useEffect(() => { document.documentElement.classList.toggle('dark', darkMode); }, [darkMode]);
 
-  // Pass locationScore to AI
-  useEffect(() => {
-    const chat = createInvestmentChat(params, result, customApiKey, locationScore);
-    setChatInstance(chat);
-    setMessages([{
-      id: 'welcome',
-      role: 'model',
-      content: t.aiWelcome.replace('{price}', params.totalPrice).replace('{cost}', result.initialCosts.total.toFixed(2)),
-      timestamp: Date.now()
-    }]);
-  }, [result, customApiKey, locationScore]); 
 
-  useEffect(() => { 
-    const lastMsg = messages[messages.length - 1];
-    if (lastMsg?.id === 'welcome' || lastMsg?.id === 'reset') return;
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); 
-  }, [messages, isTyping]);
 
   // --- Handlers ---
   const handleInputChange = (field: keyof InvestmentParams, value: number | string | boolean) => {
@@ -1431,26 +1409,11 @@ function App() {
     setShowSettings(false);
   };
 
-  const handleSendMessage = async (msgOverride?: string) => {
-    const msgContent = msgOverride || inputMessage;
-    if (!msgContent.trim() || !chatInstance) return;
-    const userMsg: ChatMessage = { id: Date.now().toString(), role: 'user', content: msgContent, timestamp: Date.now() };
-    setMessages(prev => [...prev, userMsg]);
-    setInputMessage("");
-    setIsTyping(true);
-    try {
-      const responseText = await sendMessageToAI(chatInstance, userMsg.content);
-      const botMsg: ChatMessage = { id: (Date.now() + 1).toString(), role: 'model', content: responseText, timestamp: Date.now() };
-      setMessages(prev => [...prev, botMsg]);
-    } catch (e) { console.error(e); setMessages(prev => [...prev, { id: Date.now().toString(), role: 'model', content: t.aiError, timestamp: Date.now() }]); } 
-    finally { setIsTyping(false); }
-  };
+
 
   const handleApplyLocationScore = (score: LocationScore) => {
     setLocationScore(score);
     setShowLocationGuide(false);
-    // Auto trigger AI to analyze the score
-    handleSendMessage(t.aiMsgLocation);
   };
 
   const handleDeleteCustomScenario = (index: number) => {
@@ -1761,33 +1724,7 @@ function App() {
               </div>
             </div>
 
-            {/* AI Chat Interface */}
-            <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-800 flex flex-col overflow-hidden flex-1">
-               <div className="p-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 flex justify-between items-center">
-                  <div className="flex items-center gap-2">
-                     <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white relative"><Bot className="h-4 w-4" />{customApiKey && <span className="absolute -top-1 -right-1 flex h-3 w-3"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span></span>}</div>
-                     <div><div className="font-bold text-sm dark:text-white">{t.aiTitle} {customApiKey ? t.aiPrivateKey : ''}</div><div className="text-[10px] text-slate-400 flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div> {t.aiOnline}</div></div>
-                  </div>
-                  <button onClick={() => { setMessages([]); const chat = createInvestmentChat(params, result!, customApiKey, locationScore); setChatInstance(chat); setMessages([{id: 'reset', role: 'model', content: t.aiReset, timestamp: Date.now()}]); }} className="p-1.5 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" title={t.restartChat}><History className="h-4 w-4" /></button>
-               </div>
-               <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50 dark:bg-slate-950/30">
-                  {messages.map((msg) => (
-                     <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                        <div className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm shadow-sm ${msg.role === 'user' ? 'bg-indigo-600 text-white rounded-br-none' : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-bl-none border border-slate-100 dark:border-slate-700'}`}>
-                           {msg.role === 'model' ? <CollapsibleMessage content={msg.content} /> : msg.content}
-                        </div>
-                     </div>
-                  ))}
-                  {isTyping && <div className="flex justify-start"><div className="bg-white dark:bg-slate-800 rounded-2xl rounded-bl-none px-4 py-3 border border-slate-100 dark:border-slate-700"><div className="flex gap-1"><span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce"></span><span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce delay-75"></span><span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce delay-150"></span></div></div></div>}
-                  <div ref={messagesEndRef} />
-               </div>
-               <div className="px-4 py-2 flex gap-2 overflow-x-auto no-scrollbar">
-                   <ActionButton text={t.aiActionReport} onClick={() => handleSendMessage(t.aiMsgReport)} />
-                   <ActionButton text={t.aiActionCompare} onClick={() => handleSendMessage(t.aiMsgCompare)} />
-                   <ActionButton text={t.aiActionLocation} onClick={() => handleSendMessage(t.aiMsgLocation)} />
-               </div>
-               <div className="p-3 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800"><form onSubmit={(e) => { e.preventDefault(); handleSendMessage(); }} className="flex items-center gap-2"><input type="text" value={inputMessage} onChange={e => setInputMessage(e.target.value)} placeholder={isTyping ? t.aiPlaceholderThinking : t.aiPlaceholderAsk} disabled={isTyping} className="flex-1 bg-slate-100 dark:bg-slate-800 border-none rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white disabled:opacity-70" /><button type="submit" disabled={!inputMessage.trim() || isTyping} className="p-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 disabled:cursor-not-allowed text-white rounded-xl shadow-lg">{isTyping ? <Loader className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}</button></form></div>
-            </div>
+
           </div>
         </div>
       </main>
@@ -1901,7 +1838,7 @@ const InputGroup = ({ label, value, onChange, subtext, step = 1, tooltip }: { la
   </div>
 );
 const MetricCard = ({ label, value, sub, color, tooltip }: any) => { const bgColors: any = { indigo: 'bg-indigo-500', violet: 'bg-violet-600', slate: 'bg-slate-800 dark:bg-slate-700', emerald: 'bg-emerald-500' }; return (<div className={`${bgColors[color]} rounded-2xl p-5 text-white shadow-lg relative overflow-hidden group`}><div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-125 transition-transform"><Wallet size={48} /></div>{tooltip && (<div className="absolute top-2 right-2 opacity-0 group-hover:opacity-50 transition-opacity"><Info className="h-4 w-4" /></div>)}<div className="relative z-10"><div className="text-indigo-100/80 text-xs font-bold uppercase tracking-wide mb-1 flex items-center gap-1">{label}</div><div className="text-2xl font-bold mb-1">{value}</div><div className="text-[10px] opacity-80">{sub}</div></div>{tooltip && (<div className="absolute inset-0 bg-black/80 flex items-center justify-center p-4 text-xs text-center opacity-0 group-hover:opacity-100 transition-opacity z-20">{tooltip}</div>)}</div>); };
-const ActionButton = ({ text, onClick }: any) => (<button onClick={onClick} className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 text-xs rounded-full border border-slate-200 dark:border-slate-700 transition-all whitespace-nowrap">{text}</button>);
+
 const RiskBar = ({ label, score, max, color }: any) => { const colors: any = { amber: 'bg-amber-500', rose: 'bg-rose-500' }; return (<div><div className="flex justify-between mb-1.5 text-xs"><span className="text-slate-600 dark:text-slate-400">{label}</span><span className="font-bold dark:text-white">{score}/{max}</span></div><div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2.5 overflow-hidden"><div className={`h-full ${colors[color]} rounded-full transition-all duration-1000`} style={{ width: `${(score/max)*100}%` }}></div></div></div>); };
 
 export default App;
