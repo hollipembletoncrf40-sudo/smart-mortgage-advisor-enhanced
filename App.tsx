@@ -1727,6 +1727,10 @@ function App() {
 
           </div>
         </div>
+
+        {/* 游戏化买房模式 - Game Mode Section */}
+        <GameModePanel params={params} t={t} />
+
       </main>
 
       {/* Housing Trends Modal */}
