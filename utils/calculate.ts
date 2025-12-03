@@ -893,8 +893,10 @@ export interface ComprehensiveRiskResult {
 }
 
 export const calculateComprehensiveRisk = (params: InvestmentParams, result: CalculationResult, t: any): ComprehensiveRiskResult => {
+  // Get monthly income from params (use familyMonthlyIncome)
+  const monthlyIncome = params.familyMonthlyIncome || 30000;
+  
   // 1. Cash Flow Risk - 现金流压力
-  const monthlyIncome = params.monthlyIncome || 30000;
   const dtiRatio = (result.monthlyPayment / monthlyIncome) * 100;
   const cashFlowScore = Math.min(100, dtiRatio * 2); // DTI > 50% = 100 score
   const cashFlowLevel = cashFlowScore < 40 ? 'low' : cashFlowScore < 70 ? 'medium' : 'high';
@@ -926,8 +928,9 @@ export const calculateComprehensiveRisk = (params: InvestmentParams, result: Cal
     : ['杠杆健康，可考虑适当投资其他资产'];
 
   // 3. Liquidity Risk - 流动性风险
-  const emergencyReserve = params.monthlyIncome * 6; // Assume 6 months reserve needed
-  const availableCash = params.totalPrice * (1 - params.loanAmount / params.totalPrice); // Down payment as proxy
+  const emergencyReserve = monthlyIncome * 6; // 6 months reserve needed
+  const downPayment = params.totalPrice * (params.downPaymentRatio / 100); // Actual down payment
+  const availableCash = Math.max(downPayment, 1); // Prevent division by zero
   const liquidityRatio = (emergencyReserve / availableCash) * 100;
   const liquidityScore = Math.min(100, liquidityRatio);
   const liquidityLevel = liquidityScore < 40 ? 'low' : liquidityScore < 70 ? 'medium' : 'high';
