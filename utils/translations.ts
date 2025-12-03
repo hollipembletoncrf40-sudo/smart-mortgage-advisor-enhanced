@@ -911,33 +911,9 @@ export const TRANSLATIONS = {
     investDiff: 'Invest Diff',
     diffAnalysis: 'At year {year}, {winner} is better by {diff} {unit}.',
     
-    // Affordability
-    affordabilityTitle: "Budget & Affordability Analysis",
-    downPaymentCapacity: "Down Payment Capacity",
-    maxAffordableMonthlyPayment: "Max Monthly Payment",
-    maxAffordablePrice: "Max Affordable Price",
-    dtiRatio: "Debt-to-Income (DTI)",
-    paymentVsIncome: "Payment vs Income",
-    incomeStressTest: "Income Stress Test",
-    stressTestIncomeDown20: "Income Down 20%",
-    stressTestRateUp1: "Rate Up 1%",
-    stressTestCombined: "Combined Scenario",
-    stressTestSafe: "Safe",
-    stressTestWarning: "Warning",
-    stressTestDanger: "Danger",
-    stressTestNewIncome: "New Income",
-    stressTestNewDTI: "New DTI",
-    stressTestShortfall: "Shortfall",
-    stressTestNewRate: "New Rate",
-    stressTestNewPayment: "New Payment",
-    stressTestExtraCost: "Extra Cost",
-    dtiSafe: "Safe (<30%)",
-    dtiWarning: "Warning (30-50%)",
-    dtiDanger: "Danger (>50%)",
-    affordabilityDesc: "Evaluate your purchasing power and financial risk based on income and savings.",
-    
-    // Housing Trends
-    housingTrendsTitle: "National Housing Trends",
+    // Life Path
+    lifePathTitle: "Life Path Simulator",
+    lifePathDesc: "Simulate asset accumulation and quality of life under different property exchange strategies.",
   },
 };
 // Add these manually to the object since we can't easily append to a specific location with cat

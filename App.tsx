@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import HousingTrendsPanel from './components/HousingTrendsPanel';
 import AffordabilityPanel from './components/AffordabilityPanel';
+import LifePathSimulator from './components/LifePathSimulator';
 import { InvestmentParams, RepaymentMethod, CalculationResult, ChatMessage, PrepaymentStrategy, StressTestResult, LoanType, PurchaseScenario, LocationFactors, LocationScore, AssetComparisonItem, KnowledgeCardData, Language, Currency, TaxParams, TaxResult, AppreciationPredictorParams, AppreciationPrediction, MonthlyCashFlow, CustomStressTestParams } from './types';
 import { TRANSLATIONS } from './utils/translations';
 import { calculateInvestment, calculateStressTest, aggregateYearlyPaymentData, calculateLocationScore, calculateTaxes, predictAppreciation, calculateComprehensiveRisk, calculateAffordability } from './utils/calculate';
@@ -1680,6 +1681,7 @@ function App() {
                    <button onClick={() => setActiveTab('stress')} className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${activeTab === 'stress' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-slate-500 hover:text-slate-700'}`}>{t.stressTest}</button>
                    <button onClick={() => setActiveTab('risk')} className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${activeTab === 'risk' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-slate-500 hover:text-slate-700'}`}>{t.riskAssessment}</button>
                    <button onClick={() => setActiveTab('affordability')} className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${activeTab === 'affordability' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-slate-500 hover:text-slate-700'}`}>{t.affordabilityTitle}</button>
+                   <button onClick={() => setActiveTab('lifePath')} className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${activeTab === 'lifePath' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-slate-500 hover:text-slate-700'}`}>{t.lifePathTitle || '人生路线'}</button>
                 </div>
 
                {activeTab === 'chart' && (
@@ -1712,6 +1714,7 @@ function App() {
                     t={t}
                   />
                 )}
+                {activeTab === 'lifePath' && <LifePathSimulator params={params} t={t} />}
              </div>
           </div>
 
