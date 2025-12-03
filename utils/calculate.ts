@@ -1053,3 +1053,157 @@ export const calculateComprehensiveRisk = (params: InvestmentParams, result: Cal
     }
   };
 };
+
+// Budget and Affordability Analysis
+export interface AffordabilityMetrics {
+  downPaymentCapacity: number; // 万元
+  maxAffordableMonthlyPayment: number; // 元
+  maxAffordablePrice: number; // 万元
+  currentDTI: number; // %
+  safetyMargin: number; // %
+  stressTests: {
+    incomeDown20: {
+      newIncome: number;
+      newDTI: number;
+      canAfford: boolean;
+      shortfall: number;
+    };
+    rateUp1: {
+      newRate: number;
+      newPayment: number;
+      newDTI: number;
+      canAfford: boolean;
+      extraCost: number;
+    };
+    combined: {
+      newIncome: number;
+      newRate: number;
+      newPayment: number;
+      newDTI: number;
+      canAfford: boolean;
+      shortfall: number;
+    };
+  };
+  incomeStressPoints: Array<{
+    incomeReduction: number; // %
+    income: number;
+    dti: number;
+    status: 'safe' | 'warning' | 'danger';
+  }>;
+}
+
+export const calculateAffordability = (params: InvestmentParams, result: CalculationResult): AffordabilityMetrics => {
+  const monthlyIncome = params.familyMonthlyIncome || 30000;
+  const currentMonthlyPayment = result.monthlyPayment;
+  const currentDTI = (currentMonthlyPayment / monthlyIncome) * 100;
+  
+  // 1. Down Payment Capacity
+  // Assume user has emergency fund + savings for down payment
+  const emergencyFund = params.emergencyFund || 0; // 万元
+  const totalSavings = emergencyFund + (monthlyIncome * 12 / 10000); // Emergency fund + 1 year savings
+  const downPaymentCapacity = Math.max(0, totalSavings * 0.7); // Use 70% of savings for down payment
+  
+  // 2. Maximum Affordable Monthly Payment (using 30% DTI as safe threshold)
+  const safeDTI = 30; // %
+  const maxAffordableMonthlyPayment = monthlyIncome * (safeDTI / 100);
+  
+  // 3. Maximum Affordable House Price
+  // Reverse calculate from max monthly payment
+  const loanTerm = params.loanTerm;
+  const interestRate = params.interestRate;
+  const monthlyRate = interestRate / 100 / 12;
+  const totalMonths = loanTerm * 12;
+  
+  let maxLoanAmount = 0;
+  if (monthlyRate > 0) {
+    maxLoanAmount = (maxAffordableMonthlyPayment * (Math.pow(1 + monthlyRate, totalMonths) - 1)) / 
+                    (monthlyRate * Math.pow(1 + monthlyRate, totalMonths));
+  } else {
+    maxLoanAmount = maxAffordableMonthlyPayment * totalMonths;
+  }
+  
+  const maxLoanAmountWan = maxLoanAmount / 10000;
+  const downPaymentRatio = params.downPaymentRatio;
+  const maxAffordablePrice = maxLoanAmountWan / (1 - downPaymentRatio / 100);
+  
+  // 4. Safety Margin
+  const safetyMargin = ((maxAffordableMonthlyPayment - currentMonthlyPayment) / currentMonthlyPayment) * 100;
+  
+  // 5. Stress Tests
+  
+  // 5a. Income drops 20%
+  const incomeDown20 = monthlyIncome * 0.8;
+  const dtiIncomeDown20 = (currentMonthlyPayment / incomeDown20) * 100;
+  const canAffordIncomeDown = dtiIncomeDown20 <= 50; // 50% is danger threshold
+  const shortfallIncomeDown = canAffordIncomeDown ? 0 : currentMonthlyPayment - (incomeDown20 * 0.5);
+  
+  // 5b. Interest rate increases 1%
+  const newRate = interestRate + 1;
+  const newMonthlyRate = newRate / 100 / 12;
+  const loanAmount = params.totalPrice * (1 - downPaymentRatio / 100);
+  const loanAmountYuan = loanAmount * 10000;
+  
+  let newPayment = 0;
+  if (newMonthlyRate > 0) {
+    newPayment = (loanAmountYuan * newMonthlyRate * Math.pow(1 + newMonthlyRate, totalMonths)) / 
+                 (Math.pow(1 + newMonthlyRate, totalMonths) - 1);
+  } else {
+    newPayment = loanAmountYuan / totalMonths;
+  }
+  
+  const dtiRateUp = (newPayment / monthlyIncome) * 100;
+  const canAffordRateUp = dtiRateUp <= 50;
+  const extraCost = newPayment - currentMonthlyPayment;
+  
+  // 5c. Combined: Income down 20% AND rate up 1%
+  const dtiCombined = (newPayment / incomeDown20) * 100;
+  const canAffordCombined = dtiCombined <= 50;
+  const shortfallCombined = canAffordCombined ? 0 : newPayment - (incomeDown20 * 0.5);
+  
+  // 6. Income Stress Points (calculate DTI at various income reduction levels)
+  const incomeStressPoints = [];
+  for (let reduction = 0; reduction <= 50; reduction += 5) {
+    const reducedIncome = monthlyIncome * (1 - reduction / 100);
+    const dti = (currentMonthlyPayment / reducedIncome) * 100;
+    const status = dti < 30 ? 'safe' : dti < 50 ? 'warning' : 'danger';
+    
+    incomeStressPoints.push({
+      incomeReduction: reduction,
+      income: reducedIncome,
+      dti: Number(dti.toFixed(1)),
+      status
+    });
+  }
+  
+  return {
+    downPaymentCapacity: Number(downPaymentCapacity.toFixed(2)),
+    maxAffordableMonthlyPayment: Number(maxAffordableMonthlyPayment.toFixed(0)),
+    maxAffordablePrice: Number(maxAffordablePrice.toFixed(2)),
+    currentDTI: Number(currentDTI.toFixed(1)),
+    safetyMargin: Number(safetyMargin.toFixed(1)),
+    stressTests: {
+      incomeDown20: {
+        newIncome: Number(incomeDown20.toFixed(0)),
+        newDTI: Number(dtiIncomeDown20.toFixed(1)),
+        canAfford: canAffordIncomeDown,
+        shortfall: Number(shortfallIncomeDown.toFixed(0))
+      },
+      rateUp1: {
+        newRate: Number(newRate.toFixed(2)),
+        newPayment: Number(newPayment.toFixed(0)),
+        newDTI: Number(dtiRateUp.toFixed(1)),
+        canAfford: canAffordRateUp,
+        extraCost: Number(extraCost.toFixed(0))
+      },
+      combined: {
+        newIncome: Number(incomeDown20.toFixed(0)),
+        newRate: Number(newRate.toFixed(2)),
+        newPayment: Number(newPayment.toFixed(0)),
+        newDTI: Number(dtiCombined.toFixed(1)),
+        canAfford: canAffordCombined,
+        shortfall: Number(shortfallCombined.toFixed(0))
+      }
+    },
+    incomeStressPoints
+  };
+};

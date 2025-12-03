@@ -11,9 +11,10 @@ import {
   Landmark, Loader, Download, FileText, Image as ImageIcon, FileType2, Share2, ChevronDown, CheckCircle2, XCircle, PieChart as PieChartIcon, Coins, Building2, MapPin, Globe2, Lightbulb, ClipboardCheck, ArrowDown, Home, PiggyBank, DollarSign, Droplets, Target
 } from 'lucide-react';
 import HousingTrendsPanel from './components/HousingTrendsPanel';
+import AffordabilityPanel from './components/AffordabilityPanel';
 import { InvestmentParams, RepaymentMethod, CalculationResult, ChatMessage, PrepaymentStrategy, StressTestResult, LoanType, PurchaseScenario, LocationFactors, LocationScore, AssetComparisonItem, KnowledgeCardData, Language, Currency, TaxParams, TaxResult, AppreciationPredictorParams, AppreciationPrediction, MonthlyCashFlow, CustomStressTestParams } from './types';
 import { TRANSLATIONS } from './utils/translations';
-import { calculateInvestment, calculateStressTest, aggregateYearlyPaymentData, calculateLocationScore, calculateTaxes, predictAppreciation, calculateComprehensiveRisk } from './utils/calculate';
+import { calculateInvestment, calculateStressTest, aggregateYearlyPaymentData, calculateLocationScore, calculateTaxes, predictAppreciation, calculateComprehensiveRisk, calculateAffordability } from './utils/calculate';
 import { createInvestmentChat, sendMessageToAI } from './services/geminiService';
 import { Chat } from '@google/genai';
 
@@ -1678,7 +1679,8 @@ function App() {
                    <button onClick={() => setActiveTab('rentVsBuy')} className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${activeTab === 'rentVsBuy' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-slate-500 hover:text-slate-700'}`}>{t.rentVsBuyAnalysis}</button>
                    <button onClick={() => setActiveTab('stress')} className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${activeTab === 'stress' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-slate-500 hover:text-slate-700'}`}>{t.stressTest}</button>
                    <button onClick={() => setActiveTab('risk')} className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${activeTab === 'risk' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-slate-500 hover:text-slate-700'}`}>{t.riskAssessment}</button>
-               </div>
+                   <button onClick={() => setActiveTab('affordability')} className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${activeTab === 'affordability' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-slate-500 hover:text-slate-700'}`}>{t.affordabilityTitle}</button>
+                </div>
 
                {activeTab === 'chart' && (
                    <>
@@ -1702,7 +1704,15 @@ function App() {
                  />
                )}
                {activeTab === 'risk' && <RiskAssessmentPanel result={result} params={params} t={t} />}
-            </div>
+                {activeTab === 'affordability' && (
+                  <AffordabilityPanel 
+                    affordability={calculateAffordability(params, result)}
+                    monthlyIncome={params.familyMonthlyIncome || 30000}
+                    monthlyPayment={result.monthlyPayment}
+                    t={t}
+                  />
+                )}
+             </div>
           </div>
 
           {/* Right Column (1/3) */}
