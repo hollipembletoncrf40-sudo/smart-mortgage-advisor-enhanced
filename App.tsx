@@ -13,7 +13,7 @@ import {
 import HousingTrendsPanel from './components/HousingTrendsPanel';
 import { InvestmentParams, RepaymentMethod, CalculationResult, ChatMessage, PrepaymentStrategy, StressTestResult, LoanType, PurchaseScenario, LocationFactors, LocationScore, AssetComparisonItem, KnowledgeCardData, Language, Currency, TaxParams, TaxResult, AppreciationPredictorParams, AppreciationPrediction, MonthlyCashFlow, CustomStressTestParams } from './types';
 import { TRANSLATIONS } from './utils/translations';
-import { calculateInvestment, calculateStressTest, aggregateYearlyPaymentData, calculateLocationScore, calculateTaxes, predictAppreciation } from './utils/calculate';
+import { calculateInvestment, calculateStressTest, aggregateYearlyPaymentData, calculateLocationScore, calculateTaxes, predictAppreciation, calculateComprehensiveRisk } from './utils/calculate';
 import { createInvestmentChat, sendMessageToAI } from './services/geminiService';
 import { Chat } from '@google/genai';
 
@@ -1081,7 +1081,6 @@ const StressTestPanel = ({ results, t, onAddCustom, onDeleteCustom }: { results:
 };
 
 const RiskAssessmentPanel = ({ result, params, t }: { result: CalculationResult, params: InvestmentParams, t: any }) => {
-  const { calculateComprehensiveRisk } = require('./utils/calculate');
   const comprehensiveRisk = calculateComprehensiveRisk(params, result, t);
   
   // Prepare radar chart data
