@@ -13,6 +13,8 @@ import {
 import HousingTrendsPanel from './components/HousingTrendsPanel';
 import AffordabilityPanel from './components/AffordabilityPanel';
 import LifePathSimulator from './components/LifePathSimulator';
+import FloatingAIAdvisor from './components/FloatingAIAdvisor';
+import GameModePanel from './components/GameModePanel';
 import { InvestmentParams, RepaymentMethod, CalculationResult, ChatMessage, PrepaymentStrategy, StressTestResult, LoanType, PurchaseScenario, LocationFactors, LocationScore, AssetComparisonItem, KnowledgeCardData, Language, Currency, TaxParams, TaxResult, AppreciationPredictorParams, AppreciationPrediction, MonthlyCashFlow, CustomStressTestParams } from './types';
 import { TRANSLATIONS } from './utils/translations';
 import { calculateInvestment, calculateStressTest, aggregateYearlyPaymentData, calculateLocationScore, calculateTaxes, predictAppreciation, calculateComprehensiveRisk, calculateAffordability } from './utils/calculate';
@@ -1720,9 +1722,6 @@ function App() {
 
           {/* Right Column (1/3) */}
           <div className="xl:col-span-1 flex flex-col gap-6 h-full" id="ai-panel">
-
-
-
             {/* Payment Schedule Chart */}
             <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-xl border border-slate-100 dark:border-slate-800">
               <div className="flex items-center justify-between mb-4">
@@ -1823,6 +1822,9 @@ function App() {
           </div>
         </div>
       )}
+
+      {/* Floating AI Advisor */}
+      <FloatingAIAdvisor t={t} contextParams={params} result={result} />
 
       {/* Footer */}
       <footer className="relative bg-gradient-to-br from-slate-50 via-white to-indigo-50 dark:from-slate-950 dark:via-slate-900 dark:to-indigo-950 border-t border-slate-200 dark:border-slate-800 py-16 mt-12 overflow-hidden">
