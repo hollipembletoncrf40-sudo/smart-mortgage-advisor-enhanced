@@ -73,10 +73,13 @@ export interface InvestmentParams {
   appreciationRate: number; // % (年涨幅)
   vacancyRate: number; // % (空置率)
   
+  
   // 现有资产 (新增)
   existingPropertyCount: number; 
   existingMonthlyDebt: number; // 元 (现有负债)
+  monthlyIncome: number; // 元 (月收入，用于DTI计算)
   purchaseScenario: PurchaseScenario;
+
 
   // 风险评估
   emergencyFund: number; // 万元

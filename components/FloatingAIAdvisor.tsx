@@ -184,6 +184,9 @@ const FloatingAIAdvisor: React.FC<FloatingAIAdvisorProps> = ({ t, contextParams,
               <button onClick={() => setInput(t.aiMsgCompare)} className="text-xs px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-lg transition-colors whitespace-nowrap border border-transparent hover:border-indigo-200 dark:hover:border-indigo-800">
                 Buy vs Invest
               </button>
+              <button onClick={() => setInput("房子评价我")} className="text-xs px-3 py-1.5 bg-purple-100 dark:bg-purple-900/30 hover:bg-purple-200 dark:hover:bg-purple-800/30 text-purple-700 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 rounded-lg transition-colors whitespace-nowrap border border-purple-300 dark:border-purple-700 hover:border-purple-400 dark:hover:border-purple-600 font-medium">
+                🏠 房子评价我
+              </button>
             </div>
           </div>
         </>

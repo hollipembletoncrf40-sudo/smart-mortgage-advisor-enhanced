@@ -15,6 +15,7 @@ import AffordabilityPanel from './components/AffordabilityPanel';
 import LifePathSimulator from './components/LifePathSimulator';
 import FloatingAIAdvisor from './components/FloatingAIAdvisor';
 import GameModePanel from './components/GameModePanel';
+import HouseRoastPanel from './components/HouseRoastPanel';
 import { InvestmentParams, RepaymentMethod, CalculationResult, PrepaymentStrategy, StressTestResult, LoanType, PurchaseScenario, LocationFactors, LocationScore, AssetComparisonItem, KnowledgeCardData, Language, Currency, TaxParams, TaxResult, AppreciationPredictorParams, AppreciationPrediction, MonthlyCashFlow, CustomStressTestParams } from './types';
 import { TRANSLATIONS } from './utils/translations';
 import { calculateInvestment, calculateStressTest, aggregateYearlyPaymentData, calculateLocationScore, calculateTaxes, predictAppreciation, calculateComprehensiveRisk, calculateAffordability } from './utils/calculate';
@@ -1356,6 +1357,7 @@ function App() {
     inflationRate: 2.5, 
     existingPropertyCount: 0,
     existingMonthlyDebt: 0,
+    monthlyIncome: 30000, // 默认月收入3万
     purchaseScenario: PurchaseScenario.FIRST_HOME
   });
 
@@ -1727,6 +1729,9 @@ function App() {
 
           </div>
         </div>
+
+        {/* 房子评价你 - House Roast Section */}
+        <HouseRoastPanel params={params} result={result} t={t} />
 
         {/* 游戏化买房模式 - Game Mode Section */}
         <GameModePanel params={params} t={t} />
