@@ -1,14 +1,14 @@
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { 
-  PieChart, Pie, Cell, Tooltip as RechartsTooltip, Legend, ResponsiveContainer,
+  PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer,
   AreaChart, Area, XAxis, YAxis, CartesianGrid, LineChart, Line, BarChart, Bar, ComposedChart, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ReferenceLine
 } from 'recharts';
 import { 
   Calculator, TrendingUp, BrainCircuit, Moon, Sun, AlertTriangle, 
   Wallet, ShieldAlert, BadgeCheck, Coffee, Send, User, Bot, BarChart3,
   List, X, History, BadgePercent, Settings, Key, Info, BookOpen, ArrowRightLeft,
-  Landmark, Loader, Download, FileText, Image as ImageIcon, FileType2, Share2, ChevronDown, CheckCircle2, XCircle, PieChart as PieChartIcon, Coins, Building2, MapPin, Globe2, Lightbulb, ClipboardCheck, ArrowDown, Home, PiggyBank
+  Landmark, Loader, Download, FileText, Image as ImageIcon, FileType2, Share2, ChevronDown, CheckCircle2, XCircle, PieChart as PieChartIcon, Coins, Building2, MapPin, Globe2, Lightbulb, ClipboardCheck, ArrowDown, Home, PiggyBank, DollarSign, Droplets, Target
 } from 'lucide-react';
 import HousingTrendsPanel from './components/HousingTrendsPanel';
 import { InvestmentParams, RepaymentMethod, CalculationResult, ChatMessage, PrepaymentStrategy, StressTestResult, LoanType, PurchaseScenario, LocationFactors, LocationScore, AssetComparisonItem, KnowledgeCardData, Language, Currency, TaxParams, TaxResult, AppreciationPredictorParams, AppreciationPrediction, MonthlyCashFlow, CustomStressTestParams } from './types';
@@ -363,7 +363,7 @@ const WealthGrowthChart = ({ data, removeInflation, t }: { data: any[], removeIn
             <CartesianGrid strokeDasharray="3 3" stroke={darkMode ? '#334155' : '#e2e8f0'} vertical={false} />
             <XAxis dataKey="year" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} tickFormatter={(v)=>t.axisYear.replace('{v}', v)} />
             <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} />
-            <RechartsTooltip contentStyle={{ backgroundColor: darkMode ? '#1e293b' : '#fff', borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} itemStyle={{ color: darkMode ? '#fff' : '#1e293b' }} formatter={(value: number) => [`${value.toFixed(2)} ${t.unitWanSimple}`, '']} />
+            <Tooltip contentStyle={{ backgroundColor: darkMode ? '#1e293b' : '#fff', borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} itemStyle={{ color: darkMode ? '#fff' : '#1e293b' }} formatter={(value: number) => [`${value.toFixed(2)} ${t.unitWanSimple}`, '']} />
             <Legend iconType="circle" />
             <Area type="monotone" dataKey="propertyValue" name={t.propertyValue} stroke="#6366f1" fillOpacity={1} fill="url(#colorProperty)" strokeWidth={2} />
             {removeInflation && <Area type="monotone" dataKey="realPropertyValue" name={t.realPropertyValue} stroke="#82ca9d" fillOpacity={1} fill="url(#colorRealProperty)" strokeWidth={2} />}
@@ -390,7 +390,7 @@ const RentVsBuyChart = ({ data, t }: { data: any[], t: any }) => {
           <CartesianGrid strokeDasharray="3 3" stroke={darkMode ? '#334155' : '#e2e8f0'} vertical={false} />
           <XAxis dataKey="year" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} tickFormatter={(v)=>t.axisYear.replace('{v}', v)} />
           <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} />
-          <RechartsTooltip contentStyle={{ backgroundColor: darkMode ? '#1e293b' : '#fff', borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} itemStyle={{ color: darkMode ? '#fff' : '#1e293b' }} formatter={(value: number) => [`${value.toFixed(2)} ${t.unitWanSimple}`, '']} />
+          <Tooltip contentStyle={{ backgroundColor: darkMode ? '#1e293b' : '#fff', borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} itemStyle={{ color: darkMode ? '#fff' : '#1e293b' }} formatter={(value: number) => [`${value.toFixed(2)} ${t.unitWanSimple}`, '']} />
           <Legend iconType="circle" />
           <Area type="monotone" dataKey="houseNetWorth" name={t.buyNetWorth} stroke="#6366f1" fillOpacity={1} fill="url(#colorBuy)" strokeWidth={2} />
           <Area type="monotone" dataKey="stockNetWorth" name={t.rentNetWorth} stroke="#fbbf24" fillOpacity={1} fill="url(#colorRent)" strokeWidth={2} />
@@ -431,7 +431,7 @@ const CashFlowChart = ({ data, t }: { data: MonthlyCashFlow[], t: any }) => {
             <CartesianGrid strokeDasharray="3 3" stroke={darkMode ? '#334155' : '#e2e8f0'} />
             <XAxis dataKey="month" tick={{fill: darkMode ? '#94a3b8' : '#64748b', fontSize: 11}} />
             <YAxis tick={{fill: darkMode ? '#94a3b8' : '#64748b', fontSize: 11}} />
-            <RechartsTooltip 
+            <Tooltip 
               contentStyle={{ backgroundColor: darkMode ? '#1e293b' : '#fff', borderRadius: '12px', border: 'none' }} 
               formatter={(value: number) => [`${Math.abs(value).toFixed(0)}元`, '']}
             />
@@ -811,7 +811,7 @@ const AppreciationPredictorModal = ({ isOpen, onClose, t }: { isOpen: boolean; o
                       <CartesianGrid strokeDasharray="3 3" stroke={darkMode ? '#334155' : '#e2e8f0'} />
                       <XAxis dataKey="year" tick={{fill: darkMode ? '#94a3b8' : '#64748b', fontSize: 11}} />
                       <YAxis tick={{fill: darkMode ? '#94a3b8' : '#64748b', fontSize: 11}} />
-                      <RechartsTooltip contentStyle={{ backgroundColor: darkMode ? '#1e293b' : '#fff', borderRadius: '8px', border: 'none' }} />
+                      <Tooltip contentStyle={{ backgroundColor: darkMode ? '#1e293b' : '#fff', borderRadius: '8px', border: 'none' }} />
                       <Line type="monotone" dataKey="rate" stroke="#10b981" strokeWidth={3} dot={{ fill: '#10b981', r: 5 }} />
                     </LineChart>
                   </ResponsiveContainer>
@@ -1080,32 +1080,177 @@ const StressTestPanel = ({ results, t, onAddCustom, onDeleteCustom }: { results:
   );
 };
 
-const RiskAssessmentPanel = ({ result, t }: { result: CalculationResult, t: any }) => {
+const RiskAssessmentPanel = ({ result, params, t }: { result: CalculationResult, params: InvestmentParams, t: any }) => {
+  const { calculateComprehensiveRisk } = require('./utils/calculate');
+  const comprehensiveRisk = calculateComprehensiveRisk(params, result, t);
+  
+  // Prepare radar chart data
+  const radarData = [
+    { dimension: '现金流', value: comprehensiveRisk.dimensions.cashFlow.score, fullMark: 100 },
+    { dimension: '杠杆', value: comprehensiveRisk.dimensions.leverage.score, fullMark: 100 },
+    { dimension: '流动性', value: comprehensiveRisk.dimensions.liquidity.score, fullMark: 100 },
+    { dimension: '市场', value: comprehensiveRisk.dimensions.market.score, fullMark: 100 },
+    { dimension: '政策', value: comprehensiveRisk.dimensions.policy.score, fullMark: 100 },
+    { dimension: '持有成本', value: comprehensiveRisk.dimensions.holdingCost.score, fullMark: 100 }
+  ];
+
+  const getRiskColor = (level: string) => {
+    return level === 'low' ? 'emerald' : level === 'medium' ? 'amber' : 'rose';
+  };
+
+  const getRiskIcon = (name: string) => {
+    const icons: any = {
+      '现金流压力': DollarSign,
+      '杠杆风险': TrendingUp,
+      '流动性风险': Droplets,
+      '市场风险': BarChart3,
+      '政策风险': FileText,
+      '持有成本风险': Home
+    };
+    return icons[name] || AlertTriangle;
+  };
+
   return (
-    <div>
-      <h2 className="font-bold dark:text-white flex items-center gap-2 mb-4"><ShieldAlert className="h-4 w-4 text-orange-500"/> {t.riskAssessment}</h2>
-      <div className="grid grid-cols-2 gap-4 mb-6">
-        <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl text-center">
-          <div className="text-xs text-slate-500 mb-1">{t.cashFlowPressure}</div>
-          <div className={`text-lg font-bold ${result.riskLevel === 'High' ? 'text-rose-500' : result.riskLevel === 'Medium' ? 'text-amber-500' : 'text-emerald-500'}`}>
-              {result.riskLevel === 'High' ? t.highRisk : result.riskLevel === 'Medium' ? t.mediumRisk : t.lowRisk}
+    <div className="space-y-6">
+      {/* Overall Risk Score */}
+      <div className="bg-gradient-to-br from-slate-50 to-indigo-50 dark:from-slate-800 dark:to-indigo-900/20 rounded-3xl p-6 border border-slate-200 dark:border-slate-700">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="font-bold text-slate-800 dark:text-white flex items-center gap-2">
+            <ShieldAlert className="h-5 w-5 text-indigo-500"/>
+            综合风险评估
+          </h2>
+          <div className={`px-4 py-2 rounded-full text-sm font-bold ${
+            comprehensiveRisk.overallLevel === 'low' 
+              ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
+              : comprehensiveRisk.overallLevel === 'medium'
+              ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+              : 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400'
+          }`}>
+            {comprehensiveRisk.overallLevel === 'low' ? '低风险' : comprehensiveRisk.overallLevel === 'medium' ? '中风险' : '高风险'}
           </div>
         </div>
-        <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl text-center">
-          <div className="text-xs text-slate-500 mb-1">{t.leverageRisk}</div>
-          <div className="text-lg font-bold text-slate-700 dark:text-slate-300">{result.leverageRisk.toFixed(0)}%</div>
+        
+        <div className="flex items-center gap-6">
+          <div className="flex-1">
+            <div className="text-4xl font-bold text-slate-800 dark:text-white mb-2">
+              {comprehensiveRisk.overallScore.toFixed(0)}
+              <span className="text-lg text-slate-400">/100</span>
+            </div>
+            <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-3 overflow-hidden">
+              <div 
+                className={`h-full rounded-full transition-all duration-1000 ${
+                  comprehensiveRisk.overallLevel === 'low' ? 'bg-emerald-500' : 
+                  comprehensiveRisk.overallLevel === 'medium' ? 'bg-amber-500' : 'bg-rose-500'
+                }`}
+                style={{ width: `${comprehensiveRisk.overallScore}%` }}
+              ></div>
+            </div>
+          </div>
         </div>
       </div>
-      <div className="space-y-4">
-        <RiskBar label={t.cashFlowPressure} score={result.cashFlowRisk} max={100} color="amber" />
-        <RiskBar label={t.leverageRisk} score={result.leverageRisk} max={100} color="rose" />
-        <div className="pt-2 text-xs text-slate-400 leading-relaxed border-t border-slate-100 dark:border-slate-800 space-y-1 mt-2">
-          <div className="flex justify-between items-center py-1 font-medium bg-slate-50 dark:bg-slate-800/50 px-2 -mx-2 rounded mt-2">
-            <span className="text-slate-600 dark:text-slate-300">{t.totalMonthlyDebtLabel}:</span>
-            <span className={`font-bold ${result.dtiRatio > 0.5 ? 'text-rose-600 dark:text-rose-400' : result.dtiRatio > 0.4 ? 'text-amber-500' : 'text-slate-700 dark:text-slate-200'}`}>¥{result.totalMonthlyDebt.toFixed(0)}</span>
+
+      {/* Radar Chart */}
+      <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-xl border border-slate-100 dark:border-slate-800">
+        <h3 className="font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
+          <Target className="h-4 w-4 text-indigo-500"/>
+          风险维度分析
+        </h3>
+        <div className="h-[300px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <RadarChart data={radarData}>
+              <PolarGrid stroke="#e2e8f0" />
+              <PolarAngleAxis dataKey="dimension" tick={{ fontSize: 12, fill: '#64748b' }} />
+              <PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fontSize: 10, fill: '#94a3b8' }} />
+              <Radar name="风险评分" dataKey="value" stroke="#6366f1" fill="#6366f1" fillOpacity={0.6} />
+              <Tooltip 
+                contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+              />
+            </RadarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* Risk Dimension Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {Object.values(comprehensiveRisk.dimensions).map((dimension: any, idx) => {
+          const Icon = getRiskIcon(dimension.name);
+          const color = getRiskColor(dimension.level);
+          
+          return (
+            <div key={idx} className="bg-white dark:bg-slate-900 rounded-2xl p-5 shadow-lg border border-slate-100 dark:border-slate-800 hover:shadow-xl transition-shadow">
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <div className={`p-2 rounded-xl bg-${color}-100 dark:bg-${color}-900/20`}>
+                    <Icon className={`h-4 w-4 text-${color}-600 dark:text-${color}-400`} />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-slate-800 dark:text-white text-sm">{dimension.name}</h4>
+                    <span className={`text-xs font-medium text-${color}-600 dark:text-${color}-400`}>
+                      {dimension.score.toFixed(0)}分
+                    </span>
+                  </div>
+                </div>
+                <span className={`px-2 py-1 rounded-full text-xs font-bold bg-${color}-100 text-${color}-700 dark:bg-${color}-900/30 dark:text-${color}-400`}>
+                  {dimension.level === 'low' ? '低' : dimension.level === 'medium' ? '中' : '高'}
+                </span>
+              </div>
+              
+              <p className="text-xs text-slate-600 dark:text-slate-400 mb-3 leading-relaxed">
+                {dimension.explanation}
+              </p>
+              
+              {dimension.suggestions.length > 0 && (
+                <div className="space-y-1">
+                  <div className="text-xs font-medium text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                    <Lightbulb className="h-3 w-3" />
+                    改善建议:
+                  </div>
+                  <ul className="space-y-1">
+                    {dimension.suggestions.slice(0, 2).map((suggestion: string, i: number) => (
+                      <li key={i} className="text-xs text-slate-600 dark:text-slate-400 flex items-start gap-1.5">
+                        <span className="text-indigo-500 mt-0.5">•</span>
+                        <span>{suggestion}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Key Metrics Summary */}
+      <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-4 border border-slate-200 dark:border-slate-700">
+        <h4 className="font-bold text-slate-700 dark:text-slate-300 text-sm mb-3 flex items-center gap-2">
+          <Info className="h-4 w-4 text-indigo-500"/>
+          关键指标
+        </h4>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="text-center">
+            <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">月供收入比</div>
+            <div className={`text-lg font-bold ${result.dtiRatio > 0.5 ? 'text-rose-500' : result.dtiRatio > 0.3 ? 'text-amber-500' : 'text-emerald-500'}`}>
+              {(result.dtiRatio * 100).toFixed(1)}%
+            </div>
           </div>
-          <div className="flex justify-between items-center"><span>{t.dtiLabel}:</span> <span className={`font-bold ${result.dtiRatio > 0.5 ? 'text-rose-500' : 'text-slate-600 dark:text-slate-300'}`}>{(result.dtiRatio * 100).toFixed(1)}%</span></div>
-          <div className="text-[10px] opacity-70 mt-1 flex items-center gap-1">{result.dtiRatio > 0.5 && <AlertTriangle className="h-3 w-3 text-rose-500"/>}* {t.dtiAdvice}</div>
+          <div className="text-center">
+            <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">贷款比例</div>
+            <div className="text-lg font-bold text-slate-700 dark:text-slate-300">
+              {(100 - params.downPaymentRatio).toFixed(0)}%
+            </div>
+          </div>
+          <div className="text-center">
+            <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">月供金额</div>
+            <div className="text-lg font-bold text-slate-700 dark:text-slate-300">
+              ¥{result.monthlyPayment.toFixed(0)}
+            </div>
+          </div>
+          <div className="text-center">
+            <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">总债务</div>
+            <div className="text-lg font-bold text-slate-700 dark:text-slate-300">
+              ¥{result.totalMonthlyDebt.toFixed(0)}
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -1486,7 +1631,7 @@ function App() {
                           <Pie data={initialCostData} cx="50%" cy="50%" innerRadius={30} outerRadius={45} paddingAngle={5} dataKey="value">
                             {initialCostData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} stroke="none" />)}
                           </Pie>
-                          <RechartsTooltip formatter={(v: number) => `${v.toFixed(1)}${t.unitWanSimple}`} contentStyle={{borderRadius:'8px', fontSize:'12px'}} />
+                          <Tooltip formatter={(v: number) => `${v.toFixed(1)}${t.unitWanSimple}`} contentStyle={{borderRadius:'8px', fontSize:'12px'}} />
                         </PieChart>
                      </ResponsiveContainer>
                      <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none"><div className="text-base font-bold text-slate-700 dark:text-white">{result.initialCosts.total.toFixed(0)}</div><div className="text-[9px] text-slate-400">{t.labelTotalInvest}</div></div>
@@ -1557,7 +1702,7 @@ function App() {
                    onDeleteCustom={handleDeleteCustomScenario}
                  />
                )}
-               {activeTab === 'risk' && <RiskAssessmentPanel result={result} t={t} />}
+               {activeTab === 'risk' && <RiskAssessmentPanel result={result} params={params} t={t} />}
             </div>
           </div>
 
@@ -1595,7 +1740,7 @@ function App() {
                     <XAxis dataKey="label" tickLine={false} axisLine={false} tick={{fontSize: 10}} />
                     <YAxis yAxisId="left" orientation="left" tickLine={false} axisLine={false} tick={{fontSize: 10}} />
                     <YAxis yAxisId="right" orientation="right" tickLine={false} axisLine={false} tick={{fontSize: 10}} />
-                    <RechartsTooltip />
+                    <Tooltip />
                     <Legend wrapperStyle={{fontSize: '11px'}} />
                     <Bar yAxisId="left" dataKey="interest" name={t.legendInterest || '支付利息'} stackId="a" fill="#f43f5e" />
                     <Bar yAxisId="left" dataKey="principal" name={t.legendPrincipal || '偿还本金'} stackId="a" fill="#10b981" />

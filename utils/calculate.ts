@@ -870,3 +870,183 @@ export const predictAppreciation = (params: AppreciationPredictorParams): Apprec
     }
   };
 };
+// Comprehensive Risk Assessment
+export interface RiskDimension {
+  name: string;
+  score: number; // 0-100, higher is riskier
+  level: 'low' | 'medium' | 'high';
+  explanation: string;
+  suggestions: string[];
+}
+
+export interface ComprehensiveRiskResult {
+  overallScore: number;
+  overallLevel: 'low' | 'medium' | 'high';
+  dimensions: {
+    cashFlow: RiskDimension;
+    leverage: RiskDimension;
+    liquidity: RiskDimension;
+    market: RiskDimension;
+    policy: RiskDimension;
+    holdingCost: RiskDimension;
+  };
+}
+
+export const calculateComprehensiveRisk = (params: InvestmentParams, result: CalculationResult, t: any): ComprehensiveRiskResult => {
+  // 1. Cash Flow Risk - 现金流压力
+  const monthlyIncome = params.monthlyIncome || 30000;
+  const dtiRatio = (result.monthlyPayment / monthlyIncome) * 100;
+  const cashFlowScore = Math.min(100, dtiRatio * 2); // DTI > 50% = 100 score
+  const cashFlowLevel = cashFlowScore < 40 ? 'low' : cashFlowScore < 70 ? 'medium' : 'high';
+  const cashFlowExplanation = dtiRatio < 30 
+    ? `月供占收入${dtiRatio.toFixed(1)}%，压力较小，财务状况健康。`
+    : dtiRatio < 50
+    ? `月供占收入${dtiRatio.toFixed(1)}%，压力适中，需保持稳定收入。`
+    : `月供占收入${dtiRatio.toFixed(1)}%，压力较大，可能影响生活质量。`;
+  const cashFlowSuggestions = dtiRatio > 50 
+    ? ['考虑延长贷款期限降低月供', '增加首付比例减少贷款额', '寻找收入更高的工作机会', '考虑出租部分房间增加收入']
+    : dtiRatio > 30
+    ? ['建立应急储备金（至少6个月月供）', '避免其他大额消费贷款', '保持收入稳定增长']
+    : ['当前现金流健康，可考虑提前还款', '可适当投资理财增加收入'];
+
+  // 2. Leverage Risk - 杠杆风险
+  const loanAmount = params.totalPrice * (1 - params.downPaymentRatio / 100);
+  const ltvRatio = (loanAmount / params.totalPrice) * 100;
+  const leverageScore = ltvRatio; // LTV itself is a good risk indicator
+  const leverageLevel = leverageScore < 60 ? 'low' : leverageScore < 80 ? 'medium' : 'high';
+  const leverageExplanation = ltvRatio < 60
+    ? `贷款比例${ltvRatio.toFixed(1)}%，杠杆适中，抗风险能力强。`
+    : ltvRatio < 80
+    ? `贷款比例${ltvRatio.toFixed(1)}%，杠杆较高，需关注房价波动。`
+    : `贷款比例${ltvRatio.toFixed(1)}%，高杠杆，房价下跌风险较大。`;
+  const leverageSuggestions = ltvRatio > 80
+    ? ['尽快积累资金降低贷款比例', '密切关注市场动态', '考虑购买房贷保险', '避免房价高位接盘']
+    : ltvRatio > 60
+    ? ['保持合理杠杆，不建议继续加杠杆', '关注房价走势，适时调整策略']
+    : ['杠杆健康，可考虑适当投资其他资产'];
+
+  // 3. Liquidity Risk - 流动性风险
+  const emergencyReserve = params.monthlyIncome * 6; // Assume 6 months reserve needed
+  const availableCash = params.totalPrice * (1 - params.loanAmount / params.totalPrice); // Down payment as proxy
+  const liquidityRatio = (emergencyReserve / availableCash) * 100;
+  const liquidityScore = Math.min(100, liquidityRatio);
+  const liquidityLevel = liquidityScore < 40 ? 'low' : liquidityScore < 70 ? 'medium' : 'high';
+  const liquidityExplanation = liquidityScore < 40
+    ? `应急储备充足，流动性风险低。`
+    : liquidityScore < 70
+    ? `应急储备一般，建议增加现金储备。`
+    : `应急储备不足，流动性风险较高，紧急情况下可能需要变卖资产。`;
+  const liquiditySuggestions = liquidityScore > 70
+    ? ['优先建立6个月以上的应急储备金', '减少非必要支出', '考虑降低首付比例保留现金', '购买短期理财保持流动性']
+    : liquidityScore > 40
+    ? ['继续积累应急储备', '保持部分资金流动性']
+    : ['流动性良好，可适当配置长期投资'];
+
+  // 4. Market Risk - 市场风险
+  const appreciationRate = params.appreciationRate || 3;
+  const marketScore = appreciationRate < 0 ? 80 : appreciationRate < 3 ? 60 : appreciationRate < 5 ? 40 : 20;
+  const marketLevel = marketScore < 40 ? 'low' : marketScore < 70 ? 'medium' : 'high';
+  const marketExplanation = appreciationRate < 0
+    ? `预期房价下跌${Math.abs(appreciationRate)}%/年，市场风险极高。`
+    : appreciationRate < 3
+    ? `预期房价涨幅${appreciationRate}%/年，低于通胀，市场风险较高。`
+    : appreciationRate < 5
+    ? `预期房价涨幅${appreciationRate}%/年，市场表现平稳。`
+    : `预期房价涨幅${appreciationRate}%/年，市场前景较好。`;
+  const marketSuggestions = appreciationRate < 3
+    ? ['重新评估购房时机', '考虑其他投资机会', '选择核心地段降低风险', '关注政策利好']
+    : appreciationRate < 5
+    ? ['保持观望，适时调整', '关注区域发展规划']
+    : ['当前市场环境良好', '可考虑长期持有'];
+
+  // 5. Policy Risk - 政策风险
+  const interestRate = params.interestRate;
+  const policyScore = interestRate > 5 ? 70 : interestRate > 4 ? 50 : 30;
+  const policyLevel = policyScore < 40 ? 'low' : policyScore < 70 ? 'medium' : 'high';
+  const policyExplanation = interestRate > 5
+    ? `当前利率${interestRate}%，处于高位，存在政策调整风险。`
+    : interestRate > 4
+    ? `当前利率${interestRate}%，处于中等水平，需关注政策变化。`
+    : `当前利率${interestRate}%，处于低位，政策环境友好。`;
+  const policySuggestions = interestRate > 5
+    ? ['关注央行降息信号', '考虑固定利率贷款', '等待更优惠的贷款政策']
+    : interestRate > 4
+    ? ['密切关注利率走势', '保持灵活调整能力']
+    : ['当前利率环境良好', '可考虑锁定低利率'];
+
+  // 6. Holding Cost Risk - 持有成本风险
+  const holdingCostRatio = params.holdingCostRatio || 0.5;
+  const vacancyRate = params.vacancyRate || 5;
+  const holdingCostScore = (holdingCostRatio * 50) + (vacancyRate * 5);
+  const holdingCostLevel = holdingCostScore < 40 ? 'low' : holdingCostScore < 70 ? 'medium' : 'high';
+  const holdingCostExplanation = holdingCostScore < 40
+    ? `持有成本${holdingCostRatio}%，空置率${vacancyRate}%，成本控制良好。`
+    : holdingCostScore < 70
+    ? `持有成本${holdingCostRatio}%，空置率${vacancyRate}%，需注意成本控制。`
+    : `持有成本${holdingCostRatio}%，空置率${vacancyRate}%，成本压力较大。`;
+  const holdingCostSuggestions = holdingCostScore > 70
+    ? ['降低空置率，提高出租率', '优化物业管理降低成本', '考虑短租提高收益', '评估是否继续持有']
+    : holdingCostScore > 40
+    ? ['保持合理出租率', '定期维护降低维修成本']
+    : ['持有成本控制良好', '可考虑长期持有'];
+
+  // Calculate Overall Score (weighted average)
+  const overallScore = (
+    cashFlowScore * 0.25 +
+    leverageScore * 0.20 +
+    liquidityScore * 0.20 +
+    marketScore * 0.15 +
+    policyScore * 0.10 +
+    holdingCostScore * 0.10
+  );
+  const overallLevel = overallScore < 40 ? 'low' : overallScore < 65 ? 'medium' : 'high';
+
+  return {
+    overallScore: Number(overallScore.toFixed(1)),
+    overallLevel,
+    dimensions: {
+      cashFlow: {
+        name: '现金流压力',
+        score: Number(cashFlowScore.toFixed(1)),
+        level: cashFlowLevel,
+        explanation: cashFlowExplanation,
+        suggestions: cashFlowSuggestions
+      },
+      leverage: {
+        name: '杠杆风险',
+        score: Number(leverageScore.toFixed(1)),
+        level: leverageLevel,
+        explanation: leverageExplanation,
+        suggestions: leverageSuggestions
+      },
+      liquidity: {
+        name: '流动性风险',
+        score: Number(liquidityScore.toFixed(1)),
+        level: liquidityLevel,
+        explanation: liquidityExplanation,
+        suggestions: liquiditySuggestions
+      },
+      market: {
+        name: '市场风险',
+        score: Number(marketScore.toFixed(1)),
+        level: marketLevel,
+        explanation: marketExplanation,
+        suggestions: marketSuggestions
+      },
+      policy: {
+        name: '政策风险',
+        score: Number(policyScore.toFixed(1)),
+        level: policyLevel,
+        explanation: policyExplanation,
+        suggestions: policySuggestions
+      },
+      holdingCost: {
+        name: '持有成本风险',
+        score: Number(holdingCostScore.toFixed(1)),
+        level: holdingCostLevel,
+        explanation: holdingCostExplanation,
+        suggestions: holdingCostSuggestions
+      }
+    }
+  };
+};
