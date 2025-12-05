@@ -8,7 +8,8 @@ import {
   Calculator, TrendingUp, BrainCircuit, Moon, Sun, AlertTriangle, 
   Wallet, ShieldAlert, BadgeCheck, Coffee, Send, User, Bot, BarChart3,
   List, X, History, BadgePercent, Settings, Key, Info, BookOpen, ArrowRightLeft,
-  Landmark, Loader, Download, FileText, Image as ImageIcon, FileType2, Share2, ChevronDown, CheckCircle2, XCircle, PieChart as PieChartIcon, Coins, Building2, MapPin, Globe2, Lightbulb, ClipboardCheck, ArrowDown, Home, PiggyBank, DollarSign, Droplets, Target
+  Landmark, Loader, Download, FileText, Image as ImageIcon, FileType2, Share2, ChevronDown, CheckCircle2, XCircle, PieChart as PieChartIcon, Coins, Building2, MapPin, Globe2, Lightbulb, ClipboardCheck, ArrowDown, Home, PiggyBank, DollarSign, Droplets, Target,
+  Compass, ChevronRight, Database, MessageCircle
 } from 'lucide-react';
 import HousingTrendsPanel from './components/HousingTrendsPanel';
 import AffordabilityPanel from './components/AffordabilityPanel';
@@ -1961,7 +1962,7 @@ function App() {
       <FloatingAIAdvisor t={t} contextParams={params} result={result} />
 
       {/* Footer */}
-      <footer className="relative bg-gradient-to-br from-slate-50 via-white to-indigo-50 dark:from-slate-950 dark:via-slate-900 dark:to-indigo-950 border-t border-slate-200 dark:border-slate-800 py-16 mt-12 overflow-hidden">
+      <footer className="relative bg-gradient-to-br from-slate-50 via-white to-indigo-50 dark:from-slate-950 dark:via-slate-900 dark:to-indigo-950 border-t border-slate-200 dark:border-slate-800 py-12 mt-12 overflow-hidden">
         {/* Background decoration */}
         <div className="absolute inset-0 opacity-5">
           <div className="absolute top-0 left-1/4 w-96 h-96 bg-indigo-500 rounded-full blur-3xl"></div>
@@ -1969,49 +1970,148 @@ function App() {
         </div>
         
         <div className="max-w-[1600px] mx-auto px-4 relative z-10">
-          {/* Quote */}
-          <div className="text-center mb-8">
-            <p className="text-slate-400 dark:text-slate-500 text-sm italic max-w-2xl mx-auto">
-              {t.footerQuote}
-            </p>
-          </div>
-          
-          {/* Main content */}
-          <div className="flex flex-col items-center gap-6">
-            {/* Creator info with special styling */}
-            <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
-              <span className="text-sm">Crafted with</span>
-              <span className="text-red-500 animate-pulse">♥</span>
-              <span className="text-sm">by</span>
-              <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400">
-                Josephine
-              </span>
-            </div>
-            
-            {/* Action buttons */}
-            <div className="flex items-center gap-4 flex-wrap justify-center">
-              <button 
-                onClick={() => setShowDonation(true)} 
-                className="group flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white rounded-xl text-sm font-medium shadow-lg shadow-emerald-500/30 transition-all transform hover:scale-105"
-              >
-                <Coffee className="h-4 w-4 group-hover:rotate-12 transition-transform" />
-                {t.footerDonate}
-              </button>
-              
-              <button 
-                onClick={() => setShowFeedback(true)} 
-                className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-xl text-sm font-medium shadow-sm hover:shadow-md transition-all"
-              >
-                <Send className="h-4 w-4" />
-                {t.footerFeedback}
-              </button>
-            </div>
-            
-            {/* Appreciation message */}
-            <div className="mt-4 px-6 py-3 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm rounded-2xl border border-slate-200/50 dark:border-slate-700/50">
-              <p className="text-xs text-slate-500 dark:text-slate-400 text-center">
-                感谢您的支持 🙏 您的赞赏是我持续创作的动力
+          {/* Main Footer Content */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+            {/* About Section */}
+            <div>
+              <h3 className="text-sm font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
+                <Home className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+                {t.footerAbout || '关于工具'}
+              </h3>
+              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed mb-3">
+                {t.footerAboutDesc || '智能房贷顾问是一个专业的房产投资决策工具，通过数据分析和可视化帮助您做出明智的购房选择。'}
               </p>
+              <p className="text-xs text-slate-500 dark:text-slate-500 italic">
+                {t.footerDisclaimer || '本工具仅供参考，不构成投资建议。'}
+              </p>
+            </div>
+
+            {/* Quick Links */}
+            <div>
+              <h3 className="text-sm font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
+                <Compass className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+                {t.footerQuickLinks || '快速导航'}
+              </h3>
+              <ul className="space-y-2 text-xs">
+                <li>
+                  <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors flex items-center gap-1">
+                    <ChevronRight className="h-3 w-3" />
+                    {t.footerHome || '首页/对比分析'}
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => setActiveTab('knowledge')} className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors flex items-center gap-1">
+                    <ChevronRight className="h-3 w-3" />
+                    {t.footerKnowledge || '知识树/词汇百科'}
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => setActiveTab('stress')} className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors flex items-center gap-1">
+                    <ChevronRight className="h-3 w-3" />
+                    {t.footerStress || '压力测试/情景模拟'}
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => setShowMethodology(true)} className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors flex items-center gap-1">
+                    <ChevronRight className="h-3 w-3" />
+                    {t.footerMethodology || '计算原理说明'}
+                  </button>
+                </li>
+              </ul>
+            </div>
+
+            {/* Data Sources */}
+            <div>
+              <h3 className="text-sm font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
+                <Database className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+                {t.footerDataSources || '数据来源'}
+              </h3>
+              <ul className="space-y-2 text-xs text-slate-600 dark:text-slate-400">
+                <li className="flex items-start gap-2">
+                  <span className="text-indigo-600 dark:text-indigo-400 mt-0.5">•</span>
+                  <span>{t.footerSourceLPR || 'LPR利率：中国人民银行'}</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-indigo-600 dark:text-indigo-400 mt-0.5">•</span>
+                  <span>{t.footerSourceStats || '房价数据：国家统计局'}</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-indigo-600 dark:text-indigo-400 mt-0.5">•</span>
+                  <span>{t.footerSourceMarket || '市场数据：公开市场信息'}</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-indigo-600 dark:text-indigo-400 mt-0.5">•</span>
+                  <span>{t.footerSourceCalc || '计算模型：标准金融公式'}</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* Help & Feedback */}
+            <div>
+              <h3 className="text-sm font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
+                <MessageCircle className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+                {t.footerHelp || '帮助与反馈'}
+              </h3>
+              <div className="space-y-3">
+                <button 
+                  onClick={() => setShowFeedback(true)} 
+                  className="w-full flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:border-indigo-300 dark:hover:border-indigo-600 rounded-lg text-xs font-medium shadow-sm hover:shadow-md transition-all"
+                >
+                  <Send className="h-3 w-3" />
+                  {t.footerFeedback || '提交反馈'}
+                </button>
+                <button 
+                  onClick={() => setShowDonation(true)} 
+                  className="w-full flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white rounded-lg text-xs font-medium shadow-lg shadow-emerald-500/30 transition-all transform hover:scale-105"
+                >
+                  <Coffee className="h-3 w-3" />
+                  {t.footerDonate || '赞赏支持'}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Risk Warning & Disclaimer */}
+          <div className="border-t border-slate-200 dark:border-slate-800 pt-6 mb-6">
+            <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-900/30 rounded-xl p-4">
+              <div className="flex items-start gap-3">
+                <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-500 flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <h4 className="text-sm font-bold text-amber-900 dark:text-amber-400 mb-2">
+                    {t.footerRiskTitle || '⚠️ 风险提示与免责声明'}
+                  </h4>
+                  <p className="text-xs text-amber-800 dark:text-amber-300 leading-relaxed">
+                    {t.footerRiskWarning || '本工具提供的所有分析和结果均基于用户输入和假设的宏观数据，仅供参考，不构成任何投资建议。房地产市场受多种因素影响，实际情况可能与预测存在差异。市场有风险，决策需谨慎。请在做出重大财务决策前咨询专业的财务顾问或房产专家。'}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom Bar */}
+          <div className="border-t border-slate-200 dark:border-slate-800 pt-6">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+              {/* Creator Info */}
+              <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
+                <span className="text-xs">Crafted with</span>
+                <span className="text-red-500 animate-pulse">♥</span>
+                <span className="text-xs">by</span>
+                <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400">
+                  Josephine
+                </span>
+              </div>
+
+              {/* Quote */}
+              <div className="text-center">
+                <p className="text-xs text-slate-400 dark:text-slate-500 italic">
+                  {t.footerQuote || '"明智的决策源于充分的信息"'}
+                </p>
+              </div>
+
+              {/* Copyright */}
+              <div className="text-xs text-slate-500 dark:text-slate-500">
+                © 2024 Smart Mortgage Advisor
+              </div>
             </div>
           </div>
         </div>
