@@ -23,6 +23,8 @@ import GoalReverseCalculator from './components/GoalReverseCalculator';
 import TokenExchangePanel from './components/TokenExchangePanel';
 import RiskHeartbeatChart from './components/RiskHeartbeatChart';
 import AmortizationMoodBar from './components/AmortizationMoodBar';
+import KnowledgeTree from './components/KnowledgeTree';
+import KnowledgeTooltip from './components/KnowledgeTooltip';
 import { InvestmentParams, RepaymentMethod, CalculationResult, PrepaymentStrategy, StressTestResult, LoanType, PurchaseScenario, LocationFactors, LocationScore, AssetComparisonItem, KnowledgeCardData, Language, Currency, TaxParams, TaxResult, AppreciationPredictorParams, AppreciationPrediction, MonthlyCashFlow, CustomStressTestParams } from './types';
 import { TRANSLATIONS } from './utils/translations';
 import { calculateInvestment, calculateStressTest, aggregateYearlyPaymentData, calculateLocationScore, calculateTaxes, predictAppreciation, calculateComprehensiveRisk, calculateAffordability } from './utils/calculate';
@@ -300,34 +302,121 @@ const LocationGuideModal = ({ onClose, onApply, t }: { onClose: () => void, onAp
 };
 
 const TourGuide = ({ onComplete, t }: { onComplete: () => void, t: any }) => {
-  // ... (TourGuide impl same as before)
   const [step, setStep] = useState(0);
   const steps = [
-    { targetId: 'header-title', title: t.tourWelcomeTitle, content: t.tourWelcomeContent, position: 'bottom' },
-    { targetId: 'input-panel', title: t.tourStep1Title, content: t.tourStep1Content, position: 'right' },
-    { targetId: 'result-panel', title: t.tourStep2Title, content: t.tourStep2Content, position: 'left' },
-    { targetId: 'comparison-panel', title: t.tourStep3Title, content: t.tourStep3Content, position: 'top' },
-    { targetId: 'ai-panel', title: t.tourStep4Title, content: t.tourStep4Content, position: 'left' }
+    { targetId: 'header-title', title: t.tourWelcomeTitle || '欢迎使用智能房贷顾问', content: t.tourWelcomeContent || '让我们快速了解如何使用这个工具来做出明智的购房决策', position: 'bottom' },
+    { targetId: 'input-panel', title: t.tourStep1Title || '输入参数', content: t.tourStep1Content || '在左侧输入您的房产信息、贷款条件和投资预期', position: 'right' },
+    { targetId: 'market-sentiment', title: '市场情绪调节', content: '拖动滑块调整市场预期，系统会自动调整房产增值率、理财收益率和贷款利率', position: 'top' },
+    { targetId: 'result-panel', title: t.tourStep2Title || '查看结果', content: t.tourStep2Content || '右侧面板显示详细的财富曲线、风险评估和知识树等多个分析维度', position: 'left' },
+    { targetId: 'knowledge-tab', title: '知识树', content: '点击"知识树"标签学习财务知识，看完一个术语后可以解锁下一个', position: 'top' }
   ];
+  
   const currentStep = steps[step];
   const handleNext = () => { if (step < steps.length - 1) setStep(step + 1); else onComplete(); };
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
+  
   useEffect(() => {
     const el = document.getElementById(currentStep.targetId);
-    if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); setTargetRect(el.getBoundingClientRect()); }
+    if (el) { 
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' }); 
+      setTimeout(() => {
+        setTargetRect(el.getBoundingClientRect());
+      }, 300);
+    }
   }, [step]);
+  
   if (!targetRect) return null;
+  
   const isMobile = window.innerWidth < 768;
-  const style: React.CSSProperties = isMobile ? { bottom: '20px', left: '50%', transform: 'translateX(-50%)', width: '90%' } : { top: currentStep.position === 'bottom' ? targetRect.bottom + 20 : currentStep.position === 'top' ? targetRect.top - 200 : targetRect.top, left: currentStep.position === 'right' ? targetRect.right + 20 : currentStep.position === 'left' ? targetRect.left - 340 : targetRect.left, transform: currentStep.position === 'top' ? 'translateY(-10px)' : 'none' };
+  const windowHeight = window.innerHeight;
+  const windowWidth = window.innerWidth;
+  
+  // Improved positioning logic to avoid blocking buttons
+  let style: React.CSSProperties = {};
+  
+  if (isMobile) {
+    // Mobile: always at bottom center
+    style = { 
+      bottom: '80px', 
+      left: '50%', 
+      transform: 'translateX(-50%)', 
+      width: '90%',
+      maxWidth: '400px'
+    };
+  } else {
+    // Desktop: smart positioning
+    const tooltipWidth = 340;
+    const tooltipHeight = 220;
+    const padding = 20;
+    
+    switch (currentStep.position) {
+      case 'bottom':
+        style = {
+          top: Math.min(targetRect.bottom + padding, windowHeight - tooltipHeight - padding),
+          left: Math.max(padding, Math.min(targetRect.left, windowWidth - tooltipWidth - padding))
+        };
+        break;
+      case 'top':
+        style = {
+          top: Math.max(padding, targetRect.top - tooltipHeight - padding),
+          left: Math.max(padding, Math.min(targetRect.left, windowWidth - tooltipWidth - padding))
+        };
+        break;
+      case 'right':
+        style = {
+          top: Math.max(padding, Math.min(targetRect.top, windowHeight - tooltipHeight - padding)),
+          left: Math.min(targetRect.right + padding, windowWidth - tooltipWidth - padding)
+        };
+        break;
+      case 'left':
+        style = {
+          top: Math.max(padding, Math.min(targetRect.top, windowHeight - tooltipHeight - padding)),
+          left: Math.max(padding, targetRect.left - tooltipWidth - padding)
+        };
+        break;
+    }
+  }
+  
   return (
     <div className="fixed inset-0 z-50 overflow-hidden">
        <div className="absolute inset-0 bg-black/60 transition-opacity" />
-       <div className="absolute border-4 border-indigo-500 rounded-xl transition-all duration-300 shadow-[0_0_0_9999px_rgba(0,0,0,0.6)] box-content pointer-events-none" style={{ top: targetRect.top - 5, left: targetRect.left - 5, width: targetRect.width + 10, height: targetRect.height + 10 }} />
-       <div className="absolute bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-2xl max-w-xs w-full animate-fade-in transition-all duration-300 z-50 border border-slate-200 dark:border-slate-700" style={isMobile ? { bottom: '40px', left: '50%', transform: 'translateX(-50%)' } : style}>
-          <div className="flex justify-between items-center mb-2"><span className="text-xs font-bold text-indigo-500 uppercase tracking-wider">{t.tourGuide} {step + 1}/{steps.length}</span><button onClick={onComplete} className="text-slate-400 hover:text-slate-600"><X className="h-4 w-4" /></button></div>
+       <div 
+         className="absolute border-4 border-indigo-500 rounded-xl transition-all duration-300 shadow-[0_0_0_9999px_rgba(0,0,0,0.6)] box-content pointer-events-none" 
+         style={{ 
+           top: targetRect.top - 5, 
+           left: targetRect.left - 5, 
+           width: targetRect.width + 10, 
+           height: targetRect.height + 10 
+         }} 
+       />
+       <div 
+         className="absolute bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-2xl w-full max-w-sm animate-fade-in transition-all duration-300 z-50 border border-slate-200 dark:border-slate-700" 
+         style={style}
+       >
+          <div className="flex justify-between items-center mb-3">
+            <span className="text-xs font-bold text-indigo-500 uppercase tracking-wider">
+              {t.tourGuide || '引导教程'} {step + 1}/{steps.length}
+            </span>
+            <button onClick={onComplete} className="text-slate-400 hover:text-slate-600 transition-colors">
+              <X className="h-4 w-4" />
+            </button>
+          </div>
           <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">{currentStep.title}</h3>
           <p className="text-sm text-slate-600 dark:text-slate-300 mb-6 leading-relaxed">{currentStep.content}</p>
-          <div className="flex justify-end gap-2"><button onClick={onComplete} className="px-3 py-1.5 text-xs text-slate-500 hover:text-slate-700 dark:text-slate-400 font-medium">{t.tourSkip}</button><button onClick={handleNext} className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-bold shadow-lg shadow-indigo-500/30 transition-all">{step === steps.length - 1 ? t.tourStart : t.tourNext}</button></div>
+          <div className="flex justify-between items-center gap-3">
+            <button 
+              onClick={onComplete} 
+              className="px-4 py-2 text-sm text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 font-medium transition-colors"
+            >
+              {t.tourSkip || '跳过'}
+            </button>
+            <button 
+              onClick={handleNext} 
+              className="flex-1 px-6 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-xl text-sm font-bold shadow-lg shadow-indigo-500/30 transition-all hover:shadow-xl"
+            >
+              {step === steps.length - 1 ? (t.tourStart || '开始使用') : (t.tourNext || '下一步')}
+            </button>
+          </div>
        </div>
     </div>
   );
@@ -1368,8 +1457,10 @@ function App() {
     purchaseScenario: PurchaseScenario.FIRST_HOME
   });
 
-  const [activeTab, setActiveTab] = useState<'chart' | 'table' | 'stress' | 'risk' | 'affordability' | 'lifePath' | 'goal' | 'token'>('chart');
+  const [activeTab, setActiveTab] = useState<'chart' | 'table' | 'stress' | 'risk' | 'affordability' | 'lifePath' | 'goal' | 'token' | 'knowledge'>('chart');
   const [rentMentalCost, setRentMentalCost] = useState(0);
+  const [showKnowledgeTree, setShowKnowledgeTree] = useState(false);
+  const [selectedKnowledgeTerm, setSelectedKnowledgeTerm] = useState<string | undefined>();
 
   // Calculate results
   const result = useMemo(() => {
@@ -1556,7 +1647,7 @@ function App() {
            
            {/* Market Sentiment Slider */}
            <div className="relative z-10 mb-6">
-             <MarketSentimentSlider params={params} onChange={(updates) => setParams({...params, ...updates})} t={t} />
+             <MarketSentimentSlider params={params} onChange={(updates) => setParams({...params, ...updates})} result={result} t={t} />
            </div>
            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-8 relative z-10">
                {/* Column 1 */}
@@ -1707,6 +1798,10 @@ function App() {
                      {t.tokenExchange || '财富兑换'}
                      {activeTab === 'token' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-indigo-600 dark:bg-indigo-400 rounded-full" />}
                    </button>
+                   <button onClick={() => setActiveTab('knowledge')} className={`pb-3 px-1 relative ${activeTab === 'knowledge' ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}>
+                     {t.knowledgeTree || '知识树'}
+                     {activeTab === 'knowledge' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-indigo-600 dark:bg-indigo-400 rounded-full" />}
+                   </button>
                 </div>
 
                {activeTab === 'chart' && (
@@ -1750,6 +1845,17 @@ function App() {
                  )}
                  {activeTab === 'token' && (
                    <TokenExchangePanel result={result} params={params} t={t} />
+                 )}
+
+                 {activeTab === 'knowledge' && (
+                   <div className="py-4">
+                     <KnowledgeTree
+                       isOpen={true}
+                       onClose={() => setActiveTab('chart')}
+                       selectedTermId={selectedKnowledgeTerm}
+                       t={t}
+                     />
+                   </div>
                  )}
              </div>
           </div>

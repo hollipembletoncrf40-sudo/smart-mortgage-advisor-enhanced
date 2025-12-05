@@ -75,21 +75,11 @@ const DetailedPaymentTable: React.FC<DetailedPaymentTableProps> = ({ result, t }
     <div className="flex flex-col overflow-hidden h-[750px] border-t border-slate-100 dark:border-slate-800">
       {/* 标题栏 */}
       <div className="p-4 border-b border-slate-100 dark:border-slate-800 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <Calendar className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-            <h3 className="text-base font-bold text-slate-800 dark:text-white">
-              详细还款计划
-            </h3>
-          </div>
-          <button
-            onClick={exportToCSV}
-            className="flex items-center gap-1 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs rounded-lg transition-colors"
-            title="导出CSV"
-          >
-            <Download className="h-3.5 w-3.5" />
-            导出
-          </button>
+        <div className="flex items-center gap-2 mb-3">
+          <Calendar className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+          <h3 className="text-base font-bold text-slate-800 dark:text-white">
+            详细还款计划
+          </h3>
         </div>
 
         {/* 视图切换 */}

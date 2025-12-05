@@ -1,18 +1,16 @@
-import React from 'react';
-import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
-import { InvestmentParams } from '../types';
+import React, { useMemo } from 'react';
+import { TrendingUp, TrendingDown, Minus, AlertCircle, Info, Sparkles } from 'lucide-react';
+import { InvestmentParams, CalculationResult } from '../types';
 
 interface MarketSentimentSliderProps {
   params: InvestmentParams;
   onChange: (updates: Partial<InvestmentParams>) => void;
+  result?: CalculationResult;
   t: any;
 }
 
-const MarketSentimentSlider: React.FC<MarketSentimentSliderProps> = ({ params, onChange, t }) => {
+const MarketSentimentSlider: React.FC<MarketSentimentSliderProps> = ({ params, onChange, result, t }) => {
   // Calculate current sentiment value (0-100) based on appreciation rate
-  // Bearish (-2%) -> 0
-  // Neutral (3%) -> 50
-  // Bullish (8%) -> 100
   const getSliderValue = () => {
     const rate = params.appreciationRate;
     if (rate <= -2) return 0;
@@ -23,85 +21,222 @@ const MarketSentimentSlider: React.FC<MarketSentimentSliderProps> = ({ params, o
   const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = Number(e.target.value);
     
-    // Map 0-100 back to rates
-    // Appreciation: -2% to 8%
-    const newAppreciation = -2 + (val / 100) * 10;
+    // Map 0-100 to different parameters based on market sentiment
+    const newAppreciation = -2 + (val / 100) * 10; // -2% to 8%
     
-    // Investment Return: 2% to 8% (Bearish market often implies lower alternative returns too, or higher safety seeking)
-    // Let's map: 0 -> 2%, 50 -> 4%, 100 -> 8%
+    // Investment Return: More dynamic based on sentiment
     let newReturn = 4;
     if (val < 50) {
-        newReturn = 2 + (val / 50) * 2;
+      newReturn = 2 + (val / 50) * 2; // 2% to 4%
     } else {
-        newReturn = 4 + ((val - 50) / 50) * 4;
+      newReturn = 4 + ((val - 50) / 50) * 4; // 4% to 8%
     }
+
+    // Interest rate adjustment (inverse relationship with market sentiment)
+    // Bullish market often means higher rates, bearish means lower rates
+    const baseRate = 4.2;
+    const rateAdjustment = ((val - 50) / 50) * 0.5; // ±0.5%
+    const newInterestRate = baseRate + rateAdjustment;
 
     onChange({
       appreciationRate: Number(newAppreciation.toFixed(1)),
-      alternativeReturnRate: Number(newReturn.toFixed(1))
+      alternativeReturnRate: Number(newReturn.toFixed(1)),
+      interestRate: Number(newInterestRate.toFixed(2))
     });
   };
 
-  const getSentimentLabel = (val: number) => {
-    if (val < 30) return { text: t.sentimentBearish || '悲观 (熊市)', color: 'text-green-600', icon: TrendingDown };
-    if (val > 70) return { text: t.sentimentBullish || '乐观 (牛市)', color: 'text-red-600', icon: TrendingUp };
-    return { text: t.sentimentNeutral || '中性 (震荡)', color: 'text-slate-600', icon: Minus };
+  const getSentimentData = (val: number) => {
+    if (val < 30) {
+      return {
+        text: t.sentimentBearish || '悲观 (熊市)',
+        color: 'text-green-600 dark:text-green-400',
+        bgColor: 'bg-green-50 dark:bg-green-900/20',
+        borderColor: 'border-green-200 dark:border-green-900',
+        icon: TrendingDown,
+        description: '市场低迷，房价可能下跌，但贷款利率较低',
+        advice: '适合有稳定收入、风险承受能力强的购房者',
+        impacts: [
+          { label: '房价', trend: 'down', value: '下行压力' },
+          { label: '利率', trend: 'down', value: '相对较低' },
+          { label: '租金', trend: 'stable', value: '相对稳定' }
+        ]
+      };
+    }
+    if (val > 70) {
+      return {
+        text: t.sentimentBullish || '乐观 (牛市)',
+        color: 'text-red-600 dark:text-red-400',
+        bgColor: 'bg-red-50 dark:bg-red-900/20',
+        borderColor: 'border-red-200 dark:border-red-900',
+        icon: TrendingUp,
+        description: '市场繁荣，房价上涨，但贷款成本增加',
+        advice: '需要评估高房价和高利率的双重压力',
+        impacts: [
+          { label: '房价', trend: 'up', value: '快速上涨' },
+          { label: '利率', trend: 'up', value: '相对较高' },
+          { label: '租金', trend: 'up', value: '同步上涨' }
+        ]
+      };
+    }
+    return {
+      text: t.sentimentNeutral || '中性 (震荡)',
+      color: 'text-slate-600 dark:text-slate-400',
+      bgColor: 'bg-slate-50 dark:bg-slate-800/50',
+      borderColor: 'border-slate-200 dark:border-slate-700',
+      icon: Minus,
+      description: '市场平稳，各项指标处于合理区间',
+      advice: '适合大多数购房者的常规市场环境',
+      impacts: [
+        { label: '房价', trend: 'stable', value: '平稳增长' },
+        { label: '利率', trend: 'stable', value: '中等水平' },
+        { label: '租金', trend: 'stable', value: '稳定增长' }
+      ]
+    };
   };
 
   const currentVal = getSliderValue();
-  const label = getSentimentLabel(currentVal);
-  const Icon = label.icon;
+  const sentimentData = getSentimentData(currentVal);
+  const Icon = sentimentData.icon;
+
+  // Calculate impact preview
+  const impactPreview = useMemo(() => {
+    if (!result) return null;
+    
+    const buyAdvantage = result.assetComparison.houseNetWorth - result.assetComparison.stockNetWorth;
+    const buyAdvantagePercent = ((buyAdvantage / result.assetComparison.stockNetWorth) * 100).toFixed(1);
+    
+    return {
+      buyAdvantage,
+      buyAdvantagePercent,
+      recommendation: buyAdvantage > 0 ? '买房更优' : '租房投资更优'
+    };
+  }, [result]);
+
+  const getTrendIcon = (trend: string) => {
+    if (trend === 'up') return <TrendingUp className="h-3 w-3 text-red-500" />;
+    if (trend === 'down') return <TrendingDown className="h-3 w-3 text-green-500" />;
+    return <Minus className="h-3 w-3 text-slate-400" />;
+  };
 
   return (
-    <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm mb-4">
-      <div className="flex items-center justify-between mb-2">
-        <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-          {t.marketSentiment || '市场情绪调节'}
-        </label>
-        <div className={`flex items-center gap-1 text-xs font-bold ${label.color}`}>
-          <Icon className="h-3.5 w-3.5" />
-          {label.text}
+    <div className={`p-5 rounded-2xl border-2 ${sentimentData.borderColor} ${sentimentData.bgColor} shadow-lg transition-all duration-300`}>
+      {/* Header */}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <Sparkles className="h-5 w-5 text-indigo-500" />
+          <label className="text-sm font-bold text-slate-700 dark:text-white">
+            {t.marketSentiment || '市场情绪调节'}
+          </label>
+        </div>
+        <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full ${sentimentData.bgColor} border ${sentimentData.borderColor}`}>
+          <Icon className={`h-4 w-4 ${sentimentData.color}`} />
+          <span className={`text-xs font-bold ${sentimentData.color}`}>{sentimentData.text}</span>
         </div>
       </div>
-      
-      <div className="relative h-6 flex items-center">
-        <div className="absolute w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-           <div 
-             className="h-full bg-gradient-to-r from-green-500 via-slate-400 to-red-500 opacity-50" 
-             style={{ width: '100%' }}
-           />
+
+      {/* Slider */}
+      <div className="relative h-8 flex items-center mb-4">
+        <div className="absolute w-full h-3 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden shadow-inner">
+          <div 
+            className="h-full bg-gradient-to-r from-green-500 via-slate-400 to-red-500" 
+            style={{ width: '100%' }}
+          />
         </div>
         <input
           type="range"
           min="0"
           max="100"
-          step="10"
+          step="5"
           value={currentVal}
           onChange={handleSliderChange}
-          className="absolute w-full h-2 opacity-0 cursor-pointer z-10"
+          className="absolute w-full h-3 opacity-0 cursor-pointer z-10"
         />
         <div 
-          className="absolute h-5 w-5 bg-white dark:bg-slate-700 border-2 border-indigo-500 rounded-full shadow-md pointer-events-none transition-all"
-          style={{ left: `calc(${currentVal}% - 10px)` }}
-        />
+          className="absolute h-6 w-6 bg-white dark:bg-slate-800 border-3 border-indigo-500 rounded-full shadow-lg pointer-events-none transition-all duration-200 flex items-center justify-center"
+          style={{ left: `calc(${currentVal}% - 12px)` }}
+        >
+          <div className="h-2 w-2 bg-indigo-500 rounded-full" />
+        </div>
       </div>
 
-      <div className="flex justify-between mt-2 text-[10px] text-slate-400 font-medium">
+      <div className="flex justify-between mb-4 text-[10px] text-slate-500 dark:text-slate-400 font-medium">
         <span>悲观预期</span>
         <span>中性预期</span>
         <span>乐观预期</span>
       </div>
-      
-      <div className="mt-3 grid grid-cols-2 gap-2 text-xs bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg">
-         <div className="flex justify-between">
-            <span className="text-slate-500">房产增值:</span>
-            <span className="font-bold text-slate-700 dark:text-slate-300">{params.appreciationRate.toFixed(1)}%</span>
-         </div>
-         <div className="flex justify-between">
-            <span className="text-slate-500">理财收益:</span>
-            <span className="font-bold text-slate-700 dark:text-slate-300">{params.alternativeReturnRate.toFixed(1)}%</span>
-         </div>
+
+      {/* Description */}
+      <div className="mb-4 p-3 bg-white/50 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-700">
+        <div className="flex items-start gap-2 mb-2">
+          <Info className="h-4 w-4 text-indigo-500 flex-shrink-0 mt-0.5" />
+          <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+            {sentimentData.description}
+          </p>
+        </div>
+        <div className="flex items-start gap-2">
+          <AlertCircle className="h-4 w-4 text-amber-500 flex-shrink-0 mt-0.5" />
+          <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+            {sentimentData.advice}
+          </p>
+        </div>
       </div>
+
+      {/* Parameter Display */}
+      <div className="grid grid-cols-3 gap-2 mb-4">
+        <div className="bg-white dark:bg-slate-900 p-2 rounded-lg border border-slate-200 dark:border-slate-700">
+          <div className="text-[10px] text-slate-500 mb-1">房产增值</div>
+          <div className="text-sm font-bold text-slate-800 dark:text-white">
+            {params.appreciationRate.toFixed(1)}%
+          </div>
+        </div>
+        <div className="bg-white dark:bg-slate-900 p-2 rounded-lg border border-slate-200 dark:border-slate-700">
+          <div className="text-[10px] text-slate-500 mb-1">理财收益</div>
+          <div className="text-sm font-bold text-slate-800 dark:text-white">
+            {params.alternativeReturnRate.toFixed(1)}%
+          </div>
+        </div>
+        <div className="bg-white dark:bg-slate-900 p-2 rounded-lg border border-slate-200 dark:border-slate-700">
+          <div className="text-[10px] text-slate-500 mb-1">贷款利率</div>
+          <div className="text-sm font-bold text-slate-800 dark:text-white">
+            {params.interestRate.toFixed(2)}%
+          </div>
+        </div>
+      </div>
+
+      {/* Market Impact Indicators */}
+      <div className="mb-4">
+        <div className="text-xs font-bold text-slate-600 dark:text-slate-400 mb-2">市场影响</div>
+        <div className="grid grid-cols-3 gap-2">
+          {sentimentData.impacts.map((impact, index) => (
+            <div key={index} className="bg-white dark:bg-slate-900 p-2 rounded-lg border border-slate-200 dark:border-slate-700">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[10px] text-slate-500">{impact.label}</span>
+                {getTrendIcon(impact.trend)}
+              </div>
+              <div className="text-[10px] font-medium text-slate-700 dark:text-slate-300">
+                {impact.value}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Impact Preview */}
+      {impactPreview && (
+        <div className="p-3 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-xl border border-indigo-200 dark:border-indigo-900">
+          <div className="text-xs font-bold text-indigo-700 dark:text-indigo-300 mb-1">
+            当前情绪下的结果预测
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-slate-600 dark:text-slate-400">
+              {impactPreview.recommendation}
+            </span>
+            <span className={`text-sm font-bold ${impactPreview.buyAdvantage > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+              {impactPreview.buyAdvantage > 0 ? '+' : ''}{impactPreview.buyAdvantagePercent}%
+            </span>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

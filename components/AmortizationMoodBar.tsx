@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Smile, Meh, Frown, Calendar, TrendingUp } from 'lucide-react';
 import { CalculationResult, InvestmentParams } from '../types';
+import PaymentCalendar from './PaymentCalendar';
 
 interface AmortizationMoodBarProps {
   result: CalculationResult;
@@ -10,6 +11,7 @@ interface AmortizationMoodBarProps {
 
 const AmortizationMoodBar: React.FC<AmortizationMoodBarProps> = ({ result, params, t }) => {
   const [selectedPeriod, setSelectedPeriod] = useState(0); // 0 = Year 1
+  const [showCalendar, setShowCalendar] = useState(false);
   
   // Calculate yearly aggregated data
   const yearlyData = useMemo(() => {
@@ -75,6 +77,15 @@ const AmortizationMoodBar: React.FC<AmortizationMoodBarProps> = ({ result, param
 
   const interestRatio = 100 - currentYear.principalRatio;
 
+  const handleDateSelect = (year: number, month: number) => {
+    // Find the period index based on year
+    const periodIndex = year - 1;
+    if (periodIndex >= 0 && periodIndex < yearlyData.length) {
+      setSelectedPeriod(periodIndex);
+    }
+    setShowCalendar(false);
+  };
+
   return (
     <div className="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 rounded-3xl p-6 shadow-xl border border-slate-200 dark:border-slate-700">
       <div className="flex items-center justify-between mb-4">
@@ -82,13 +93,29 @@ const AmortizationMoodBar: React.FC<AmortizationMoodBarProps> = ({ result, param
           <TrendingUp className="h-4 w-4 text-indigo-500" />
           {t.amortizationMood || '还款心情条'}
         </h3>
-        <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+        <button
+          onClick={() => setShowCalendar(!showCalendar)}
+          className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 hover:bg-indigo-200 dark:hover:bg-indigo-900/50 transition-colors text-xs font-medium text-indigo-700 dark:text-indigo-400"
+        >
           <Calendar className="h-3 w-3" />
-          {t.selectYear || '选择年份'}
-        </div>
+          {t.year || '年'} {currentYear.year}
+        </button>
       </div>
 
-      {/* Year Selector */}
+      {/* Calendar Modal */}
+      {showCalendar && (
+        <div className="mb-4 p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-lg animate-in slide-in-from-top-2">
+          <PaymentCalendar
+            onDateSelect={handleDateSelect}
+            selectedYear={currentYear.year}
+            selectedMonth={0}
+            paymentData={yearlyData.map((y, i) => ({ year: i + 1, month: 0, principalRatio: y.principalRatio }))}
+            t={t}
+          />
+        </div>
+      )}
+
+      {/* Year Slider for Quick Navigation */}
       <div className="mb-4">
         <input
           type="range"
