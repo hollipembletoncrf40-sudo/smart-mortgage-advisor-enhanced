@@ -25,6 +25,8 @@ import RiskHeartbeatChart from './components/RiskHeartbeatChart';
 import AmortizationMoodBar from './components/AmortizationMoodBar';
 import KnowledgeTree from './components/KnowledgeTree';
 import KnowledgeTooltip from './components/KnowledgeTooltip';
+import AISettingsModal from './components/AISettingsModal';
+import { loadAIConfig, sendAIMessage, AIMessage, getProviderName } from './utils/aiProvider';
 import { InvestmentParams, RepaymentMethod, CalculationResult, PrepaymentStrategy, StressTestResult, LoanType, PurchaseScenario, LocationFactors, LocationScore, AssetComparisonItem, KnowledgeCardData, Language, Currency, TaxParams, TaxResult, AppreciationPredictorParams, AppreciationPrediction, MonthlyCashFlow, CustomStressTestParams } from './types';
 import { TRANSLATIONS } from './utils/translations';
 import { calculateInvestment, calculateStressTest, aggregateYearlyPaymentData, calculateLocationScore, calculateTaxes, predictAppreciation, calculateComprehensiveRisk, calculateAffordability } from './utils/calculate';
@@ -1423,6 +1425,7 @@ function App() {
 
   // Custom API Key State
   const [customApiKey, setCustomApiKey] = useState("");
+  const [aiConfig, setAIConfig] = useState(loadAIConfig());
   const [tempApiKey, setTempApiKey] = useState(""); 
 
   const [params, setParams] = useState<InvestmentParams>({
@@ -1631,7 +1634,7 @@ function App() {
 
             <button onClick={() => setShowMethodology(true)} className="hidden md:flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"><BookOpen className="h-3.5 w-3.5" /> {t.methodology}</button>
             <button onClick={toggleLanguage} className="px-3 py-1.5 text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">{language === 'ZH' ? 'EN' : '中文'}</button>
-            <button onClick={() => setShowSettings(true)} className="p-2.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-slate-500 dark:text-slate-400 relative"><Settings className="h-5 w-5" />{customApiKey && <span className="absolute top-2 right-2 w-2 h-2 bg-emerald-500 rounded-full border border-white dark:border-slate-900"></span>}</button>
+            <button onClick={() => setShowSettings(true)} className="p-2.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-slate-500 dark:text-slate-400 relative" title={`AI: ${getProviderName(aiConfig.provider)}`}><Settings className="h-5 w-5" />{aiConfig.apiKey && <span className="absolute top-2 right-2 w-2 h-2 bg-emerald-500 rounded-full border border-white dark:border-slate-900"></span>}</button>
             <button onClick={() => setDarkMode(!darkMode)} className="p-2.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-slate-500 dark:text-slate-400">{darkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}</button>
           </div>
         </div>
@@ -2014,7 +2017,7 @@ function App() {
         </div>
       </footer>
       
-      {showSettings && <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setShowSettings(false)}><div className="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}><div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center"><h3 className="text-lg font-bold dark:text-white flex items-center gap-2"><Key className="h-5 w-5 text-indigo-500"/> {t.settingsTitle}</h3><button onClick={() => setShowSettings(false)} className="text-slate-400 hover:text-slate-600"><X className="h-5 w-5"/></button></div><div className="p-6 space-y-4"><div className="space-y-2"><label className="text-sm font-medium text-slate-700 dark:text-slate-300">{t.settingsKeyLabel}</label><input type="password" value={tempApiKey} onChange={(e) => setTempApiKey(e.target.value)} placeholder={t.settingsKeyPlaceholder} className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white" /><p className="text-[10px] text-slate-400">{t.settingsKeyTip}</p></div><div className="flex gap-3 pt-2"><button onClick={() => { setTempApiKey(''); setCustomApiKey(''); localStorage.removeItem('user_gemini_api_key'); setShowSettings(false); }} className="flex-1 py-2.5 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 rounded-xl text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">{t.settingsClear}</button><button onClick={handleSaveApiKey} className="flex-1 py-2.5 bg-indigo-600 text-white rounded-xl text-sm font-bold hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-500/20">{t.settingsSave}</button></div></div></div></div>}
+      <AISettingsModal isOpen={showSettings} onClose={() => { setShowSettings(false); setAIConfig(loadAIConfig()); }} t={t} />
       {showDonation && <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setShowDonation(false)}><div className="bg-white dark:bg-slate-900 rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl relative" onClick={e => e.stopPropagation()}><h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">{t.donationTitle}</h3><p className="text-slate-500 dark:text-slate-400 text-xs mb-6">{t.donationDesc}</p><div className="bg-emerald-500 p-4 rounded-xl inline-block mb-4 shadow-lg shadow-emerald-500/30"><div className="bg-white p-2 rounded-lg"><img src="/mm_reward_qrcode_1764664984491.png" alt="Payment QR" className="w-48 h-48 object-contain"/></div></div><button onClick={() => setShowDonation(false)} className="block w-full text-sm text-slate-400 hover:text-slate-600 mt-2">{t.donationClose}</button></div></div>}
       {showMethodology && <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setShowMethodology(false)}><div className="bg-white dark:bg-slate-900 rounded-2xl max-w-3xl w-full shadow-2xl max-h-[85vh] overflow-y-auto" onClick={e => e.stopPropagation()}><div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center sticky top-0 bg-white dark:bg-slate-900 z-10"><h3 className="text-lg font-bold dark:text-white flex items-center gap-2"><BookOpen className="h-5 w-5 text-indigo-500"/> {t.methodologyTitle}</h3><button onClick={() => setShowMethodology(false)} className="text-slate-400 hover:text-slate-600"><X className="h-5 w-5"/></button></div><div className="p-8 space-y-8 text-sm text-slate-600 dark:text-slate-300" dangerouslySetInnerHTML={{ __html: t.methodologyContent }} /></div></div>}
 
