@@ -71,6 +71,7 @@ export interface InvestmentParams {
   holdingCostRatio: number; // % (持有成本占房产总价的比例，如物业、维修、税费)
   propertyMaintenanceCost: number; // 万元/年 (固定维护费)
   appreciationRate: number; // % (年涨幅)
+  rentAppreciationRate: number; // % (租金年涨幅)
   vacancyRate: number; // % (空置率)
   
   

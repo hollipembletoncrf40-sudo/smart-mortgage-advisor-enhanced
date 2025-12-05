@@ -16,6 +16,10 @@ import LifePathSimulator from './components/LifePathSimulator';
 import FloatingAIAdvisor from './components/FloatingAIAdvisor';
 import GameModePanel from './components/GameModePanel';
 import HouseRoastPanel from './components/HouseRoastPanel';
+import DetailedPaymentTable from './components/DetailedPaymentTable';
+import MarketSentimentSlider from './components/MarketSentimentSlider';
+import RentHiddenCostCalculator from './components/RentHiddenCostCalculator';
+import GoalReverseCalculator from './components/GoalReverseCalculator';
 import { InvestmentParams, RepaymentMethod, CalculationResult, PrepaymentStrategy, StressTestResult, LoanType, PurchaseScenario, LocationFactors, LocationScore, AssetComparisonItem, KnowledgeCardData, Language, Currency, TaxParams, TaxResult, AppreciationPredictorParams, AppreciationPrediction, MonthlyCashFlow, CustomStressTestParams } from './types';
 import { TRANSLATIONS } from './utils/translations';
 import { calculateInvestment, calculateStressTest, aggregateYearlyPaymentData, calculateLocationScore, calculateTaxes, predictAppreciation, calculateComprehensiveRisk, calculateAffordability } from './utils/calculate';
@@ -1361,7 +1365,41 @@ function App() {
     purchaseScenario: PurchaseScenario.FIRST_HOME
   });
 
-  const result = useMemo(() => calculateInvestment(params, t), [params, t]);
+  const [activeTab, setActiveTab] = useState<'chart' | 'table' | 'stress' | 'risk' | 'affordability' | 'lifePath' | 'goal'>('chart');
+  const [rentMentalCost, setRentMentalCost] = useState(0);
+
+  // Calculate results
+  const result = useMemo(() => {
+    const baseResult = calculateInvestment(params, t);
+    // Add mental cost to rent scenario total cost
+    // Note: This is a simplified addition. Ideally, it should be year-by-year in the calculation logic.
+    // For now, we'll add it to the final total cost of renting for display purposes.
+    // Or better, we can inject it into the monthly cash flow if we modify the calculation function.
+    // Since we can't easily modify calculate.ts right now without a big refactor, let's just add it to the result object here if possible,
+    // or just display it. 
+    // Wait, the user wants it to be "included in the total expenditure of the investment path for comparison".
+    // "Investment Path" usually refers to Buy. "Rent Path" is the comparison.
+    // The request says: "Rent Hidden Cost" should be added to the RENT path's cost, making Renting MORE expensive, thus making Buying look relatively better (or closer).
+    // Let's add it to the Rent Total Cost.
+    
+    if (rentMentalCost > 0) {
+        const years = params.holdingYears;
+        const totalMentalCost = rentMentalCost * years * 12 / 10000; // Convert monthly mental cost to total over holding years in 'wan'
+        
+        // Adjust Stock Net Worth (Rent Scenario) by subtracting the mental cost
+        baseResult.assetComparison.stockNetWorth -= totalMentalCost;
+        baseResult.assetComparison.difference = baseResult.assetComparison.houseNetWorth - baseResult.assetComparison.stockNetWorth;
+        baseResult.assetComparison.winner = baseResult.assetComparison.houseNetWorth > baseResult.assetComparison.stockNetWorth ? 'House' : 'Stock';
+        
+        // Update text if needed (simplified)
+        if (baseResult.assetComparison.winner === 'House') {
+             baseResult.assetComparison.housePros[0] = t.netWorthMore.replace('{amount}', baseResult.assetComparison.difference.toFixed(1));
+        } else {
+             baseResult.assetComparison.stockPros[0] = t.netWorthMore.replace('{amount}', (-baseResult.assetComparison.difference).toFixed(1));
+        }
+    }
+    return baseResult;
+  }, [params, rentMentalCost, t]);
   const stressTestResults = useMemo(() => calculateStressTest(params, t, customScenarios), [params, t, customScenarios]);
   const scheduleChartData = useMemo(() => {
       if (!result || !result.monthlyData || result.monthlyData.length === 0) {
@@ -1382,7 +1420,7 @@ function App() {
   }, [result, result?.monthlyData, chartGranularity, t]);
 
 
-  const [activeTab, setActiveTab] = useState('chart'); // For the new tabbed panel
+  // const [activeTab, setActiveTab] = useState('chart'); // For the new tabbed panel
 
   // --- Effects ---
   useEffect(() => {
@@ -1512,6 +1550,11 @@ function App() {
         <section id="input-panel" className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-xl border border-slate-100 dark:border-slate-800 relative overflow-hidden transition-all duration-300">
            {/* ... (Existing inputs, logic preserved but now in wider container) ... */}
            <div className="flex items-center gap-2 mb-6 text-slate-800 dark:text-white font-bold text-lg relative z-10"><List className="h-5 w-5 text-indigo-500" /> {t.inputPanelTitle}</div>
+           
+           {/* Market Sentiment Slider */}
+           <div className="relative z-10 mb-6">
+             <MarketSentimentSlider params={params} onChange={(updates) => setParams({...params, ...updates})} t={t} />
+           </div>
            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-8 relative z-10">
                {/* Column 1 */}
                <div className="space-y-5">
@@ -1559,6 +1602,7 @@ function App() {
                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">{t.revenueAndRisk}</h3>
                    <div className="space-y-4">
                        <div className="grid grid-cols-2 gap-2"><InputGroup label={t.holdingYears} value={params.holdingYears} onChange={v => handleInputChange('holdingYears', v)} tooltip={t.tipHoldingYears} /><InputGroup label={t.monthlyRent} value={params.monthlyRent} onChange={v => handleInputChange('monthlyRent', v)} tooltip={t.tipMonthlyRent} /></div>
+                       <div className="grid grid-cols-2 gap-2"><InputGroup label={t.inputRentAppreciation || "租金年涨幅(%)"} value={params.rentAppreciationRate || 0} onChange={v => handleInputChange('rentAppreciationRate', v)} tooltip="预计每年租金上涨的百分比" /></div>
                        <div className="grid grid-cols-2 gap-2"><InputGroup label={t.annualAppreciation} value={params.appreciationRate} onChange={v => handleInputChange('appreciationRate', v)} step={0.1} tooltip={t.tipAppreciation} /><InputGroup label={t.vacancyRate} value={params.vacancyRate} onChange={v => handleInputChange('vacancyRate', v)} tooltip={t.tipVacancy} /></div>
                        <div className="grid grid-cols-2 gap-2"><InputGroup label={t.holdingCostRatio} value={params.holdingCostRatio} onChange={v => handleInputChange('holdingCostRatio', v)} step={0.1} tooltip={t.tipHoldingCost} /><InputGroup label={t.maintenanceCost} value={params.propertyMaintenanceCost} onChange={v => handleInputChange('propertyMaintenanceCost', v)} step={0.1} tooltip={t.tipMaintenance} /></div>
                        <div className="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-lg border border-slate-100 dark:border-slate-800">
@@ -1649,6 +1693,7 @@ function App() {
                    <button onClick={() => setActiveTab('risk')} className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${activeTab === 'risk' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-slate-500 hover:text-slate-700'}`}>{t.riskAssessment}</button>
                    <button onClick={() => setActiveTab('affordability')} className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${activeTab === 'affordability' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-slate-500 hover:text-slate-700'}`}>{t.affordabilityTitle}</button>
                    <button onClick={() => setActiveTab('lifePath')} className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${activeTab === 'lifePath' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-slate-500 hover:text-slate-700'}`}>{t.lifePathTitle || '人生路线'}</button>
+                   <button onClick={() => setActiveTab('goal')} className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${activeTab === 'goal' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-slate-500 hover:text-slate-700'}`}>{t.goalCalculatorTab || '买房倒计时'}</button>
                 </div>
 
                {activeTab === 'chart' && (
@@ -1682,50 +1727,58 @@ function App() {
                   />
                 )}
                 {activeTab === 'lifePath' && <LifePathSimulator params={params} t={t} />}
+                {activeTab === 'goal' && (
+                  <GoalReverseCalculator t={t} />
+                )}
              </div>
           </div>
 
           {/* Right Column (1/3) */}
-          <div className="xl:col-span-1 flex flex-col gap-6 h-full" id="ai-panel">
-            {/* Payment Schedule Chart */}
-            <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-xl border border-slate-100 dark:border-slate-800">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-bold text-slate-700 dark:text-white flex items-center gap-2">
-                  <TrendingUp className="h-4 w-4 text-indigo-500" />
-                  {t.scheduleTitle || '还款计划详情'}
-                </h3>
-                <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-lg">
-                  <button 
-                    onClick={() => setChartGranularity('year')} 
-                    className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${chartGranularity === 'year' ? 'bg-white dark:bg-slate-700 shadow text-indigo-600 dark:text-white' : 'text-slate-500'}`}
-                  >
-                    {t.granularityYear || '按年'}
-                  </button>
-                  <button 
-                    onClick={() => setChartGranularity('month')} 
-                    className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${chartGranularity === 'month' ? 'bg-white dark:bg-slate-700 shadow text-indigo-600 dark:text-white' : 'text-slate-500'}`}
-                  >
-                    {t.granularityMonth || '按月'}
-                  </button>
+          <div className="xl:col-span-1 flex flex-col gap-6 sticky top-6 self-start" id="ai-panel">
+            {/* Unified Payment Panel */}
+            <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-800 overflow-hidden">
+              {/* Chart Section */}
+              <div className="p-6 pb-0">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-sm font-bold text-slate-700 dark:text-white flex items-center gap-2">
+                    <TrendingUp className="h-4 w-4 text-indigo-500" />
+                    {t.paymentSchedule}
+                  </h3>
+                  <div className="flex bg-slate-100 dark:bg-slate-800 rounded-lg p-1">
+                    <button onClick={() => setChartGranularity('year')} className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${chartGranularity === 'year' ? 'bg-white dark:bg-slate-700 shadow-sm text-indigo-600 dark:text-indigo-400' : 'text-slate-500'}`}>{t.viewYear}</button>
+                    <button onClick={() => setChartGranularity('month')} className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${chartGranularity === 'month' ? 'bg-white dark:bg-slate-700 shadow-sm text-indigo-600 dark:text-indigo-400' : 'text-slate-500'}`}>{t.viewMonth}</button>
+                  </div>
+                </div>
+                <div className="h-[200px] w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={scheduleChartData} margin={{ top: 5, right: 0, left: -20, bottom: 0 }}>
+                      <defs>
+                        <linearGradient id="colorPrincipal" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3}/>
+                          <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
+                        </linearGradient>
+                        <linearGradient id="colorInterest" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#f43f5e" stopOpacity={0.3}/>
+                          <stop offset="95%" stopColor="#f43f5e" stopOpacity={0}/>
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={darkMode ? '#334155' : '#e2e8f0'} />
+                      <XAxis dataKey="label" tick={{fill: darkMode ? '#94a3b8' : '#64748b', fontSize: 10}} axisLine={false} tickLine={false} />
+                      <YAxis tick={{fill: darkMode ? '#94a3b8' : '#64748b', fontSize: 10}} axisLine={false} tickLine={false} />
+                      <Tooltip contentStyle={{ backgroundColor: darkMode ? '#1e293b' : '#fff', borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
+                      <Area type="monotone" dataKey="principal" stackId="1" stroke="#6366f1" fill="url(#colorPrincipal)" name={t.principal} />
+                      <Area type="monotone" dataKey="interest" stackId="1" stroke="#f43f5e" fill="url(#colorInterest)" name={t.interest} />
+                    </AreaChart>
+                  </ResponsiveContainer>
                 </div>
               </div>
-              <div className="h-64 w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <ComposedChart data={scheduleChartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                    <XAxis dataKey="label" tickLine={false} axisLine={false} tick={{fontSize: 10}} />
-                    <YAxis yAxisId="left" orientation="left" tickLine={false} axisLine={false} tick={{fontSize: 10}} />
-                    <YAxis yAxisId="right" orientation="right" tickLine={false} axisLine={false} tick={{fontSize: 10}} />
-                    <Tooltip />
-                    <Legend wrapperStyle={{fontSize: '11px'}} />
-                    <Bar yAxisId="left" dataKey="interest" name={t.legendInterest || '支付利息'} stackId="a" fill="#f43f5e" />
-                    <Bar yAxisId="left" dataKey="principal" name={t.legendPrincipal || '偿还本金'} stackId="a" fill="#10b981" />
-                    <Line yAxisId="right" type="monotone" dataKey="remainingPrincipal" name={t.legendRemaining || '剩余本金'} stroke="#6366f1" strokeWidth={2} />
-                  </ComposedChart>
-                </ResponsiveContainer>
-              </div>
+              
+              {/* Detailed Table Section */}
+              <DetailedPaymentTable 
+                result={result}
+                t={t}
+              />
             </div>
-
 
           </div>
         </div>

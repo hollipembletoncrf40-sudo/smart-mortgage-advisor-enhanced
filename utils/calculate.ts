@@ -378,8 +378,9 @@ export const calculateInvestment = (params: InvestmentParams, t: any): Calculati
     
     // Yearly Params
     const appreciationFactorStart = Math.pow(1 + params.appreciationRate / 100, year - 1);
+    const rentAppreciationFactor = Math.pow(1 + (params.rentAppreciationRate || 0) / 100, year - 1);
     const propertyValueStart = params.totalPrice * appreciationFactorStart; 
-    const annualRentEffective = params.monthlyRent * 12 * appreciationFactorStart * (1 - (params.vacancyRate || 0)/100);
+    const annualRentEffective = params.monthlyRent * 12 * rentAppreciationFactor * (1 - (params.vacancyRate || 0)/100);
     const annualHoldingCost = propertyValueStart * 10000 * (annualHoldingCostRatio / 100);
     const netAnnualRent = annualRentEffective - annualHoldingCost - annualMaintenanceCost; 
     
