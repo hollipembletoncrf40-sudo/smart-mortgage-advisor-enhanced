@@ -20,6 +20,9 @@ import DetailedPaymentTable from './components/DetailedPaymentTable';
 import MarketSentimentSlider from './components/MarketSentimentSlider';
 import RentHiddenCostCalculator from './components/RentHiddenCostCalculator';
 import GoalReverseCalculator from './components/GoalReverseCalculator';
+import TokenExchangePanel from './components/TokenExchangePanel';
+import RiskHeartbeatChart from './components/RiskHeartbeatChart';
+import AmortizationMoodBar from './components/AmortizationMoodBar';
 import { InvestmentParams, RepaymentMethod, CalculationResult, PrepaymentStrategy, StressTestResult, LoanType, PurchaseScenario, LocationFactors, LocationScore, AssetComparisonItem, KnowledgeCardData, Language, Currency, TaxParams, TaxResult, AppreciationPredictorParams, AppreciationPrediction, MonthlyCashFlow, CustomStressTestParams } from './types';
 import { TRANSLATIONS } from './utils/translations';
 import { calculateInvestment, calculateStressTest, aggregateYearlyPaymentData, calculateLocationScore, calculateTaxes, predictAppreciation, calculateComprehensiveRisk, calculateAffordability } from './utils/calculate';
@@ -1365,7 +1368,7 @@ function App() {
     purchaseScenario: PurchaseScenario.FIRST_HOME
   });
 
-  const [activeTab, setActiveTab] = useState<'chart' | 'table' | 'stress' | 'risk' | 'affordability' | 'lifePath' | 'goal'>('chart');
+  const [activeTab, setActiveTab] = useState<'chart' | 'table' | 'stress' | 'risk' | 'affordability' | 'lifePath' | 'goal' | 'token'>('chart');
   const [rentMentalCost, setRentMentalCost] = useState(0);
 
   // Calculate results
@@ -1692,8 +1695,18 @@ function App() {
                    <button onClick={() => setActiveTab('stress')} className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${activeTab === 'stress' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-slate-500 hover:text-slate-700'}`}>{t.stressTest}</button>
                    <button onClick={() => setActiveTab('risk')} className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${activeTab === 'risk' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-slate-500 hover:text-slate-700'}`}>{t.riskAssessment}</button>
                    <button onClick={() => setActiveTab('affordability')} className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${activeTab === 'affordability' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-slate-500 hover:text-slate-700'}`}>{t.affordabilityTitle}</button>
-                   <button onClick={() => setActiveTab('lifePath')} className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${activeTab === 'lifePath' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-slate-500 hover:text-slate-700'}`}>{t.lifePathTitle || '人生路线'}</button>
-                   <button onClick={() => setActiveTab('goal')} className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${activeTab === 'goal' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-slate-500 hover:text-slate-700'}`}>{t.goalCalculatorTab || '买房倒计时'}</button>
+                   <button onClick={() => setActiveTab('lifePath')} className={`pb-3 px-1 relative ${activeTab === 'lifePath' ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}>
+                     {t.lifePathSimulator || '人生路径模拟'}
+                     {activeTab === 'lifePath' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-indigo-600 dark:bg-indigo-400 rounded-full" />}
+                   </button>
+                   <button onClick={() => setActiveTab('goal')} className={`pb-3 px-1 relative ${activeTab === 'goal' ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}>
+                     {t.goalCalculator || '买房倒计时'}
+                     {activeTab === 'goal' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-indigo-600 dark:bg-indigo-400 rounded-full" />}
+                   </button>
+                   <button onClick={() => setActiveTab('token')} className={`pb-3 px-1 relative ${activeTab === 'token' ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}>
+                     {t.tokenExchange || '财富兑换'}
+                     {activeTab === 'token' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-indigo-600 dark:bg-indigo-400 rounded-full" />}
+                   </button>
                 </div>
 
                {activeTab === 'chart' && (
@@ -1717,7 +1730,12 @@ function App() {
                    onDeleteCustom={handleDeleteCustomScenario}
                  />
                )}
-               {activeTab === 'risk' && <RiskAssessmentPanel result={result} params={params} t={t} />}
+               {activeTab === 'risk' && (
+                 <div className="space-y-6">
+                   <RiskHeartbeatChart result={result} params={params} t={t} />
+                   <RiskAssessmentPanel result={result} params={params} t={t} />
+                 </div>
+               )}
                 {activeTab === 'affordability' && (
                   <AffordabilityPanel 
                     affordability={calculateAffordability(params, result)}
@@ -1727,9 +1745,12 @@ function App() {
                   />
                 )}
                 {activeTab === 'lifePath' && <LifePathSimulator params={params} t={t} />}
-                {activeTab === 'goal' && (
-                  <GoalReverseCalculator t={t} />
-                )}
+                 {activeTab === 'goal' && (
+                   <GoalReverseCalculator t={t} />
+                 )}
+                 {activeTab === 'token' && (
+                   <TokenExchangePanel result={result} params={params} t={t} />
+                 )}
              </div>
           </div>
 
@@ -1771,6 +1792,11 @@ function App() {
                     </AreaChart>
                   </ResponsiveContainer>
                 </div>
+              </div>
+              
+              {/* Amortization Mood Bar */}
+              <div className="px-6 pb-6">
+                <AmortizationMoodBar result={result} params={params} t={t} />
               </div>
               
               {/* Detailed Table Section */}
