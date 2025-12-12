@@ -1208,3 +1208,31 @@ export const calculateAffordability = (params: InvestmentParams, result: Calcula
     incomeStressPoints
   };
 };
+
+export const calculateComparison = (baseParams: InvestmentParams, scenarios: import('../types').ComparisonScenario[]): import('../types').ComparisonResult[] => {
+  // We need translations for calculateInvestment, importing here to avoid circular dep issues if any, or just use default.
+  // Actually we can pass a dummy T since strictly calculating numbers.
+  const dummyT: any = new Proxy({}, { get: () => 'text' });
+  const baseResult = calculateInvestment(baseParams, dummyT);
+
+  return scenarios.map(sc => {
+    const p = { 
+      ...baseParams, 
+      enablePrepayment: true, 
+      prepaymentYear: sc.prepaymentYear, 
+      prepaymentAmount: sc.prepaymentAmount 
+    };
+    const res = calculateInvestment(p, dummyT);
+    
+    return {
+      scenarioId: sc.id,
+      scenarioName: sc.name,
+      totalInterest: res.totalInterest,
+      totalRepayment: res.totalRepayment,
+      totalRevenue: res.totalRevenue,
+      returnRate: res.comprehensiveReturn,
+      savedInterest: baseResult.totalInterest - res.totalInterest,
+      reducedMonths: 0
+    };
+  });
+};

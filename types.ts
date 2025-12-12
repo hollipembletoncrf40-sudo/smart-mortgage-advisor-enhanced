@@ -109,6 +109,54 @@ export interface ChatMessage {
   timestamp: number;
 }
 
+export interface ComparisonScenario {
+  id: string;
+  name: string;
+  prepaymentYear: number;
+  prepaymentAmount: number;
+}
+
+export interface ComparisonResult {
+  scenarioId: string;
+  scenarioName: string;
+  totalInterest: number;
+  totalRepayment: number;
+  totalRevenue: number;
+  returnRate: number;
+  savedInterest: number;
+  reducedMonths: number;
+}
+
+export interface DecisionSnapshot {
+  id: string;
+  timestamp: number;
+  params: InvestmentParams;
+  marketSentiment: number; // 0-100
+  userNotes: string; // Reasoning
+  rejectedOptions: string; // What was renounced
+  riskAssessment: string; // AI or Self assessment
+  aiFeedback?: string; // AI Review result
+  tags?: string[]; // e.g. "Optimistic", "Conservative"
+}
+
+export interface NegotiationParams {
+  listingPrice: number; // 挂牌价
+  recentTransactionPrice: number; // 同小区近期成交均价 * 面积
+  marketInventory: number; // 小区当前挂牌套数 (Inventory Level)
+  listingDays: number; // 挂牌天数
+  priceCuts: number; // 调价次数
+  renovationScore: number; // 装修打分 1-10
+  floorScore: number; // 楼层打分 1-10
+}
+
+export interface NegotiationResult {
+  suggestedOfferLow: number;
+  suggestedOfferHigh: number;
+  sellerUrgencyScore: number; // 0-100
+  urgencyFactors: string[];
+  bargainSpace: number; // Percentage
+}
+
 // 单个策略的对比结果
 export interface StrategyResult {
   strategyName: string;

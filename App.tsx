@@ -27,10 +27,15 @@ import AmortizationMoodBar from './components/AmortizationMoodBar';
 import KnowledgeTree from './components/KnowledgeTree';
 import KnowledgeTooltip from './components/KnowledgeTooltip';
 import AISettingsModal from './components/AISettingsModal';
+import OpportunityCostPanel from './components/OpportunityCostPanel';
+import CareerStabilityPanel from './components/CareerStabilityPanel';
+import DecisionJournalPanel from './components/DecisionJournalPanel';
+import NegotiationHelperPanel from './components/NegotiationHelperPanel';
 import { loadAIConfig, sendAIMessage, AIMessage, getProviderName } from './utils/aiProvider';
-import { InvestmentParams, RepaymentMethod, CalculationResult, PrepaymentStrategy, StressTestResult, LoanType, PurchaseScenario, LocationFactors, LocationScore, AssetComparisonItem, KnowledgeCardData, Language, Currency, TaxParams, TaxResult, AppreciationPredictorParams, AppreciationPrediction, MonthlyCashFlow, CustomStressTestParams } from './types';
+import { InvestmentParams, RepaymentMethod, CalculationResult, PrepaymentStrategy, StressTestResult, LoanType, PurchaseScenario, LocationFactors, LocationScore, AssetComparisonItem, KnowledgeCardData, Language, Currency, TaxParams, TaxResult, AppreciationPredictorParams, AppreciationPrediction, MonthlyCashFlow, CustomStressTestParams, DecisionSnapshot } from './types';
 import { TRANSLATIONS } from './utils/translations';
-import { calculateInvestment, calculateStressTest, aggregateYearlyPaymentData, calculateLocationScore, calculateTaxes, predictAppreciation, calculateComprehensiveRisk, calculateAffordability } from './utils/calculate';
+import { calculateInvestment, calculateStressTest, aggregateYearlyPaymentData, calculateLocationScore, calculateTaxes, predictAppreciation, calculateComprehensiveRisk, calculateAffordability, calculateComparison } from './utils/calculate';
+
 
 // --- Components ---
 
@@ -1461,10 +1466,15 @@ function App() {
     purchaseScenario: PurchaseScenario.FIRST_HOME
   });
 
-  const [activeTab, setActiveTab] = useState<'chart' | 'table' | 'stress' | 'risk' | 'affordability' | 'lifePath' | 'goal' | 'token' | 'knowledge'>('chart');
+
+  const [activeTab, setActiveTab] = useState<'chart' | 'table' | 'stress' | 'risk' | 'affordability' | 'lifePath' | 'goal' | 'token' | 'knowledge' | 'opportunity' | 'journal' | 'negotiation'>('chart');
   const [rentMentalCost, setRentMentalCost] = useState(0);
   const [showKnowledgeTree, setShowKnowledgeTree] = useState(false);
   const [selectedKnowledgeTerm, setSelectedKnowledgeTerm] = useState<string | undefined>();
+  
+  // Decision Journal State
+  const [decisionSnapshots, setDecisionSnapshots] = useState<DecisionSnapshot[]>([]);
+  const [isAnalyzingSnapshot, setIsAnalyzingSnapshot] = useState(false);
 
   // Calculate results
   const result = useMemo(() => {
@@ -1554,9 +1564,81 @@ function App() {
     setShowLocationGuide(false);
   };
 
+
   const handleDeleteCustomScenario = (index: number) => {
     setCustomScenarios(prev => prev.filter((_, i) => i !== index));
   };
+  
+  // Decision Journal Handlers
+  const handleSaveSnapshot = () => {
+    const newSnapshot: DecisionSnapshot = {
+      id: Date.now().toString(),
+      timestamp: Date.now(),
+      params: { ...params },
+      marketSentiment: 50, // Should grab from actual state if available, for now default or from params logic if refactored
+      userNotes: '',
+      rejectedOptions: '',
+      riskAssessment: '',
+    };
+    setDecisionSnapshots([newSnapshot, ...decisionSnapshots]);
+    setActiveTab('journal');
+    // Optional: Show toast
+  };
+
+  const handleUpdateSnapshot = (id: string, updates: Partial<DecisionSnapshot>) => {
+    setDecisionSnapshots(prev => prev.map(s => s.id === id ? { ...s, ...updates } : s));
+  };
+
+  const handleDeleteSnapshot = (id: string) => {
+    setDecisionSnapshots(prev => prev.filter(s => s.id !== id));
+  };
+
+  const handleRestoreSnapshot = (savedParams: InvestmentParams) => {
+    setParams(savedParams);
+    setActiveTab('chart'); // Go back to chart to see results
+  };
+
+  const handleAnalyzeSnapshot = async (snapshot: DecisionSnapshot) => {
+    if (!aiConfig.apiKey && !customApiKey) {
+      alert("请先配置 AI API Key");
+      setShowSettings(true);
+      return;
+    }
+    
+    setIsAnalyzingSnapshot(true);
+    try {
+      const prompt = `
+        作为专业的购房投资顾问，请分析以下用户的决策：
+        
+        【决策参数】:
+        - 房产总价: ${snapshot.params.totalPrice}万
+        - 首付: ${snapshot.params.downPaymentRatio}%
+        - 贷款利率: ${snapshot.params.interestRate}% (商贷) / ${snapshot.params.providentInterestRate}% (公积金)
+        
+        【用户理由】: ${snapshot.userNotes}
+        
+        【放弃的选项】: ${snapshot.rejectedOptions}
+        
+        请点评：
+        1. 用户的决策理由是否理智？有没有明显的心理偏差（如FOMO、由于沉没成本等）？
+        2. 放弃的选项中，是否有其实更好的可能性被忽略了？
+        3. 基于当前参数，给出一个客观的风险提示。
+        
+        请用Markdown格式输出，保持客观犀利。
+      `;
+      
+      // const response = await sendAIMessage(prompt, [], aiConfig); // OLD INCORRECT
+      const response = await sendAIMessage(aiConfig, [{ role: 'user', content: prompt }]);
+      
+      handleUpdateSnapshot(snapshot.id, { aiFeedback: response, riskAssessment: 'AI Analyzed' });
+    } catch (error) {
+      console.error(error);
+      alert("AI分析失败，请稍后重试");
+    } finally {
+      setIsAnalyzingSnapshot(false);
+    }
+  };
+
 
   const initialCostData = [
     { name: t.labelDownPayment, value: result.initialCosts.downPayment, color: '#6366f1' },
@@ -1637,6 +1719,12 @@ function App() {
             <button onClick={toggleLanguage} className="px-3 py-1.5 text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">{language === 'ZH' ? 'EN' : '中文'}</button>
             <button onClick={() => setShowSettings(true)} className="p-2.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-slate-500 dark:text-slate-400 relative" title={`AI: ${getProviderName(aiConfig.provider)}`}><Settings className="h-5 w-5" />{aiConfig.apiKey && <span className="absolute top-2 right-2 w-2 h-2 bg-emerald-500 rounded-full border border-white dark:border-slate-900"></span>}</button>
             <button onClick={() => setDarkMode(!darkMode)} className="p-2.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-slate-500 dark:text-slate-400">{darkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}</button>
+            <button 
+              onClick={handleSaveSnapshot}
+              className="hidden md:flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-500/20"
+            >
+              <History className="h-3.5 w-3.5" /> 保存决策与复盘
+            </button>
           </div>
         </div>
       </header>
@@ -1806,6 +1894,18 @@ function App() {
                      {t.knowledgeTree || '知识树'}
                      {activeTab === 'knowledge' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-indigo-600 dark:bg-indigo-400 rounded-full" />}
                    </button>
+                   <button onClick={() => setActiveTab('opportunity')} className={`pb-3 px-1 relative ${activeTab === 'opportunity' ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}>
+                     机会成本 & 股市对比
+                     {activeTab === 'opportunity' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-indigo-600 dark:bg-indigo-400 rounded-full" />}
+                   </button>
+                   <button onClick={() => setActiveTab('journal')} className={`pb-3 px-1 relative ${activeTab === 'journal' ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}>
+                     决策复盘
+                     {activeTab === 'journal' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-indigo-600 dark:bg-indigo-400 rounded-full" />}
+                   </button>
+                   <button onClick={() => setActiveTab('negotiation')} className={`pb-3 px-1 relative ${activeTab === 'negotiation' ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}>
+                     谈判助手
+                     {activeTab === 'negotiation' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-indigo-600 dark:bg-indigo-400 rounded-full" />}
+                   </button>
                 </div>
 
                {activeTab === 'chart' && (
@@ -1857,9 +1957,31 @@ function App() {
                        isOpen={true}
                        onClose={() => setActiveTab('chart')}
                        selectedTermId={selectedKnowledgeTerm}
+                       onSelectTerm={setSelectedKnowledgeTerm}
                        t={t}
                      />
                    </div>
+                 )}
+                 {activeTab === 'opportunity' && (
+                    <OpportunityCostPanel result={result} params={params} darkMode={darkMode} />
+                 )}
+                 {activeTab === 'journal' && (
+                    <DecisionJournalPanel 
+                      snapshots={decisionSnapshots}
+                      onDelete={handleDeleteSnapshot}
+                      onUpdate={handleUpdateSnapshot}
+                      onRestore={handleRestoreSnapshot}
+                      onanalyze={handleAnalyzeSnapshot}
+                      isAnalyzing={isAnalyzingSnapshot}
+                      t={t}
+                    />
+                 )}
+                 {activeTab === 'negotiation' && (
+                    <NegotiationHelperPanel 
+                      t={t} 
+                      aiConfig={aiConfig} 
+                      onOpenSettings={() => setShowSettings(true)}
+                    />
                  )}
              </div>
           </div>
