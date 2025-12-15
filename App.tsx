@@ -16,7 +16,8 @@ import AffordabilityPanel from './components/AffordabilityPanel';
 import LifePathSimulator from './components/LifePathSimulator';
 import FloatingAIAdvisor from './components/FloatingAIAdvisor';
 import GameModePanel from './components/GameModePanel';
-import HouseRoastPanel from './components/HouseRoastPanel';
+import DecisionDashboard from './components/DecisionDashboard';
+import InteractiveDashboard from './components/InteractiveDashboard';
 import DetailedPaymentTable from './components/DetailedPaymentTable';
 import MarketSentimentSlider from './components/MarketSentimentSlider';
 import RentHiddenCostCalculator from './components/RentHiddenCostCalculator';
@@ -31,10 +32,13 @@ import OpportunityCostPanel from './components/OpportunityCostPanel';
 import CareerStabilityPanel from './components/CareerStabilityPanel';
 import DecisionJournalPanel from './components/DecisionJournalPanel';
 import NegotiationHelperPanel from './components/NegotiationHelperPanel';
+import LiquidityCheckPanel from './components/LiquidityCheckPanel';
+import MarketPositionRadar from './components/MarketPositionRadar';
+import LifeDragIndexPanel from './components/LifeDragIndexPanel';
 import { loadAIConfig, sendAIMessage, AIMessage, getProviderName } from './utils/aiProvider';
 import { InvestmentParams, RepaymentMethod, CalculationResult, PrepaymentStrategy, StressTestResult, LoanType, PurchaseScenario, LocationFactors, LocationScore, AssetComparisonItem, KnowledgeCardData, Language, Currency, TaxParams, TaxResult, AppreciationPredictorParams, AppreciationPrediction, MonthlyCashFlow, CustomStressTestParams, DecisionSnapshot } from './types';
 import { TRANSLATIONS } from './utils/translations';
-import { calculateInvestment, calculateStressTest, aggregateYearlyPaymentData, calculateLocationScore, calculateTaxes, predictAppreciation, calculateComprehensiveRisk, calculateAffordability, calculateComparison } from './utils/calculate';
+import { calculateInvestment, calculateStressTest, aggregateYearlyPaymentData, calculateLocationScore, calculateTaxes, predictAppreciation, calculateComprehensiveRisk, calculateAffordability, calculateComparison, calculateMarketRadarData } from './utils/calculate';
 
 
 // --- Components ---
@@ -1467,7 +1471,7 @@ function App() {
   });
 
 
-  const [activeTab, setActiveTab] = useState<'chart' | 'table' | 'stress' | 'risk' | 'affordability' | 'lifePath' | 'goal' | 'token' | 'knowledge' | 'opportunity' | 'journal' | 'negotiation'>('chart');
+  const [activeTab, setActiveTab] = useState<'chart' | 'table' | 'stress' | 'risk' | 'affordability' | 'lifePath' | 'goal' | 'token' | 'knowledge' | 'opportunity' | 'journal' | 'negotiation' | 'liquidity' | 'life_drag'>('chart');
   const [rentMentalCost, setRentMentalCost] = useState(0);
   const [showKnowledgeTree, setShowKnowledgeTree] = useState(false);
   const [selectedKnowledgeTerm, setSelectedKnowledgeTerm] = useState<string | undefined>();
@@ -1733,7 +1737,7 @@ function App() {
       <main id="main-report" className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
         {/* 1. INPUT DASHBOARD */}
-        <section id="input-panel" className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-xl border border-slate-100 dark:border-slate-800 relative overflow-hidden transition-all duration-300">
+        <section id="input-panel" className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-xl border border-slate-100 dark:border-slate-800/50 relative overflow-hidden transition-all duration-300">
            {/* ... (Existing inputs, logic preserved but now in wider container) ... */}
            <div className="flex items-center gap-2 mb-6 text-slate-800 dark:text-white font-bold text-lg relative z-10"><List className="h-5 w-5 text-indigo-500" /> {t.inputPanelTitle}</div>
            
@@ -1821,7 +1825,7 @@ function App() {
             {/* Asset Comparison & Cost */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                {/* Initial Cost - 缩短高度 */}
-               <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-xl border border-slate-100 dark:border-slate-800 md:col-span-1 flex flex-col">
+               <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-xl border border-slate-100 dark:border-slate-800/50 md:col-span-1 flex flex-col">
                   <h2 className="text-sm font-bold flex items-center gap-2 dark:text-white mb-4"><PieChartIcon className="h-4 w-4 text-indigo-500" /> {t.chartInitialCost}</h2>
                   <div className="flex-1 min-h-[120px] relative">
                      <ResponsiveContainer width="100%" height="100%">
@@ -1843,7 +1847,7 @@ function App() {
                </div>
 
                {/* Asset Comparison */}
-               <div id="comparison-panel" className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-xl border border-slate-100 dark:border-slate-800 md:col-span-2">
+               <div id="comparison-panel" className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-xl border border-slate-100 dark:border-slate-800/50 md:col-span-2">
                   <div className="flex items-center justify-between mb-6 relative z-10">
                      <div className="flex items-center gap-2 text-slate-800 dark:text-white font-bold text-lg"><TrendingUp className="h-5 w-5 text-indigo-500" /> {t.assetComparison}</div>
                      <div className="text-xs font-medium text-slate-500 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full">{t.netWorthAtYear.replace('{year}', params.holdingYears.toString())}</div>
@@ -1871,7 +1875,7 @@ function App() {
 
             {/* Wealth Chart */}
             {/* Wealth Chart & Analysis Tabs */}
-            <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-xl border border-slate-100 dark:border-slate-800">
+            <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-xl border border-slate-100 dark:border-slate-800/50">
                <div className="flex gap-2 mb-4 border-b border-slate-100 dark:border-slate-800 overflow-x-auto">
                    <button onClick={() => setActiveTab('chart')} className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${activeTab === 'chart' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-slate-500 hover:text-slate-700'}`}>{t.wealthCurve}</button>
                    <button onClick={() => setActiveTab('rentVsBuy')} className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${activeTab === 'rentVsBuy' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-slate-500 hover:text-slate-700'}`}>{t.rentVsBuyAnalysis}</button>
@@ -1906,6 +1910,14 @@ function App() {
                      谈判助手
                      {activeTab === 'negotiation' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-indigo-600 dark:bg-indigo-400 rounded-full" />}
                    </button>
+                   <button onClick={() => setActiveTab('liquidity')} className={`pb-3 px-1 relative ${activeTab === 'liquidity' ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}>
+                     流动性分析
+                     {activeTab === 'liquidity' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-indigo-600 dark:bg-indigo-400 rounded-full" />}
+                   </button>
+                   <button onClick={() => setActiveTab('life_drag')} className={`pb-3 px-1 relative ${activeTab === 'life_drag' ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}>
+                     {t.lifeDragIndex || '房子拖累指数'}
+                     {activeTab === 'life_drag' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-indigo-600 dark:bg-indigo-400 rounded-full" />}
+                   </button>
                 </div>
 
                {activeTab === 'chart' && (
@@ -1931,6 +1943,7 @@ function App() {
                )}
                {activeTab === 'risk' && (
                  <div className="space-y-6">
+                   <MarketPositionRadar data={calculateMarketRadarData(params)} />
                    <RiskHeartbeatChart result={result} params={params} t={t} />
                    <RiskAssessmentPanel result={result} params={params} t={t} />
                  </div>
@@ -1983,13 +1996,31 @@ function App() {
                       onOpenSettings={() => setShowSettings(true)}
                     />
                  )}
+
+                 {activeTab === 'liquidity' && (
+                    <LiquidityCheckPanel 
+                      t={t} 
+                      aiConfig={aiConfig} 
+                      onOpenSettings={() => setShowSettings(true)}
+                    />
+                 )}
+               
+               {activeTab === 'life_drag' && (
+                 <LifeDragIndexPanel 
+                   params={params} 
+                   monthlyIncome={params.familyMonthlyIncome || 30000}
+                   t={t}
+                   aiConfig={aiConfig}
+                   onOpenSettings={() => setShowSettings(true)}
+                 />
+               )}
              </div>
           </div>
 
           {/* Right Column (1/3) */}
           <div className="xl:col-span-1 flex flex-col gap-6 sticky top-6 self-start" id="ai-panel">
             {/* Unified Payment Panel */}
-            <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-800 overflow-hidden">
+            <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-800/50 overflow-hidden">
               {/* Chart Section */}
               <div className="p-6 pb-0">
                 <div className="flex items-center justify-between mb-4">
@@ -2042,7 +2073,11 @@ function App() {
         </div>
 
         {/* 房子评价你 - House Roast Section */}
-        <HouseRoastPanel params={params} result={result} t={t} />
+        <DecisionDashboard params={params} result={result} t={t} />
+        
+
+        {/* Interactive Visualization Dashboard */}
+        <InteractiveDashboard initialParams={params} t={t} />
 
         {/* 游戏化买房模式 - Game Mode Section */}
         <GameModePanel params={params} t={t} />
@@ -2122,13 +2157,13 @@ function App() {
                   </button>
                 </li>
                 <li>
-                  <button onClick={() => setActiveTab('knowledge')} className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors flex items-center gap-1">
+                  <button onClick={() => { setActiveTab('knowledge'); setTimeout(() => document.getElementById('main-report')?.scrollIntoView({ behavior: 'smooth' }), 100); }} className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors flex items-center gap-1">
                     <ChevronRight className="h-3 w-3" />
                     {t.footerKnowledge || '知识树/词汇百科'}
                   </button>
                 </li>
                 <li>
-                  <button onClick={() => setActiveTab('stress')} className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors flex items-center gap-1">
+                  <button onClick={() => { setActiveTab('stress'); setTimeout(() => document.getElementById('main-report')?.scrollIntoView({ behavior: 'smooth' }), 100); }} className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors flex items-center gap-1">
                     <ChevronRight className="h-3 w-3" />
                     {t.footerStress || '压力测试/情景模拟'}
                   </button>

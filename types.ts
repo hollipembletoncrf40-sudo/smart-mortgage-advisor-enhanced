@@ -139,6 +139,47 @@ export interface DecisionSnapshot {
   tags?: string[]; // e.g. "Optimistic", "Conservative"
 }
 
+// 市场地位雷达图数据
+export interface MarketRadarData {
+  leverage: number;        // 杠杆率 (0-100, high leverage = low score usually, or high risk)
+  riskTolerance: number;   // 风险承受力
+  liquidity: number;       // 流动性
+  careerStability: number; // 职业稳定性
+  familyBurden: number;    // 家庭负担 (Inverse score)
+  marketValuation: number; // 市场估值
+}
+
+// 房子拖累指数数据
+export interface LifeDragMetrics {
+  totalDragScore: number; // 0-100 (Higher is worse)
+  careerLockScore: number; // 职业锁定
+  geoLockScore: number; // 城市流动锁定
+  lifestyleCompressionScore: number; // 生活品质压缩
+  futureDelayScore: number; // 人生计划推迟
+  advice: string;
+}
+
+// 替代人生方案
+export interface AlternativePath {
+  id: string;
+  title: string;
+  description: string;
+  pros: string[];
+  cons: string[];
+  financialOutcome: string; 
+  matchScore: number; // 0-100
+}
+
+// 决策不可逆程度
+export type IrreversibilityLevel = 'reversible' | 'semi-irreversible' | 'irreversible';
+
+export interface IrreversibleFactor {
+  name: string;
+  level: IrreversibilityLevel;
+  impact: string;
+  advice: string;
+}
+
 export interface NegotiationParams {
   listingPrice: number; // 挂牌价
   recentTransactionPrice: number; // 同小区近期成交均价 * 面积
@@ -156,6 +197,48 @@ export interface NegotiationResult {
   urgencyFactors: string[];
   bargainSpace: number; // Percentage
 }
+
+// Liquidity Reality Check Types
+export enum BuyerType {
+  FIRST_TIME_YOUNG = 'first_time_young',
+  UPGRADING_FAMILY = 'upgrading_family',
+  INVESTOR = 'investor',
+  DOWNSIZING = 'downsizing',
+  RARE = 'rare'
+}
+
+export interface BuyerProfile {
+  type: BuyerType;
+  label: string;
+  percentage: number;
+  trend: 'increasing' | 'stable' | 'decreasing';
+  characteristics: string[];
+  concerns: string[];
+}
+
+export interface LiquidityAnalysis {
+  liquidityScore: number;
+  expectedSaleMonths: number;
+  discountProbability: number;
+  buyerProfiles: BuyerProfile[];
+  trendIndicator: 'increasing' | 'stable' | 'decreasing';
+  riskFactors: string[];
+  strengths: string[];
+}
+
+export interface LiquidityParams {
+  area: number;
+  bedrooms: number;
+  location: string;
+  hasSchool: boolean;
+  transitScore: number;
+  priceLevel: 'low' | 'medium' | 'high' | 'luxury';
+  propertyAge: number;
+  competitionLevel: 'low' | 'medium' | 'high';
+  populationTrend: 'growing' | 'stable' | 'declining';
+  policyEnvironment: 'favorable' | 'neutral' | 'restrictive';
+}
+
 
 // 单个策略的对比结果
 export interface StrategyResult {

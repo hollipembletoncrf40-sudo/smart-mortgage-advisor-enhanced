@@ -1,6 +1,6 @@
 
 
-import { InvestmentParams, RepaymentMethod, MonthlyPayment, CalculationResult, PrepaymentStrategy, StrategyResult, PrepaymentComparisonResult, StressTestResult, LoanType, AssetComparison, PurchaseScenario, LocationFactors, LocationScore, AssetComparisonItem, KnowledgeCardData, TaxParams, TaxResult, AppreciationPredictorParams, AppreciationPrediction, MonthlyCashFlow, CustomStressTestParams } from '../types';
+import { InvestmentParams, RepaymentMethod, MonthlyPayment, CalculationResult, PrepaymentStrategy, StrategyResult, PrepaymentComparisonResult, StressTestResult, LoanType, AssetComparison, PurchaseScenario, LocationFactors, LocationScore, AssetComparisonItem, KnowledgeCardData, TaxParams, TaxResult, AppreciationPredictorParams, AppreciationPrediction, MonthlyCashFlow, CustomStressTestParams, BuyerType, BuyerProfile, LiquidityParams, LiquidityAnalysis, MarketRadarData, LifeDragMetrics } from '../types';
 
 // Core Amortization Calculator
 // Returns the full schedule and summary stats
@@ -1235,4 +1235,337 @@ export const calculateComparison = (baseParams: InvestmentParams, scenarios: imp
       reducedMonths: 0
     };
   });
+};
+
+// Liquidity Reality Check Calculation
+export const calculateLiquidityAnalysis = (params: import('../types').LiquidityParams): import('../types').LiquidityAnalysis => {
+  let score = 50;
+  const riskFactors: string[] = [];
+  const strengths: string[] = [];
+  
+  if (params.area >= 70 && params.area <= 120) {
+    score += 15;
+    strengths.push('面积适中，受众广泛');
+  } else if (params.area > 150) {
+    score -= 15;
+    riskFactors.push('大户型流动性较差');
+  } else if (params.area < 60) {
+    score -= 5;
+    riskFactors.push('面积偏小，限制家庭类型');
+  }
+  
+  if (params.hasSchool) {
+    score += 10;
+    strengths.push('学区房，刚需强劲');
+  }
+  
+  if (params.transitScore >= 8) {
+    score += 10;
+    strengths.push('交通便利，通勤友好');
+  } else if (params.transitScore <= 4) {
+    score -= 8;
+    riskFactors.push('交通不便，影响出售');
+  }
+  
+  if (params.priceLevel === 'low') {
+    score += 10;
+    strengths.push('价格亲民，购买力强');
+  } else if (params.priceLevel === 'luxury') {
+    score -= 20;
+    riskFactors.push('豪宅市场窄，接盘人少');
+  }
+  
+  if (params.propertyAge < 5) {
+    score += 10;
+    strengths.push('次新房，品质保证');
+  } else if (params.propertyAge > 20) {
+    score -= 10;
+    riskFactors.push('房龄较老，维护成本高');
+  }
+  
+  if (params.competitionLevel === 'high') {
+    score -= 15;
+    riskFactors.push('新房竞争激烈');
+  }
+  
+  if (params.populationTrend === 'growing') {
+    score += 15;
+    strengths.push('人口流入，需求增长');
+  } else if (params.populationTrend === 'declining') {
+    score -= 20;
+    riskFactors.push('人口流出，需求萎缩');
+  }
+  
+  if (params.policyEnvironment === 'favorable') {
+    score += 10;
+    strengths.push('政策利好，市场活跃');
+  } else if (params.policyEnvironment === 'restrictive') {
+    score -= 15;
+    riskFactors.push('政策限制，交易受阻');
+  }
+  
+  score = Math.max(0, Math.min(100, score));
+  
+  let expectedMonths = 6;
+  if (score > 80) expectedMonths = 3;
+  else if (score > 60) expectedMonths = 4;
+  else if (score > 40) expectedMonths = 6;
+  else if (score > 20) expectedMonths = 9;
+  else expectedMonths = 15;
+  
+  const discountProbability = Math.max(0, Math.min(100, 100 - score));
+  
+  const buyerProfiles: BuyerProfile[] = [];
+  
+  if (params.area >= 60 && params.area <= 90 && params.priceLevel !== 'luxury' && params.transitScore >= 6) {
+    buyerProfiles.push({
+      type: BuyerType.FIRST_TIME_YOUNG,
+      label: '首次置业年轻家庭',
+      percentage: params.hasSchool ? 45 : 35,
+      trend: params.populationTrend === 'growing' ? 'increasing' : params.populationTrend === 'declining' ? 'decreasing' : 'stable',
+      characteristics: ['25-35岁', '小家庭', '注重性价比', '首套房'],
+      concerns: ['总价', '交通', '学区', '月供压力']
+    });
+  }
+  
+  if (params.area >= 90 && params.area <= 130 && params.bedrooms >= 3) {
+    buyerProfiles.push({
+      type: BuyerType.UPGRADING_FAMILY,
+      label: '改善型家庭',
+      percentage: params.hasSchool ? 40 : 30,
+      trend: params.policyEnvironment === 'restrictive' ? 'decreasing' : 'stable',
+      characteristics: ['35-45岁', '二孩家庭', '追求品质', '二套房'],
+      concerns: ['学区', '户型', '小区环境', '配套设施']
+    });
+  }
+  
+  if (params.transitScore >= 7 && params.location === 'cbd' && params.populationTrend !== 'declining') {
+    buyerProfiles.push({
+      type: BuyerType.INVESTOR,
+      label: '投资型买家',
+      percentage: params.policyEnvironment === 'favorable' ? 25 : 15,
+      trend: params.policyEnvironment === 'favorable' ? 'increasing' : params.policyEnvironment === 'restrictive' ? 'decreasing' : 'stable',
+      characteristics: ['资金充裕', '看重增值', '多套房产', '长期持有'],
+      concerns: ['地段', '租金回报', '增值潜力', '政策风险']
+    });
+  }
+  
+  if (params.area < 80 && params.location !== 'remote' && params.propertyAge < 15) {
+    buyerProfiles.push({
+      type: BuyerType.DOWNSIZING,
+      label: '换小型买家',
+      percentage: 20,
+      trend: 'stable',
+      characteristics: ['50岁以上', '子女独立', '简化生活', '置换房产'],
+      concerns: ['地段', '物业', '医疗配套', '生活便利']
+    });
+  }
+  
+  if (buyerProfiles.length === 0 || score < 30) {
+    buyerProfiles.push({
+      type: BuyerType.RARE,
+      label: '接盘人稀少',
+      percentage: 10,
+      trend: 'decreasing',
+      characteristics: ['特殊需求', '非主流选择', '议价能力强'],
+      concerns: ['大幅折价', '长期持有风险']
+    });
+  }
+  
+  buyerProfiles.sort((a, b) => b.percentage - a.percentage);
+  const topBuyers = buyerProfiles.slice(0, 3);
+  
+  let trendIndicator: 'increasing' | 'stable' | 'decreasing' = 'stable';
+  if (params.populationTrend === 'growing' && params.policyEnvironment === 'favorable') {
+    trendIndicator = 'increasing';
+  } else if (params.populationTrend === 'declining' || params.policyEnvironment === 'restrictive') {
+    trendIndicator = 'decreasing';
+  }
+  
+  return {
+    liquidityScore: Math.round(score),
+    expectedSaleMonths: expectedMonths,
+    discountProbability: Math.round(discountProbability),
+    buyerProfiles: topBuyers,
+    trendIndicator,
+    riskFactors,
+    strengths
+  };
+};
+
+// Market Position Radar Chart Calculation
+export const calculateMarketRadarData = (
+  params: InvestmentParams,
+  liquidityParams?: LiquidityParams,
+  monthlyIncome: number = 30000 // Fallback if not in params
+): MarketRadarData => {
+  // 1. Leverage (High leverage = High Risk = Low Score)
+  // LTV = Loan / Price
+  // Calculate loan amount if not provided implies deriving from price * (1 - downPayment)
+  // InvestmentParams has totalPrice (Wan) and downPaymentRatio (%)
+  const loanAmountWan = params.totalPrice * (1 - params.downPaymentRatio / 100);
+  const ltv = params.totalPrice > 0 ? (loanAmountWan / params.totalPrice) * 100 : 0;
+  
+  // Score: 100 - LTV. 30% LTV -> 70 Score. 70% LTV -> 30 Score.
+  const leverageScore = Math.max(0, Math.min(100, 100 - ltv));
+
+  // Amortization for payment calc
+  const termMonths = params.loanTerm * 12;
+  const amortization = calculateAmortization(
+    loanAmountWan,
+    termMonths,
+    params.interestRate,
+    RepaymentMethod.EQUAL_PRINCIPAL_AND_INTEREST
+  );
+  const monthlyPayment = amortization.schedule.length > 0 ? amortization.schedule[0].payment : 0;
+
+  // 2. Risk Tolerance
+  // Link to Emergency Fund. 
+  // If Emergency Fund covers 6 months of payment => Score 60 (Baseline).
+  // 12 months => Score 80. 
+  // 3 months => Score 40.
+  let riskTolerance = 60; // Base
+  if (monthlyPayment > 0 && params.emergencyFund > 0) {
+    const monthsCovered = (params.emergencyFund * 10000) / monthlyPayment;
+    riskTolerance = Math.min(100, Math.max(20, 30 + monthsCovered * 5)); 
+    // e.g. 6 months * 5 = 30 + 30 = 60. 12 months * 5 = 60 + 30 = 90.
+  }
+
+  // 3. Liquidity
+  let liquidityScore = 50;
+  if (liquidityParams) {
+    const analysis = calculateLiquidityAnalysis(liquidityParams);
+    liquidityScore = analysis.liquidityScore;
+  }
+
+  // 4. Career Stability
+  // Defaulting to 75 as we lack explicit input.
+  const careerStability = 75;
+
+  // 5. Family Burden
+  // DTI Based.
+  // Use params.familyMonthlyIncome if available, else fallback
+  const incomeToUse = params.familyMonthlyIncome > 0 ? params.familyMonthlyIncome : monthlyIncome;
+  
+  // DTI ratio (0-1)
+  const dti = incomeToUse > 0 ? monthlyPayment / incomeToUse : 0.5;
+  
+  // Score: Low DTI = High Score.
+  // DTI 30% -> Score 70. DTI 50% -> Score 50. DTI 70% -> Score 30.
+  const familyBurdenScore = Math.max(0, Math.min(100, 100 - (dti * 100)));
+
+  // 6. Market Valuation
+  // Combine Rental Yield Score + Appreciation Potential
+  // Rental Yield: 1.5% is baseline neutral (score 50)? 
+  // Global standards say 4-5%, but Chinese tiers often 1.5-2%.
+  // Let's set 2% as Score 60. 
+  // Yield % * 30.
+  const annualRent = params.monthlyRent * 12;
+  const propertyValue = params.totalPrice * 10000;
+  const rentalYieldPct = propertyValue > 0 ? (annualRent / propertyValue) * 100 : 1.5;
+  const yieldScore = rentalYieldPct * 25; // 2% -> 50. 3% -> 75.
+  
+  // Appreciation: params.appreciationRate usually 3-5%.
+  // 3% -> Score 60. 5% -> Score 80.
+  const appreciationScore = (params.appreciationRate || 3) * 15; // 3 * 15 = 45.
+  
+  const marketValuation = Math.min(100, (yieldScore * 0.4 + appreciationScore * 0.6));
+
+  return {
+    leverage: Math.round(leverageScore),
+    riskTolerance: Math.round(riskTolerance),
+    liquidity: Math.round(liquidityScore),
+    careerStability: Math.round(careerStability),
+    familyBurden: Math.round(familyBurdenScore),
+    marketValuation: Math.round(marketValuation)
+  };
+};
+
+// Core Life Drag Index Logic
+export const calculateLifeDragIndex = (
+  params: InvestmentParams,
+  liquidityParams?: LiquidityParams,
+  monthlyIncome: number = 30000 
+): LifeDragMetrics => {
+  // 1. Calculate Monthly Payment and DTI
+  const loanAmountWan = params.totalPrice * (1 - params.downPaymentRatio / 100);
+  const termMonths = params.loanTerm * 12;
+  const amortization = calculateAmortization(
+    loanAmountWan,
+    termMonths,
+    params.interestRate,
+    RepaymentMethod.EQUAL_PRINCIPAL_AND_INTEREST
+  );
+  const monthlyPayment = amortization.schedule.length > 0 ? amortization.schedule[0].payment : 0;
+  
+  const incomeToUse = params.familyMonthlyIncome > 0 ? params.familyMonthlyIncome : monthlyIncome;
+  const dti = incomeToUse > 0 ? monthlyPayment / incomeToUse : 0.5;
+
+  // 2. Career Lock Score (Risk of not being able to switch jobs)
+  // Factors: High DTI + Low Emergency Fund = Trapped in current job.
+  // 30% DTI is safe. 50% is locked. 70% is slavery.
+  // Emergency Fund: 6 months buffer reduces lock.
+  let careerLock = 0;
+  if (dti < 0.3) careerLock = 20;
+  else if (dti < 0.5) careerLock = 50;
+  else careerLock = 90;
+
+  // Mitigation by Emergency Fund
+  const monthsBuffer = params.emergencyFund > 0 && monthlyPayment > 0 
+    ? (params.emergencyFund * 10000) / monthlyPayment 
+    : 0;
+  if (monthsBuffer > 12) careerLock -= 30;
+  else if (monthsBuffer > 6) careerLock -= 15;
+  
+  careerLock = Math.max(0, Math.min(100, careerLock));
+
+  // 3. Geo Lock Score (Difficulty moving/selling)
+  // Linked to Liquidity. If hard to sell (Low Liquidity score), you are geo-locked.
+  // Also Investment vs Self-occupy. Self-occupy usually locks you more psychologically.
+  let liquidityScore = 50;
+  if (liquidityParams) {
+    liquidityScore = calculateLiquidityAnalysis(liquidityParams).liquidityScore;
+  }
+  // Low Liquidity (Score 20) -> High GeoLock (Score 80).
+  let geoLock = 100 - liquidityScore;
+  if (params.purchaseScenario === PurchaseScenario.FIRST_HOME) geoLock += 10;
+  geoLock = Math.max(0, Math.min(100, geoLock));
+
+  // 4. Lifestyle Compression (Impact on discretionary spending)
+  // Residual Income Method.
+  // Assume basic living cost (excl mortgage) is 30% of income or fixed amount (e.g. 5000 + 2000 per person).
+  // Simplified: (Income - Mortgage) / Income.
+  // If remaining is < 40% of income, lifestyle is heavily compressed.
+  const residualRatio = 1 - dti;
+  let lifestyleCompression = 0;
+  if (residualRatio > 0.6) lifestyleCompression = 20; // Plenty left
+  else if (residualRatio > 0.4) lifestyleCompression = 50; // Moderate
+  else if (residualRatio > 0.2) lifestyleCompression = 80; // Tight
+  else lifestyleCompression = 100; // Survival mode
+
+  // 5. Future Delay (Postponing life plans)
+  // Impacted by Loan Term and existing Family Burden.
+  // If Loan Term > 25 years and Age (proxied by lack of huge downpayment?) -> Delay.
+  // Actually, DTI is the main factor here too.
+  // Let's optimize: High Career Lock + High Lifestyle Compression = High Future Delay.
+  let futureDelay = (careerLock * 0.4 + lifestyleCompression * 0.6);
+  futureDelay = Math.max(0, Math.min(100, futureDelay));
+
+  // Total Score
+  const totalDragScore = Math.round((careerLock + geoLock + lifestyleCompression + futureDelay) / 4);
+
+  let advice = "";
+  if (totalDragScore < 30) advice = "这套房子是你的助力，不是负担。";
+  else if (totalDragScore < 60) advice = "有一定的束缚，特别是职业选择上需要更谨慎。";
+  else if (totalDragScore < 80) advice = "警惕！这套房子正在显著挤压你的生活空间和未来选择。";
+  else advice = "极高风险！你可能正在为了房子牺牲整个人生的可能性。";
+
+  return {
+    totalDragScore,
+    careerLockScore: Math.round(careerLock),
+    geoLockScore: Math.round(geoLock),
+    lifestyleCompressionScore: Math.round(lifestyleCompression),
+    futureDelayScore: Math.round(futureDelay),
+    advice
+  };
 };

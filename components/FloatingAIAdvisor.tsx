@@ -4,6 +4,23 @@ import { ChatMessage, CalculationResult } from '../types'; // Added CalculationR
 import { createInvestmentChat, sendMessageToAI } from '../services/geminiService';
 import { Chat } from '@google/genai';
 
+// Simple markdown to HTML converter
+const parseMarkdown = (text: string): string => {
+  return text
+    // Headers
+    .replace(/^### (.*$)/gim, '<h3 class="text-base font-bold mt-4 mb-2 text-slate-800 dark:text-white">$1</h3>')
+    .replace(/^## (.*$)/gim, '<h2 class="text-lg font-bold mt-4 mb-2 text-slate-800 dark:text-white">$1</h2>')
+    .replace(/^# (.*$)/gim, '<h1 class="text-xl font-bold mt-4 mb-2 text-slate-800 dark:text-white">$1</h1>')
+    // Bold
+    .replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-slate-900 dark:text-white">$1</strong>')  
+    // Lists
+    .replace(/^\s*- (.*$)/gim, '<li class="ml-4 text-slate-700 dark:text-slate-300">• $1</li>')
+    .replace(/^\s*\d+\.\s+(.*$)/gim, '<li class="ml-4 text-slate-700 dark:text-slate-300">$1</li>')
+    // Line breaks
+    .replace(/\n\n/g, '<br/><br/>')
+    .replace(/\n/g, '<br/>');
+};
+
 interface FloatingAIAdvisorProps {
   t: any;
   contextParams: any; // InvestmentParams
@@ -137,7 +154,14 @@ const FloatingAIAdvisor: React.FC<FloatingAIAdvisorProps> = ({ t, contextParams,
                     ? 'bg-indigo-600 text-white rounded-tr-none' 
                     : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 shadow-sm border border-slate-100 dark:border-slate-700 rounded-tl-none'
                 }`}>
-                  {msg.content}
+                  {msg.role === 'model' ? (
+                    <div 
+                      className="prose prose-sm dark:prose-invert max-w-none" 
+                      dangerouslySetInnerHTML={{ __html: parseMarkdown(msg.content) }}
+                    />
+                  ) : (
+                    msg.content
+                  )}
                 </div>
               </div>
             ))}
