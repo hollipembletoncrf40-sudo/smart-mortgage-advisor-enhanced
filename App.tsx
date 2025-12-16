@@ -1,5 +1,7 @@
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { ThemeMode } from './types';
+import { PRESETS, getPresetById } from './utils/presets';
 import { 
   PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer,
   AreaChart, Area, XAxis, YAxis, CartesianGrid, LineChart, Line, BarChart, Bar, ComposedChart, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ReferenceLine
@@ -8,8 +10,8 @@ import {
   Calculator, TrendingUp, BrainCircuit, Moon, Sun, AlertTriangle, 
   Wallet, ShieldAlert, BadgeCheck, Coffee, Send, User, Bot, BarChart3,
   List, X, History, BadgePercent, Settings, Key, Info, BookOpen, ArrowRightLeft,
-  Landmark, Loader, Download, FileText, Image as ImageIcon, FileType2, Share2, ChevronDown, CheckCircle2, XCircle, PieChart as PieChartIcon, Coins, Building2, MapPin, Globe2, Lightbulb, ClipboardCheck, ArrowDown, Home, PiggyBank, DollarSign, Droplets, Target,
-  Compass, ChevronRight, Database, MessageCircle
+  Landmark, Loader, Download, FileText, Image as ImageIcon, FileType2, Share2, ChevronDown, CheckCircle2, XCircle, PieChart as PieChartIcon, Coins, Building2, MapPin, Globe2, Lightbulb, ClipboardCheck, ArrowDown, Home, PiggyBank, DollarSign, Droplets, Target, Zap,
+  Compass, ChevronRight, Database, MessageCircle, ExternalLink
 } from 'lucide-react';
 import HousingTrendsPanel from './components/HousingTrendsPanel';
 import AffordabilityPanel from './components/AffordabilityPanel';
@@ -18,6 +20,7 @@ import FloatingAIAdvisor from './components/FloatingAIAdvisor';
 import GameModePanel from './components/GameModePanel';
 import DecisionDashboard from './components/DecisionDashboard';
 import InteractiveDashboard from './components/InteractiveDashboard';
+import InteractiveTimeline from './components/InteractiveTimeline';
 import DetailedPaymentTable from './components/DetailedPaymentTable';
 import MarketSentimentSlider from './components/MarketSentimentSlider';
 import RentHiddenCostCalculator from './components/RentHiddenCostCalculator';
@@ -831,13 +834,13 @@ const AppreciationPredictorModal = ({ isOpen, onClose, t }: { isOpen: boolean; o
             <div className="space-y-2">
               <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t.cityTier}</label>
               <select value={params.cityTier} onChange={e => setParams({...params, cityTier: e.target.value as any})} className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white">
-                <option value="一线">{t.tier1}</option>
-                <option value="新一线">{t.tierNew1}</option>
-                <option value="二线">{t.tier2}</option>
-                <option value="三线及以下">{t.tier3}</option>
+                <option value="一线">{t.predTier1}</option>
+                <option value="新一线">{t.predTierNew1}</option>
+                <option value="二线">{t.predTier2}</option>
+                <option value="三线及以下">{t.predTier3}</option>
               </select>
             </div>
-            <div className="space-y-2">
+            <div className="space-y-1">
               <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t.district}</label>
               <select value={params.district} onChange={e => setParams({...params, district: e.target.value as any})} className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white">
                 <option value="核心区">{t.districtCore}</option>
@@ -845,7 +848,7 @@ const AppreciationPredictorModal = ({ isOpen, onClose, t }: { isOpen: boolean; o
                 <option value="远郊">{t.districtFar}</option>
               </select>
             </div>
-            <div className="space-y-2">
+            <div className="space-y-1">
               <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t.propertyTypeLabel}</label>
               <select value={params.propertyType} onChange={e => setParams({...params, propertyType: e.target.value as any})} className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white">
                 <option value="住宅">{t.propertyResidential}</option>
@@ -853,40 +856,45 @@ const AppreciationPredictorModal = ({ isOpen, onClose, t }: { isOpen: boolean; o
                 <option value="别墅">{t.propertyVilla}</option>
               </select>
             </div>
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t.policyEnv}</label>
-              <select value={params.policyEnvironment} onChange={e => setParams({...params, policyEnvironment: e.target.value as any})} className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white">
-                <option value="宽松">{t.policyLoose}</option>
-                <option value="中性">{t.policyNeutral}</option>
-                <option value="严格">{t.policyStrict}</option>
-              </select>
-            </div>
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t.infrastructure}</label>
-              <select value={params.infrastructurePlan} onChange={e => setParams({...params, infrastructurePlan: e.target.value as any})} className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white">
-                <option value="重大规划">{t.infraMajor}</option>
-                <option value="一般规划">{t.infraNormal}</option>
-                <option value="无规划">{t.infraNone}</option>
-              </select>
-            </div>
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t.populationTrend}</label>
-              <select value={params.populationTrend} onChange={e => setParams({...params, populationTrend: e.target.value as any})} className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white">
-                <option value="持续流入">{t.popInflow}</option>
-                <option value="稳定">{t.popStable}</option>
-                <option value="流出">{t.popOutflow}</option>
-              </select>
-            </div>
-            <div className="space-y-2 md:col-span-3">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t.industryDev}</label>
-              <select value={params.industryDevelopment} onChange={e => setParams({...params, industryDevelopment: e.target.value as any})} className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white">
-                <option value="强劲">{t.industryStrong}</option>
-                <option value="中等">{t.industryMedium}</option>
-                <option value="疲软">{t.industryWeak}</option>
-              </select>
-            </div>
           </div>
-
+          
+          <div className="space-y-3 pt-2">
+             <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest">{t.macroFactors}</h4>
+             <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                   <label className="text-[10px] bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-slate-500">{t.policyEnv}</label>
+                   <select value={params.policyEnvironment} onChange={e => setParams({...params, policyEnvironment: e.target.value as any})} className="w-full text-xs p-2 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 dark:text-white">
+                     <option value="宽松">{t.policyLoose}</option>
+                     <option value="中性">{t.policyNeutral}</option>
+                     <option value="严格">{t.policyStrict}</option>
+                   </select>
+                </div>
+                <div className="space-y-1">
+                   <label className="text-[10px] bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-slate-500">{t.infrastructure}</label>
+                   <select value={params.infrastructurePlan} onChange={e => setParams({...params, infrastructurePlan: e.target.value as any})} className="w-full text-xs p-2 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 dark:text-white">
+                     <option value="重大规划">{t.infraMajor}</option>
+                     <option value="一般规划">{t.infraNormal}</option>
+                     <option value="无规划">{t.infraNone}</option>
+                   </select>
+                </div>
+                <div className="space-y-1">
+                   <label className="text-[10px] bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-slate-500">{t.populationTrend}</label>
+                   <select value={params.populationTrend} onChange={e => setParams({...params, populationTrend: e.target.value as any})} className="w-full text-xs p-2 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 dark:text-white">
+                     <option value="持续流入">{t.popInflow}</option>
+                     <option value="稳定">{t.popStable}</option>
+                     <option value="流出">{t.popOutflow}</option>
+                   </select>
+                </div>
+                <div className="space-y-1">
+                   <label className="text-[10px] bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-slate-500">{t.industryDev}</label>
+                   <select value={params.industryDevelopment} onChange={e => setParams({...params, industryDevelopment: e.target.value as any})} className="w-full text-xs p-2 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 dark:text-white">
+                     <option value="强劲">{t.industryStrong}</option>
+                     <option value="中等">{t.industryMedium}</option>
+                     <option value="疲软">{t.industryWeak}</option>
+                   </select>
+                </div>
+             </div>
+          </div>
           <button onClick={handlePredict} className="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-xl font-bold shadow-lg shadow-indigo-500/30 transition-all active:scale-[0.98]">
             {t.predictBtn}
           </button>
@@ -1396,13 +1404,18 @@ const CollapsibleMessage = ({ content }: { content: string }) => {
 
 function App() {
   // --- State ---
-  const [darkMode, setDarkMode] = useState(false);
+  const [theme, setTheme] = useState<ThemeMode>(() => {
+    const saved = localStorage.getItem('theme');
+    return (saved as ThemeMode) || 'light';
+  });
   const [showDonation, setShowDonation] = useState(false);
   const [chartGranularity, setChartGranularity] = useState<'month' | 'year'>('year'); 
   const [showSettings, setShowSettings] = useState(false); 
   const [showMethodology, setShowMethodology] = useState(false);
   const [removeInflation, setRemoveInflation] = useState(false); 
   const [showFeedback, setShowFeedback] = useState(false);
+  const [showThemeMenu, setShowThemeMenu] = useState(false);
+  const [showPresetMenu, setShowPresetMenu] = useState(false);
   
   // Language & Currency State
   const [language, setLanguage] = useState<Language>('ZH');
@@ -1536,14 +1549,21 @@ function App() {
 
   // --- Effects ---
   useEffect(() => {
-    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) setDarkMode(true);
     const savedKey = localStorage.getItem('user_gemini_api_key');
     if (savedKey) { setCustomApiKey(savedKey); setTempApiKey(savedKey); }
-    const hasSeenTour = localStorage.getItem('has_seen_tour');
+    const hasSeenTour = localStorage.getItem('hasSeenTour');
     if (!hasSeenTour) setShowTour(true);
   }, []);
 
-  useEffect(() => { document.documentElement.classList.toggle('dark', darkMode); }, [darkMode]);
+  // Theme effect
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    // Keep dark class for backward compatibility
+    document.documentElement.classList.toggle('dark', theme === 'dark' || theme === 'deepblack' || theme === 'gaming');
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+  
+  const darkMode = theme !== 'light'; // For backward compatibility with existing code
 
 
 
@@ -1574,6 +1594,24 @@ function App() {
   };
   
   // Decision Journal Handlers
+  // Load preset template
+  const loadPreset = (presetId: string) => {
+    const preset = getPresetById(presetId);
+    if (!preset) return;
+    
+    // Apply preset params to state
+    setParams(prev => ({
+      ...prev,
+      ...preset.params
+    }));
+    
+    setShowPresetMenu(false);
+    
+    // Show toast notification
+    const presetName = language === 'ZH' ? preset.name : preset.nameEn;
+    alert(t.presets?.presetLoaded.replace('{name}', presetName) || `Loaded: ${presetName}`);
+  };
+
   const handleSaveSnapshot = () => {
     const newSnapshot: DecisionSnapshot = {
       id: Date.now().toString(),
@@ -1675,9 +1713,7 @@ function App() {
       <header className="sticky top-0 z-30 backdrop-blur-xl bg-white/80 dark:bg-slate-950/80 border-b border-slate-200 dark:border-slate-800">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3" id="header-title">
-            <div className="bg-indigo-600 p-2.5 rounded-xl shadow-lg shadow-indigo-500/20">
-              <Calculator className="h-5 w-5 text-white" />
-            </div>
+            <img src="/logo.png" alt="DeepEstate" className="h-10 w-10 object-contain hover:scale-110 transition-transform" />
             <div>
               <h1 className="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-violet-600 dark:from-indigo-400 dark:to-violet-400">
                 {t.appTitle} <span className="text-xs bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-300 px-2 py-0.5 rounded-full ml-2 align-middle">{t.pro}</span>
@@ -1721,8 +1757,84 @@ function App() {
 
             <button onClick={() => setShowMethodology(true)} className="hidden md:flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"><BookOpen className="h-3.5 w-3.5" /> {t.methodology}</button>
             <button onClick={toggleLanguage} className="px-3 py-1.5 text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">{language === 'ZH' ? 'EN' : '中文'}</button>
+            
+            {/* Preset Selector */}
+            <div className="relative">
+              <button
+                onClick={() => setShowPresetMenu(!showPresetMenu)}
+                className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition-colors border border-indigo-100 dark:border-indigo-900/30"
+              >
+                <Zap className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">{t.presets?.title || '快速预设'}</span>
+              </button>
+              
+              {showPresetMenu && (
+                <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 py-2 z-50">
+                  {PRESETS.map((preset) => (
+                    <button
+                      key={preset.id}
+                      onClick={() => loadPreset(preset.id)}
+                      className="w-full px-4 py-3 text-left hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors group"
+                    >
+                      <div className="flex items-start gap-3">
+                        <span className="text-2xl">{preset.icon}</span>
+                        <div className="flex-1">
+                          <div className="font-medium text-slate-900 dark:text-slate-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
+                            {language === 'ZH' ? preset.name : preset.nameEn}
+                          </div>
+                          <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                            {language === 'ZH' ? preset.description : preset.descriptionEn}
+                          </div>
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            
             <button onClick={() => setShowSettings(true)} className="p-2.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-slate-500 dark:text-slate-400 relative" title={`AI: ${getProviderName(aiConfig.provider)}`}><Settings className="h-5 w-5" />{aiConfig.apiKey && <span className="absolute top-2 right-2 w-2 h-2 bg-emerald-500 rounded-full border border-white dark:border-slate-900"></span>}</button>
-            <button onClick={() => setDarkMode(!darkMode)} className="p-2.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-slate-500 dark:text-slate-400">{darkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}</button>
+            
+            {/* Theme Switcher */}
+            <div className="relative">
+              <button 
+                onClick={() => setShowThemeMenu(!showThemeMenu)}
+                className="p-2.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-slate-500 dark:text-slate-400"
+              >
+                {theme === 'light' && <Sun className="h-5 w-5" />}
+                {theme === 'dark' && <Moon className="h-5 w-5" />}
+                {theme === 'professional' && <span className="text-lg">💼</span>}
+                {theme === 'gaming' && <span className="text-lg">🎮</span>}
+                {theme === 'deepblack' && <span className="text-lg">⚫</span>}
+              </button>
+              
+              {showThemeMenu && (
+                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 py-2 z-50">
+                  {[
+                    { id: 'light' as ThemeMode, icon: '☀️', label: t.themes?.light || '浅色' },
+                    { id: 'dark' as ThemeMode, icon: '🌙', label: t.themes?.dark || '深色' },
+                    { id: 'professional' as ThemeMode, icon: '💼', label: t.themes?.professional || '专业版' },
+                    { id: 'gaming' as ThemeMode, icon: '🎮', label: t.themes?.gaming || '游戏版' },
+                    { id: 'deepblack' as ThemeMode, icon: '⚫', label: t.themes?.deepblack || '深黑色' }
+                  ].map((themeOption) => (
+                    <button
+                      key={themeOption.id}
+                      onClick={() => {
+                        setTheme(themeOption.id);
+                        setShowThemeMenu(false);
+                      }}
+                      className={`w-full px-4 py-2 text-left flex items-center gap-3 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors ${
+                        theme === themeOption.id ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400' : 'text-slate-700 dark:text-slate-300'
+                      }`}
+                    >
+                      <span className="text-lg">{themeOption.icon}</span>
+                      <span className="text-sm font-medium">{themeOption.label}</span>
+                      {theme === themeOption.id && <CheckCircle2 className="h-4 w-4 ml-auto" />}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
             <button 
               onClick={handleSaveSnapshot}
               className="hidden md:flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-500/20"
@@ -2073,14 +2185,19 @@ function App() {
         </div>
 
         {/* 房子评价你 - House Roast Section */}
-        <DecisionDashboard params={params} result={result} t={t} />
+        <DecisionDashboard params={params} result={result} t={t} language={language} />
         
 
         {/* Interactive Visualization Dashboard */}
         <InteractiveDashboard initialParams={params} t={t} />
+        
+        {/* Interactive Timeline */}
+        <div className="animate-fade-in-up animate-delay-200">
+          <InteractiveTimeline result={result} language={language} t={t} />
+        </div>
 
         {/* 游戏化买房模式 - Game Mode Section */}
-        <GameModePanel params={params} t={t} />
+        <GameModePanel params={params} t={t} language={language} />
 
       </main>
 
@@ -2128,18 +2245,18 @@ function App() {
         
         <div className="max-w-[1600px] mx-auto px-4 relative z-10">
           {/* Main Footer Content */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-8">
             {/* About Section */}
             <div>
               <h3 className="text-sm font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
                 <Home className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
-                {t.footerAbout || '关于工具'}
+                {t.aboutTool || '关于工具'}
               </h3>
               <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed mb-3">
-                {t.footerAboutDesc || '智能房贷顾问是一个专业的房产投资决策工具，通过数据分析和可视化帮助您做出明智的购房选择。'}
+                {t.aboutDesc || '智能房贷顾问是一个专业的房产投资决策工具，通过数据分析和可视化帮助您做出明智的购房选择。'}
               </p>
               <p className="text-xs text-slate-500 dark:text-slate-500 italic">
-                {t.footerDisclaimer || '本工具仅供参考，不构成投资建议。'}
+                {t.disclaimer || '本工具仅供参考，不构成投资建议。'}
               </p>
             </div>
 
@@ -2147,31 +2264,31 @@ function App() {
             <div>
               <h3 className="text-sm font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
                 <Compass className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
-                {t.footerQuickLinks || '快速导航'}
+                {t.quickNav || '快速导航'}
               </h3>
               <ul className="space-y-2 text-xs">
                 <li>
                   <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors flex items-center gap-1">
                     <ChevronRight className="h-3 w-3" />
-                    {t.footerHome || '首页/对比分析'}
+                    {t.navHome || '首页/对比分析'}
                   </button>
                 </li>
                 <li>
                   <button onClick={() => { setActiveTab('knowledge'); setTimeout(() => document.getElementById('main-report')?.scrollIntoView({ behavior: 'smooth' }), 100); }} className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors flex items-center gap-1">
                     <ChevronRight className="h-3 w-3" />
-                    {t.footerKnowledge || '知识树/词汇百科'}
+                    {t.navKnowledge || '知识树/词汇百科'}
                   </button>
                 </li>
                 <li>
                   <button onClick={() => { setActiveTab('stress'); setTimeout(() => document.getElementById('main-report')?.scrollIntoView({ behavior: 'smooth' }), 100); }} className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors flex items-center gap-1">
                     <ChevronRight className="h-3 w-3" />
-                    {t.footerStress || '压力测试/情景模拟'}
+                    {t.navStress || '压力测试/情景模拟'}
                   </button>
                 </li>
                 <li>
                   <button onClick={() => setShowMethodology(true)} className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors flex items-center gap-1">
                     <ChevronRight className="h-3 w-3" />
-                    {t.footerMethodology || '计算原理说明'}
+                    {t.navLogic || '计算原理说明'}
                   </button>
                 </li>
               </ul>
@@ -2181,25 +2298,49 @@ function App() {
             <div>
               <h3 className="text-sm font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
                 <Database className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
-                {t.footerDataSources || '数据来源'}
+                {t.dataSources || '数据来源'}
               </h3>
               <ul className="space-y-2 text-xs text-slate-600 dark:text-slate-400">
                 <li className="flex items-start gap-2">
                   <span className="text-indigo-600 dark:text-indigo-400 mt-0.5">•</span>
-                  <span>{t.footerSourceLPR || 'LPR利率：中国人民银行'}</span>
+                  <span>{t.sourceLpr || 'LPR利率：中国人民银行'}</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-indigo-600 dark:text-indigo-400 mt-0.5">•</span>
-                  <span>{t.footerSourceStats || '房价数据：国家统计局'}</span>
+                  <span>{t.sourcePrice || '房价数据：国家统计局'}</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-indigo-600 dark:text-indigo-400 mt-0.5">•</span>
-                  <span>{t.footerSourceMarket || '市场数据：公开市场信息'}</span>
+                  <span>{t.sourceMarket || '市场数据：公开市场信息'}</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-indigo-600 dark:text-indigo-400 mt-0.5">•</span>
-                  <span>{t.footerSourceCalc || '计算模型：标准金融公式'}</span>
+                  <span>{t.sourceModel || '计算模型：标准金融公式'}</span>
                 </li>
+              </ul>
+            </div>
+
+            {/* Macro Data & Trends */}
+            <div>
+              <h3 className="text-sm font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
+                <TrendingUp className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+                {t.externalLinks?.title || '宏观数据与趋势'}
+              </h3>
+              <ul className="space-y-2 text-xs text-slate-600 dark:text-slate-400">
+                {[
+                  { name: t.externalLinks?.ershoufang || '二手房大数据', url: 'https://ershoufangdata.com' },
+                  { name: t.externalLinks?.creprice || 'CRE Price', url: 'https://www.creprice.cn' },
+                  { name: t.externalLinks?.eastmoney || '东方财富指数', url: 'https://data.eastmoney.com/cjsj/newhouse.html' },
+                  { name: t.externalLinks?.stats || '国家统计局', url: 'https://data.stats.gov.cn' },
+                  { name: t.externalLinks?.tsinghua || '清华恒大指数', url: 'https://www.cre.tsinghua.edu.cn/scjc/csesfzs.htm' }
+                ].map((link, i) => (
+                  <li key={i}>
+                    <a href={link.url} target="_blank" rel="noopener noreferrer" className="flex items-start gap-2 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+                       <ExternalLink className="h-3 w-3 mt-0.5 flex-shrink-0" />
+                       <span>{link.name}</span>
+                    </a>
+                  </li>
+                ))}
               </ul>
             </div>
 
@@ -2207,7 +2348,7 @@ function App() {
             <div>
               <h3 className="text-sm font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
                 <MessageCircle className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
-                {t.footerHelp || '帮助与反馈'}
+                {t.helpFeedback || '帮助与反馈'}
               </h3>
               <div className="space-y-3">
                 <button 
@@ -2215,14 +2356,14 @@ function App() {
                   className="w-full flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:border-indigo-300 dark:hover:border-indigo-600 rounded-lg text-xs font-medium shadow-sm hover:shadow-md transition-all"
                 >
                   <Send className="h-3 w-3" />
-                  {t.footerFeedback || '提交反馈'}
+                  {t.feedbackBtn || '提交反馈'}
                 </button>
                 <button 
                   onClick={() => setShowDonation(true)} 
                   className="w-full flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white rounded-lg text-xs font-medium shadow-lg shadow-emerald-500/30 transition-all transform hover:scale-105"
                 >
                   <Coffee className="h-3 w-3" />
-                  {t.footerDonate || '赞赏支持'}
+                  {t.donateBtn || '赞赏支持'}
                 </button>
               </div>
             </div>
@@ -2235,10 +2376,10 @@ function App() {
                 <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-500 flex-shrink-0 mt-0.5" />
                 <div className="flex-1">
                   <h4 className="text-sm font-bold text-amber-900 dark:text-amber-400 mb-2">
-                    {t.footerRiskTitle || '⚠️ 风险提示与免责声明'}
+                    {t.riskTitle || '⚠️ 风险提示与免责声明'}
                   </h4>
                   <p className="text-xs text-amber-800 dark:text-amber-300 leading-relaxed">
-                    {t.footerRiskWarning || '本工具提供的所有分析和结果均基于用户输入和假设的宏观数据，仅供参考，不构成任何投资建议。房地产市场受多种因素影响，实际情况可能与预测存在差异。市场有风险，决策需谨慎。请在做出重大财务决策前咨询专业的财务顾问或房产专家。'}
+                    {t.riskWarning || '本工具提供的所有分析和结果均基于用户输入和假设的宏观数据，仅供参考，不构成任何投资建议。房地产市场受多种因素影响，实际情况可能与预测存在差异。市场有风险，决策需谨慎。请在做出重大财务决策前咨询专业的财务顾问或房产专家。'}
                   </p>
                 </div>
               </div>
@@ -2261,7 +2402,7 @@ function App() {
               {/* Quote */}
               <div className="text-center">
                 <p className="text-xs text-slate-400 dark:text-slate-500 italic">
-                  {t.footerQuote || '"明智的决策源于充分的信息"'}
+                  {t.quote || '"明智的决策源于充分的信息"'}
                 </p>
               </div>
 

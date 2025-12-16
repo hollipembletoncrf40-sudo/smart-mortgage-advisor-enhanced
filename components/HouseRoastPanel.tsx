@@ -1,22 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { Home, AlertTriangle, Info, Lightbulb, X, ChevronDown, ChevronUp } from 'lucide-react';
 import { RoastResult, generateHouseRoasts } from '../utils/houseRoast';
-import { InvestmentParams, CalculationResult } from '../types';
+import { InvestmentParams, CalculationResult, Language } from '../types';
 
 interface HouseRoastPanelProps {
   params: InvestmentParams;
   result: CalculationResult;
   t: any;
+  language?: Language;
 }
 
-const HouseRoastPanel: React.FC<HouseRoastPanelProps> = ({ params, result, t }) => {
+const HouseRoastPanel: React.FC<HouseRoastPanelProps> = ({ params, result, t, language = 'ZH' as Language }) => {
   const [roasts, setRoasts] = useState<RoastResult[]>([]);
   const [isExpanded, setIsExpanded] = useState(false);
   const [showPanel, setShowPanel] = useState(true);
   const [animatedIndex, setAnimatedIndex] = useState(-1);
 
   useEffect(() => {
-    const generatedRoasts = generateHouseRoasts(params, result);
+    const generatedRoasts = generateHouseRoasts(params, result, language);
     setRoasts(generatedRoasts);
     
     // 如果有严重或危险的问题，自动展开
@@ -87,10 +88,10 @@ const HouseRoastPanel: React.FC<HouseRoastPanelProps> = ({ params, result, t }) 
           </div>
           <div>
             <h3 className="text-xl font-bold text-slate-800 dark:text-white">
-              🏠 房子有话要说
+              {t.roastTitle}
             </h3>
             <p className="text-sm text-slate-600 dark:text-slate-400">
-              清醒一下，让我们面对现实
+              {t.roastSubtitle}
             </p>
           </div>
         </div>

@@ -53,12 +53,12 @@ const MarketSentimentSlider: React.FC<MarketSentimentSliderProps> = ({ params, o
         bgColor: 'bg-green-50 dark:bg-green-900/20',
         borderColor: 'border-green-200 dark:border-green-900',
         icon: TrendingDown,
-        description: '市场低迷，房价可能下跌，但贷款利率较低',
-        advice: '适合有稳定收入、风险承受能力强的购房者',
+        description: t.sentimentDescBearish || '市场低迷，房价可能下跌，但贷款利率较低',
+        advice: t.sentimentAdviceBearish || '适合有稳定收入、风险承受能力强的购房者',
         impacts: [
-          { label: '房价', trend: 'down', value: '下行压力' },
-          { label: '利率', trend: 'down', value: '相对较低' },
-          { label: '租金', trend: 'stable', value: '相对稳定' }
+          { label: t.impactPrice || '房价', trend: 'down', value: t.impactDown || '下行压力' },
+          { label: t.impactRateShort || '利率', trend: 'down', value: t.impactLow || '相对较低' },
+          { label: t.impactRent || '租金', trend: 'stable', value: t.impactStable || '相对稳定' }
         ]
       };
     }
@@ -69,12 +69,12 @@ const MarketSentimentSlider: React.FC<MarketSentimentSliderProps> = ({ params, o
         bgColor: 'bg-red-50 dark:bg-red-900/20',
         borderColor: 'border-red-200 dark:border-red-900',
         icon: TrendingUp,
-        description: '市场繁荣，房价上涨，但贷款成本增加',
-        advice: '需要评估高房价和高利率的双重压力',
+        description: t.sentimentDescBullish || '市场繁荣，房价上涨，但贷款成本增加',
+        advice: t.sentimentAdviceBullish || '需要评估高房价和高利率的双重压力',
         impacts: [
-          { label: '房价', trend: 'up', value: '快速上涨' },
-          { label: '利率', trend: 'up', value: '相对较高' },
-          { label: '租金', trend: 'up', value: '同步上涨' }
+          { label: t.impactPrice || '房价', trend: 'up', value: t.impactUp || '快速上涨' },
+          { label: t.impactRateShort || '利率', trend: 'up', value: t.impactHigh || '相对较高' },
+          { label: t.impactRent || '租金', trend: 'up', value: t.impactSyncUp || '同步上涨' }
         ]
       };
     }
@@ -84,12 +84,12 @@ const MarketSentimentSlider: React.FC<MarketSentimentSliderProps> = ({ params, o
       bgColor: 'bg-slate-50 dark:bg-slate-800/50',
       borderColor: 'border-slate-200 dark:border-slate-700',
       icon: Minus,
-      description: '市场平稳，各项指标处于合理区间',
-      advice: '适合大多数购房者的常规市场环境',
+      description: t.sentimentDescNeutral || '市场平稳，各项指标处于合理区间',
+      advice: t.sentimentAdviceNeutral || '适合大多数购房者的常规市场环境',
       impacts: [
-        { label: '房价', trend: 'stable', value: '平稳增长' },
-        { label: '利率', trend: 'stable', value: '中等水平' },
-        { label: '租金', trend: 'stable', value: '稳定增长' }
+        { label: t.impactPrice || '房价', trend: 'stable', value: t.impactSteady || '平稳增长' },
+        { label: t.impactRateShort || '利率', trend: 'stable', value: t.impactMedium || '中等水平' },
+        { label: t.impactRent || '租金', trend: 'stable', value: t.impactSteadyGrow || '稳定增长' }
       ]
     };
   };
@@ -108,9 +108,9 @@ const MarketSentimentSlider: React.FC<MarketSentimentSliderProps> = ({ params, o
     return {
       buyAdvantage,
       buyAdvantagePercent,
-      recommendation: buyAdvantage > 0 ? '买房更优' : '租房投资更优'
+      recommendation: buyAdvantage > 0 ? (t.recommendBuy || '买房更优') : (t.recommendRent || '租房投资更优')
     };
-  }, [result]);
+  }, [result, t]);
 
   const getTrendIcon = (trend: string) => {
     if (trend === 'up') return <TrendingUp className="h-3 w-3 text-red-500" />;
@@ -160,9 +160,9 @@ const MarketSentimentSlider: React.FC<MarketSentimentSliderProps> = ({ params, o
       </div>
 
       <div className="flex justify-between mb-4 text-[10px] text-slate-500 dark:text-slate-400 font-medium">
-        <span>悲观预期</span>
-        <span>中性预期</span>
-        <span>乐观预期</span>
+        <span>{t.sentimentBearish?.split(' ')[0] || '悲观'}</span>
+        <span>{t.sentimentNeutral?.split(' ')[0] || '中性'}</span>
+        <span>{t.sentimentBullish?.split(' ')[0] || '乐观'}</span>
       </div>
 
       {/* Description */}
@@ -184,19 +184,19 @@ const MarketSentimentSlider: React.FC<MarketSentimentSliderProps> = ({ params, o
       {/* Parameter Display */}
       <div className="grid grid-cols-3 gap-2 mb-4">
         <div className="bg-white dark:bg-slate-900 p-2 rounded-lg border border-slate-200 dark:border-slate-700">
-          <div className="text-[10px] text-slate-500 mb-1">房产增值</div>
+          <div className="text-[10px] text-slate-500 mb-1">{t.sentimentProperty || '房产增值'}</div>
           <div className="text-sm font-bold text-slate-800 dark:text-white">
             {params.appreciationRate.toFixed(1)}%
           </div>
         </div>
         <div className="bg-white dark:bg-slate-900 p-2 rounded-lg border border-slate-200 dark:border-slate-700">
-          <div className="text-[10px] text-slate-500 mb-1">理财收益</div>
+          <div className="text-[10px] text-slate-500 mb-1">{t.sentimentReturn || '理财收益'}</div>
           <div className="text-sm font-bold text-slate-800 dark:text-white">
             {params.alternativeReturnRate.toFixed(1)}%
           </div>
         </div>
         <div className="bg-white dark:bg-slate-900 p-2 rounded-lg border border-slate-200 dark:border-slate-700">
-          <div className="text-[10px] text-slate-500 mb-1">贷款利率</div>
+          <div className="text-[10px] text-slate-500 mb-1">{t.sentimentRate || '贷款利率'}</div>
           <div className="text-sm font-bold text-slate-800 dark:text-white">
             {params.interestRate.toFixed(2)}%
           </div>
@@ -205,7 +205,7 @@ const MarketSentimentSlider: React.FC<MarketSentimentSliderProps> = ({ params, o
 
       {/* Market Impact Indicators */}
       <div className="mb-4">
-        <div className="text-xs font-bold text-slate-600 dark:text-slate-400 mb-2">市场影响</div>
+        <div className="text-xs font-bold text-slate-600 dark:text-slate-400 mb-2">{t.marketImpact || '市场影响'}</div>
         <div className="grid grid-cols-3 gap-2">
           {sentimentData.impacts.map((impact, index) => (
             <div key={index} className="bg-white dark:bg-slate-900 p-2 rounded-lg border border-slate-200 dark:border-slate-700">
@@ -225,7 +225,7 @@ const MarketSentimentSlider: React.FC<MarketSentimentSliderProps> = ({ params, o
       {impactPreview && (
         <div className="p-3 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-xl border border-indigo-200 dark:border-indigo-900">
           <div className="text-xs font-bold text-indigo-700 dark:text-indigo-300 mb-1">
-            当前情绪下的结果预测
+            {t.predictionResult || '当前情绪下的结果预测'}
           </div>
           <div className="flex items-center justify-between">
             <span className="text-xs text-slate-600 dark:text-slate-400">

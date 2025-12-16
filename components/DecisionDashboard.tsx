@@ -1,29 +1,76 @@
+
 import React, { useState } from 'react';
 import HouseRoastPanel from './HouseRoastPanel';
-import { InvestmentParams, CalculationResult } from '../types';
+import { InvestmentParams, CalculationResult, Language } from '../types';
 import { generateAlternativePaths, calculateIrreversibility, generateAIPerspective } from '../utils/decisionSupport';
+import { FutureSelfPanel } from './FutureSelfPanel';
 import { 
   calculatePeerDistribution,
   calculateMinorityStatus,
   calculateFutureBuyerOverlap,
   calculateFamilyImpact
 } from '../utils/socialPerspective';
-import { CheckCircle2, AlertTriangle, RefreshCw, ShieldAlert, BadgeCheck, Bot, ThumbsUp, ThumbsDown, Users, TrendingUp, UserCheck, Heart } from 'lucide-react';
+import { CheckCircle2, AlertTriangle, RefreshCw, ShieldAlert, BadgeCheck, Bot, ThumbsUp, ThumbsDown, Users, TrendingUp, UserCheck, Heart, Share2, Download, X } from 'lucide-react';
 import { PieChart, Pie, Cell, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import BattleReportCard from './BattleReportCard';
+import html2canvas from 'html2canvas';
 
 interface DecisionDashboardProps {
   params: InvestmentParams;
   result: CalculationResult;
   t: any;
+  language: Language;
 }
 
-const DecisionDashboard: React.FC<DecisionDashboardProps> = ({ params, result, t }) => {
+const DecisionDashboard: React.FC<DecisionDashboardProps> = ({ params, result, t, language }) => {
   const [activeTab, setActiveTab] = useState<'alternatives' | 'irreversible'>('alternatives');
   const [socialTab, setSocialTab] = useState<'peer' | 'minority' | 'future' | 'family'>('peer'); 
+  const [showReport, setShowReport] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const reportRef = React.useRef<HTMLDivElement>(null);
 
-  const alternatives = generateAlternativePaths(params);
-  const factors = calculateIrreversibility(params);
-  const aiPerspective = generateAIPerspective(params);
+  const handleDownloadReport = async () => {
+    if (!reportRef.current) return;
+    setIsGenerating(true);
+    try {
+      // Wait a bit for any animations to settle
+      await new Promise(resolve => setTimeout(resolve, 200));
+      
+      const canvas = await html2canvas(reportRef.current, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#0f172a',
+        logging: false,
+        width: 375,
+        height: 667,
+        imageTimeout: 0,
+        removeContainer: true
+      });
+      
+      // Use dataURL for better compatibility
+      const dataUrl = canvas.toDataURL('image/png', 1.0);
+      const link = document.createElement('a');
+      link.download = `DeepEstate_战报_${new Date().getTime()}.png`;
+      link.href = dataUrl;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      setIsGenerating(false);
+    } catch (err) {
+      console.error('Failed to generate report', err);
+      alert('图片生成失败，请重试');
+      setIsGenerating(false);
+    }
+  }; 
+
+  // Derive language from translation object detection (since prop isn't passed yet)
+  
+
+  const alternatives = generateAlternativePaths(params, language);
+  const factors = calculateIrreversibility(params, language);
+  const aiPerspective = generateAIPerspective(params, language);
 
   // Social perspective calculations
   const peerDistribution = calculatePeerDistribution(params.totalPrice || 300, params.familyMonthlyIncome || 30000, 30);
@@ -34,10 +81,26 @@ const DecisionDashboard: React.FC<DecisionDashboardProps> = ({ params, result, t
   const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444'];
 
   return (
+    <div className="flex flex-col gap-6">
+      {/* Header Actions */}
+      <div className="flex justify-between items-center bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
+        <h2 className="text-xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
+          <Bot className="h-6 w-6 text-indigo-600" />
+          {t.decisionDashboard?.title || 'AI Decision Center'}
+        </h2>
+        <button
+          onClick={() => setShowReport(true)}
+          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white rounded-xl font-bold shadow-lg shadow-indigo-500/30 transition-all transform hover:scale-105 active:scale-95"
+        >
+          <Share2 className="h-4 w-4" />
+          {t.battleReport?.shareBtn}
+        </button>
+      </div>
+
     <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
       {/* Left Column: House Roast + Social Perspective */}
       <div className="space-y-6">
-         <HouseRoastPanel params={params} result={result} t={t} />
+         <HouseRoastPanel params={params} result={result} t={t} language={language} />
          
          {/* Social Perspective - Compact */}
          <div className="bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 rounded-3xl p-6 shadow-xl border border-purple-200 dark:border-purple-800">
@@ -45,10 +108,10 @@ const DecisionDashboard: React.FC<DecisionDashboardProps> = ({ params, result, t
              <div className="p-2 bg-purple-500 rounded-xl">
                <Users className="h-5 w-5 text-white" />
              </div>
-             <div>
-               <h3 className="text-lg font-bold text-slate-800 dark:text-white">对照与社会视角</h3>
-               <p className="text-xs text-slate-500">你在人群中的位置</p>
-             </div>
+              <div>
+                <h3 className="text-lg font-bold text-slate-800 dark:text-white">{t.socialPerspective}</h3>
+                <p className="text-xs text-slate-500">{t.aiPerspectiveCheck}</p>
+              </div>
            </div>
            
            {/* Compact Tabs */}
@@ -75,9 +138,9 @@ const DecisionDashboard: React.FC<DecisionDashboardProps> = ({ params, result, t
            
            {/* Content */}
            <div className="bg-white dark:bg-slate-800 rounded-xl p-4">
-             {socialTab === 'peer' && (
-               <div>
-                 <h4 className="text-sm font-bold text-slate-800 dark:text-white mb-3">同类人群选择</h4>
+              {socialTab === 'peer' && (
+                <div>
+                  <h4 className="text-sm font-bold text-slate-800 dark:text-white mb-3">{t.peerChoice}</h4>
                  <ResponsiveContainer width="100%" height={200}>
                    <PieChart>
                      <Pie
@@ -113,16 +176,16 @@ const DecisionDashboard: React.FC<DecisionDashboardProps> = ({ params, result, t
              
              {socialTab === 'minority' && (
                <div>
-                 <h4 className="text-sm font-bold text-slate-800 dark:text-white mb-3">少数派提示</h4>
+                 <h4 className="text-sm font-bold text-slate-800 dark:text-white mb-3">{t.decisionDashboard.minorityReport}</h4>
                  <div className="text-center">
                    <div className={`inline-block px-4 py-2 rounded-xl font-bold text-sm mb-3 ${
                      minorityStatus.trend === 'mainstream' ? 'bg-blue-100 text-blue-700' :
                      minorityStatus.trend === 'contrarian' ? 'bg-orange-100 text-orange-700' :
                      'bg-green-100 text-green-700'
                    }`}>
-                     {minorityStatus.trend === 'mainstream' ? '🚶 随大流' :
-                      minorityStatus.trend === 'contrarian' ? '🏃 逆行者' :
-                      '⚖️ 平衡派'}
+                     {minorityStatus.trend === 'mainstream' ? t.decisionDashboard.mainstream :
+                      minorityStatus.trend === 'contrarian' ? t.decisionDashboard.contrarian :
+                      t.decisionDashboard.balanced}
                    </div>
                    <div className="text-3xl font-black text-slate-800 dark:text-white mb-2">{minorityStatus.percentile}%</div>
                    <div className="relative h-3 bg-gradient-to-r from-green-500 via-blue-500 to-orange-500 rounded-full mb-3">
@@ -138,11 +201,11 @@ const DecisionDashboard: React.FC<DecisionDashboardProps> = ({ params, result, t
              
              {socialTab === 'future' && (
                <div>
-                 <h4 className="text-sm font-bold text-slate-800 dark:text-white mb-3">未来买家重叠度</h4>
+                 <h4 className="text-sm font-bold text-slate-800 dark:text-white mb-3">{t.decisionDashboard.futureBuyerOverlap}</h4>
                  <div className="text-center mb-3">
                    <div className="text-4xl font-black text-purple-600 dark:text-purple-400">{futureBuyerOverlap.totalOverlap}%</div>
                    <div className="text-xs text-slate-500">
-                     {futureBuyerOverlap.totalOverlap > 70 ? '易转手' : futureBuyerOverlap.totalOverlap > 40 ? '中等' : '难转手'}
+                     {futureBuyerOverlap.totalOverlap > 70 ? t.decisionDashboard.easyToSell : futureBuyerOverlap.totalOverlap > 40 ? t.decisionDashboard.mediumToSell : t.decisionDashboard.hardToSell}
                    </div>
                  </div>
                  <ResponsiveContainer width="100%" height={180}>
@@ -150,8 +213,8 @@ const DecisionDashboard: React.FC<DecisionDashboardProps> = ({ params, result, t
                      <PolarGrid />
                      <PolarAngleAxis dataKey="dimension" tick={{ fontSize: 10 }} />
                      <PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fontSize: 8 }} />
-                     <Radar name="你" dataKey="yourScore" stroke="#8b5cf6" fill="#8b5cf6" fillOpacity={0.6} />
-                     <Radar name="未来" dataKey="futureAvgScore" stroke="#10b981" fill="#10b981" fillOpacity={0.3} />
+                     <Radar name={t.decisionDashboard.radarYou} dataKey="yourScore" stroke="#8b5cf6" fill="#8b5cf6" fillOpacity={0.6} />
+                     <Radar name={t.decisionDashboard.radarFuture} dataKey="futureAvgScore" stroke="#10b981" fill="#10b981" fillOpacity={0.3} />
                      <Tooltip />
                    </RadarChart>
                  </ResponsiveContainer>
@@ -160,7 +223,7 @@ const DecisionDashboard: React.FC<DecisionDashboardProps> = ({ params, result, t
              
              {socialTab === 'family' && (
                <div>
-                 <h4 className="text-sm font-bold text-slate-800 dark:text-white mb-3">家庭成员影响</h4>
+                 <h4 className="text-sm font-bold text-slate-800 dark:text-white mb-3">{t.decisionDashboard.familyImpact}</h4>
                  <div className="space-y-2">
                    {familyImpact.map((impact, i) => (
                      <div key={i} className="p-2 bg-slate-50 dark:bg-slate-900 rounded-lg">
@@ -195,7 +258,14 @@ const DecisionDashboard: React.FC<DecisionDashboardProps> = ({ params, result, t
              )}
            </div>
          </div>
+
+      
+      {/* Future Self Panel (Moved to Left Bottom) */}
+      <FutureSelfPanel params={params} monthlyPayment={result.monthlyPayment} t={t} language={language} />
+      
       </div>
+
+
 
       {/* Right Column: Decision Tools */}
       <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-xl border border-slate-200 dark:border-slate-800 flex flex-col h-full">
@@ -223,7 +293,7 @@ const DecisionDashboard: React.FC<DecisionDashboardProps> = ({ params, result, t
             <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
               aiPerspective.confidence > 70 ? 'bg-slate-800 text-white' : 'bg-slate-200 text-slate-700'
             }`}>
-              {aiPerspective.confidence}% 确信度
+              {aiPerspective.confidence}% {t.decisionDashboard.confidence}
             </span>
           </div>
 
@@ -241,7 +311,7 @@ const DecisionDashboard: React.FC<DecisionDashboardProps> = ({ params, result, t
             </div>
             <div className="flex-1">
               <h3 className="text-sm font-bold text-slate-700 dark:text-slate-200 mb-1">
-                🤖 "如果我是你" AI 立场
+                {t.ifIWereYou}
               </h3>
               <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">
                 {aiPerspective.oneSentence}
@@ -255,8 +325,13 @@ const DecisionDashboard: React.FC<DecisionDashboardProps> = ({ params, result, t
                 {factor}
               </span>
             ))}
+            </div>
           </div>
-        </div>
+
+
+
+
+
 
         {/* Tabs */}
         <div className="flex space-x-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl mb-6">
@@ -269,7 +344,7 @@ const DecisionDashboard: React.FC<DecisionDashboardProps> = ({ params, result, t
             }`}
           >
             <RefreshCw className="h-4 w-4" />
-            替代人生方案
+            {t.decisionDashboard.alternativePaths}
           </button>
           <button
             onClick={() => setActiveTab('irreversible')}
@@ -280,7 +355,7 @@ const DecisionDashboard: React.FC<DecisionDashboardProps> = ({ params, result, t
             }`}
           >
             <ShieldAlert className="h-4 w-4" />
-            不可逆程度检测
+            {t.decisionDashboard.irreversibilityCheck}
           </button>
         </div>
 
@@ -289,8 +364,8 @@ const DecisionDashboard: React.FC<DecisionDashboardProps> = ({ params, result, t
           {activeTab === 'alternatives' ? (
             <div className="space-y-4">
               <div className="mb-4">
-                <h3 className="text-lg font-bold text-slate-800 dark:text-white">如果不买这套房...</h3>
-                <p className="text-xs text-slate-500">别陷入"非买不可"的误区，看看这些可能性</p>
+                <h3 className="text-lg font-bold text-slate-800 dark:text-white">{t.decisionDashboard.ifNotBuying}</h3>
+                <p className="text-xs text-slate-500">{t.decisionDashboard.ifNotBuyingDesc}</p>
               </div>
               {alternatives.map((path) => (
                 <div key={path.id} className="border border-slate-200 dark:border-slate-700 rounded-xl p-4 hover:border-indigo-300 dark:hover:border-indigo-700 transition-colors bg-slate-50 dark:bg-slate-800/50">
@@ -300,18 +375,18 @@ const DecisionDashboard: React.FC<DecisionDashboardProps> = ({ params, result, t
                       {path.title}
                     </h4>
                     <span className="text-xs font-bold px-2 py-1 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-lg">
-                      匹配度 {path.matchScore}%
+                      {t.decisionDashboard.matchScore} {path.matchScore}%
                     </span>
                   </div>
                   <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">{path.description}</p>
                   
                   <div className="grid grid-cols-2 gap-2 text-xs mb-3">
                     <div className="bg-white dark:bg-slate-800 p-2 rounded-lg">
-                      <div className="font-bold text-emerald-600 mb-1">✅ 优势</div>
+                      <div className="font-bold text-emerald-600 mb-1">{t.decisionDashboard.pros}</div>
                       {path.pros.slice(0, 2).map((p, i) => <div key={i} className="text-slate-600 dark:text-slate-400">• {p}</div>)}
                     </div>
                     <div className="bg-white dark:bg-slate-800 p-2 rounded-lg">
-                      <div className="font-bold text-slate-500 mb-1">❌ 劣势</div>
+                      <div className="font-bold text-slate-500 mb-1">{t.decisionDashboard.cons}</div>
                       {path.cons.slice(0, 2).map((p, i) => <div key={i} className="text-slate-600 dark:text-slate-400">• {p}</div>)}
                     </div>
                   </div>
@@ -326,8 +401,8 @@ const DecisionDashboard: React.FC<DecisionDashboardProps> = ({ params, result, t
           ) : (
             <div className="space-y-4">
               <div className="mb-4">
-                 <h3 className="text-lg font-bold text-slate-800 dark:text-white">决策后悔药检测</h3>
-                 <p className="text-xs text-slate-500">优先关注那些"一旦错了就回不了头"的地方</p>
+                 <h3 className="text-lg font-bold text-slate-800 dark:text-white">{t.decisionDashboard.regretDetector}</h3>
+                 <p className="text-xs text-slate-500">{t.decisionDashboard.regretDetectorDesc}</p>
               </div>
               {factors.map((factor, index) => (
                 <div key={index} className="flex gap-4 p-4 rounded-xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-800/80">
@@ -343,7 +418,7 @@ const DecisionDashboard: React.FC<DecisionDashboardProps> = ({ params, result, t
                         ${factor.level === 'irreversible' ? 'bg-rose-100 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400' : 
                           factor.level === 'semi-irreversible' ? 'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400' : 
                           'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400'}`}>
-                        {factor.level === 'irreversible' ? '不可逆' : factor.level === 'semi-irreversible' ? '半不可逆' : '可逆'}
+                        {factor.level === 'irreversible' ? t.decisionDashboard.irreversible : factor.level === 'semi-irreversible' ? t.decisionDashboard.semiIrreversible : t.decisionDashboard.reversible}
                       </span>
                     </div>
                     <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">{factor.impact}</p>
@@ -357,6 +432,57 @@ const DecisionDashboard: React.FC<DecisionDashboardProps> = ({ params, result, t
           )}
         </div>
       </div>
+
+      {/* Battle Report Modal */}
+      {showReport && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" onClick={() => setShowReport(false)}>
+          <div className="bg-slate-900 rounded-3xl max-w-sm w-full relative shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300" onClick={e => e.stopPropagation()}>
+             {/* Close Button */}
+             <button 
+               onClick={() => setShowReport(false)}
+               className="absolute top-4 right-4 z-20 bg-black/20 hover:bg-black/40 text-white p-2 rounded-full transition-colors backdrop-blur-md"
+             >
+               <X className="h-5 w-5" />
+             </button>
+
+             {/* Preview Area */}
+             <div className="flex justify-center bg-slate-950 p-0">
+               <BattleReportCard 
+                 ref={reportRef}
+                 params={params} 
+                 result={result} 
+                 roast={(() => {
+                   // Get a better roast from House Roast if available
+                   const dti = result.monthlyPayment / (params.familyMonthlyIncome || 30000);
+                   if (dti > 0.5) return t.decisionDashboard?.highDtiRoast || "月供压力山大，建议三思！";
+                   if (params.totalPrice && params.totalPrice > 1000) return t.decisionDashboard?.highPriceRoast || "大手笔！确保现金流充足。";
+                   if (result.rentalYield && result.rentalYield < 1.5) return t.decisionDashboard?.lowYieldRoast || "租售比偏低，投资需谨慎。";
+                   return t.decisionDashboard?.commonRoast || "稳健之选，继续加油！";
+                 })()}
+                 t={t}
+                 riskScore={(() => {
+                   const dti = (result.monthlyPayment / (params.familyMonthlyIncome || 30000)) * 100;
+                   const leverage = ((params.totalPrice || 300) * (1 - (params.downPaymentRatio || 30) / 100)) / (params.totalPrice || 300) * 100;
+                   return Math.round(Math.min(100, (dti * 0.6 + leverage * 0.4)));
+                 })()}
+                 beatPercent={(() => {
+                   // Calculate based on multiple factors
+                   const roi = result.rentalYield || 0;
+                   const dti = result.monthlyPayment / (params.familyMonthlyIncome || 30000);
+                   let score = 50; // Base score
+                   if (roi > 2.5) score += 30;
+                   else if (roi > 1.5) score += 15;
+                   if (dti < 0.3) score += 20;
+                   else if (dti < 0.5) score += 10;
+                   else score -= 10;
+                   return Math.min(99, Math.max(10, Math.round(score)));
+                 })()}
+               />
+             </div>
+          </div>
+        </div>
+      )}
+    </div>
     </div>
   );
 };

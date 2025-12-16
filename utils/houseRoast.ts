@@ -1,4 +1,4 @@
-import { InvestmentParams, CalculationResult } from '../types';
+import { InvestmentParams, CalculationResult, Language } from '../types';
 
 export type RoastCategory = 'budget' | 'location' | 'commute' | 'cost' | 'return' | 'lifestyle';
 export type RoastSeverity = 'mild' | 'serious' | 'critical';
@@ -13,7 +13,7 @@ export interface RoastResult {
 }
 
 // 检测预算漂移
-function detectBudgetDrift(params: InvestmentParams, result: CalculationResult): RoastResult | null {
+function detectBudgetDrift(params: InvestmentParams, result: CalculationResult, language: Language): RoastResult | null {
   const monthlyIncome = params.monthlyIncome || 0;
   if (monthlyIncome === 0) return null;
 
@@ -24,27 +24,45 @@ function detectBudgetDrift(params: InvestmentParams, result: CalculationResult):
     return {
       category: 'budget',
       severity: 'critical',
-      roastMessage: `月入${(monthlyIncome/10000).toFixed(1)}万，月供却要${(monthlyPayment/10000).toFixed(1)}万？你是打算靠爱发电吗？还是准备开启"仙人模式"不吃不喝？`,
-      realityCheck: `你的月供收入比高达${dti.toFixed(0)}%，远超安全线（30%）。这意味着你每个月${((dti/100)*30).toFixed(0)}天都在为房子打工。`,
-      suggestion: `降低预算至${(params.totalPrice * 0.4).toFixed(0)}万以内，或者增加首付至${((params.totalPrice * 0.5) / 10000).toFixed(0)}万，让月供降到${(monthlyIncome * 0.3 / 10000).toFixed(1)}万以下。`,
+      roastMessage: language === 'EN' 
+        ? `Income $${(monthlyIncome/1000).toFixed(1)}k vs Mortgage $${(monthlyPayment/1000).toFixed(1)}k? Are you planning to live on photosynthesis?`
+        : `月入${(monthlyIncome/10000).toFixed(1)}万，月供却要${(monthlyPayment/10000).toFixed(1)}万？你是打算靠爱发电吗？还是准备开启"仙人模式"不吃不喝？`,
+      realityCheck: language === 'EN'
+        ? `DTI is ${dti.toFixed(0)}%, far beyond safety line (30%). You work ${((dti/100)*30).toFixed(0)} days a month just for the bank.`
+        : `你的月供收入比高达${dti.toFixed(0)}%，远超安全线（30%）。这意味着你每个月${((dti/100)*30).toFixed(0)}天都在为房子打工。`,
+      suggestion: language === 'EN'
+        ? `Slash budget to <$${(params.totalPrice * 0.4).toFixed(0)}k or increase down payment.`
+        : `降低预算至${(params.totalPrice * 0.4).toFixed(0)}万以内，或者增加首付至${((params.totalPrice * 0.5) / 10000).toFixed(0)}万，让月供降到${(monthlyIncome * 0.3 / 10000).toFixed(1)}万以下。`,
       emoji: '💸'
     };
   } else if (dti > 50) {
     return {
       category: 'budget',
       severity: 'serious',
-      roastMessage: `${dti.toFixed(0)}%的收入拿去还房贷？你这是在cosplay"房奴"吗？建议申请非物质文化遗产。`,
-      realityCheck: `月供占收入${dti.toFixed(0)}%，超过健康线（30-40%）。你的生活质量可能会大打折扣。`,
-      suggestion: `考虑降低预算或延长贷款年限，让DTI控制在40%以内。`,
+      roastMessage: language === 'EN'
+        ? `${dti.toFixed(0)}% income for mortgage? Is this "Mortgage Slave" cosplay?`
+        : `${dti.toFixed(0)}%的收入拿去还房贷？你这是在cosplay"房奴"吗？建议申请非物质文化遗产。`,
+      realityCheck: language === 'EN'
+        ? `DTI > safe limit (30%). Quality of life will drop significantly.`
+        : `月供占收入${dti.toFixed(0)}%，超过健康线（30-40%）。你的生活质量可能会大打折扣。`,
+      suggestion: language === 'EN'
+        ? `Lower budget or extend loan term to keep DTI < 40%.`
+        : `考虑降低预算或延长贷款年限，让DTI控制在40%以内。`,
       emoji: '⚠️'
     };
   } else if (dti > 40) {
     return {
       category: 'budget',
       severity: 'mild',
-      roastMessage: `月供${dti.toFixed(0)}%的收入，虽然不至于吃土，但奶茶自由可能要说再见了。`,
-      realityCheck: `DTI在临界值，建议保持应急储备金。`,
-      suggestion: `尽量控制其他开支，建立6个月以上的应急基金。`,
+      roastMessage: language === 'EN'
+        ? `DTI ${dti.toFixed(0)}%. No more Starbucks for you.`
+        : `月供${dti.toFixed(0)}%的收入，虽然不至于吃土，但奶茶自由可能要说再见了。`,
+      realityCheck: language === 'EN'
+        ? `DTI is borderline. Keep a large emergency fund.`
+        : `DTI在临界值，建议保持应急储备金。`,
+      suggestion: language === 'EN'
+        ? `Control expenses and keep >6 months reserves.`
+        : `尽量控制其他开支，建立6个月以上的应急基金。`,
       emoji: '📊'
     };
   }
@@ -53,7 +71,7 @@ function detectBudgetDrift(params: InvestmentParams, result: CalculationResult):
 }
 
 // 检测区域幻想
-function detectLocationFantasy(params: InvestmentParams): RoastResult | null {
+function detectLocationFantasy(params: InvestmentParams, language: Language): RoastResult | null {
   const budget = params.totalPrice;
   const downPayment = params.totalPrice * (params.downPaymentRatio / 100);
 
@@ -62,9 +80,15 @@ function detectLocationFantasy(params: InvestmentParams): RoastResult | null {
     return {
       category: 'location',
       severity: 'serious',
-      roastMessage: `首付${params.downPaymentRatio}%就想买${budget}万的房？你这是在看房还是在看NFT？建议去元宇宙看看，那里不限购。`,
-      realityCheck: `你的首付只有${downPayment.toFixed(0)}万，但想买${budget}万的房子。银行可能会怀疑你的还款能力。`,
-      suggestion: `增加首付至30%以上（${(budget * 0.3).toFixed(0)}万），或降低预算至${(downPayment / 0.3).toFixed(0)}万以内。`,
+      roastMessage: language === 'EN'
+        ? `${params.downPaymentRatio}% down for a $${budget}k house? Are you buying a house or an NFT?`
+        : `首付${params.downPaymentRatio}%就想买${budget}万的房？你这是在看房还是在看NFT？建议去元宇宙看看，那里不限购。`,
+      realityCheck: language === 'EN'
+        ? `Low down payment with high price triggers risk alerts.`
+        : `你的首付只有${downPayment.toFixed(0)}万，但想买${budget}万的房子。银行可能会怀疑你的还款能力。`,
+      suggestion: language === 'EN'
+        ? `Increase down payment to 30% ($${(budget * 0.3).toFixed(0)}k).`
+        : `增加首付至30%以上（${(budget * 0.3).toFixed(0)}万），或降低预算至${(downPayment / 0.3).toFixed(0)}万以内。`,
       emoji: '🏰'
     };
   }
@@ -73,7 +97,7 @@ function detectLocationFantasy(params: InvestmentParams): RoastResult | null {
 }
 
 // 检测通勤成本
-function detectCommuteCost(params: InvestmentParams): RoastResult | null {
+function detectCommuteCost(params: InvestmentParams, language: Language): RoastResult | null {
   // 假设用户在 locationScore 中设置了通勤时间（分钟）
   // 这里我们用一个简化的检测
   const appreciationRate = params.appreciationRate;
@@ -83,9 +107,15 @@ function detectCommuteCost(params: InvestmentParams): RoastResult | null {
     return {
       category: 'return',
       severity: 'serious',
-      roastMessage: `年增值${appreciationRate}%？你是不是把房子当成了比特币？还是觉得自己买的是茅台股票？`,
-      realityCheck: `过去10年全国平均房价增速约5-6%，你的预期明显过高。`,
-      suggestion: `将预期收益率调整至5-6%更为合理，避免过度乐观。`,
+      roastMessage: language === 'EN'
+        ? `${appreciationRate}% annual growth? Is this a crypto token or a house?`
+        : `年增值${appreciationRate}%？你是不是把房子当成了比特币？还是觉得自己买的是茅台股票？`,
+      realityCheck: language === 'EN'
+        ? `Historical avg is 3-5%. Your expectation is unrealistic.`
+        : `过去10年全国平均房价增速约5-6%，你的预期明显过高。`,
+      suggestion: language === 'EN'
+        ? `Adjust expectation to 3-5% to be safe.`
+        : `将预期收益率调整至5-6%更为合理，避免过度乐观。`,
       emoji: '📈'
     };
   }
@@ -94,16 +124,22 @@ function detectCommuteCost(params: InvestmentParams): RoastResult | null {
 }
 
 // 检测生活成本美化
-function detectCostBeautification(params: InvestmentParams): RoastResult | null {
+function detectCostBeautification(params: InvestmentParams, language: Language): RoastResult | null {
   const holdingCost = params.holdingCostRatio;
   
   if (holdingCost < 0.5) {
     return {
       category: 'cost',
       severity: 'mild',
-      roastMessage: `持有成本${holdingCost}%？你是住在毛坯房还是打算自己当物业？别忘了水电费、物业费、维修费都在排队等你。`,
-      realityCheck: `实际持有成本通常在1-2%之间，你可能低估了真实开销。`,
-      suggestion: `将持有成本调整至1.5%左右更接近现实。`,
+      roastMessage: language === 'EN'
+        ? `Holding cost ${holdingCost}%? Are you the maintenance guy? Stuff breaks, you know.`
+        : `持有成本${holdingCost}%？你是住在毛坯房还是打算自己当物业？别忘了水电费、物业费、维修费都在排队等你。`,
+      realityCheck: language === 'EN'
+        ? `Real holding cost is ~1-2%. You are underestimating expense.`
+        : `实际持有成本通常在1-2%之间，你可能低估了真实开销。`,
+      suggestion: language === 'EN'
+        ? `Adjust holding cost to ~1.5%.`
+        : `将持有成本调整至1.5%左右更接近现实。`,
       emoji: '💰'
     };
   }
@@ -112,16 +148,22 @@ function detectCostBeautification(params: InvestmentParams): RoastResult | null 
 }
 
 // 检测投资回报幻想
-function detectReturnFantasy(params: InvestmentParams, result: CalculationResult): RoastResult | null {
+function detectReturnFantasy(params: InvestmentParams, result: CalculationResult, language: Language): RoastResult | null {
   const comprehensiveReturn = result.comprehensiveReturn;
   
   if (comprehensiveReturn > 15) {
     return {
       category: 'return',
       severity: 'critical',
-      roastMessage: `综合回报率${comprehensiveReturn.toFixed(1)}%？你确定买的是房子不是彩票？巴菲特看了都要沉默。`,
-      realityCheck: `如此高的回报率在现实中几乎不可能持续实现。`,
-      suggestion: `重新审视你的参数设置，特别是增值率和租金回报预期。`,
+      roastMessage: language === 'EN'
+        ? `Total Return ${comprehensiveReturn.toFixed(1)}%? Are you buying a lottery ticket? Even Buffett is speechless.`
+        : `综合回报率${comprehensiveReturn.toFixed(1)}%？你确定买的是房子不是彩票？巴菲特看了都要沉默。`,
+      realityCheck: language === 'EN'
+        ? `Such returns are statistically impossible in the current market.`
+        : `如此高的回报率在现实中几乎不可能持续实现。`,
+      suggestion: language === 'EN'
+        ? `Re-evaluate appreciation rate and rent assumptions.`
+        : `重新审视你的参数设置，特别是增值率和租金回报预期。`,
       emoji: '🎰'
     };
   }
@@ -130,7 +172,7 @@ function detectReturnFantasy(params: InvestmentParams, result: CalculationResult
 }
 
 // 检测生活方式不匹配
-function detectLifestyleMismatch(params: InvestmentParams): RoastResult | null {
+function detectLifestyleMismatch(params: InvestmentParams, language: Language): RoastResult | null {
   const loanTerm = params.loanTerm;
   const age = 30; // 假设平均年龄，实际可以让用户输入
   
@@ -138,9 +180,15 @@ function detectLifestyleMismatch(params: InvestmentParams): RoastResult | null {
     return {
       category: 'lifestyle',
       severity: 'mild',
-      roastMessage: `${loanTerm}年贷款？你是打算还到退休吗？建议提前规划一下养老金怎么分配。`,
-      realityCheck: `长期贷款意味着长期负债，可能影响退休生活质量。`,
-      suggestion: `考虑缩短贷款年限或增加提前还款计划。`,
+      roastMessage: language === 'EN'
+        ? `${loanTerm} year loan? Do you plan to pass the debt to your grandkids?`
+        : `${loanTerm}年贷款？你是打算还到退休吗？建议提前规划一下养老金怎么分配。`,
+      realityCheck: language === 'EN'
+        ? `Long debt means less retirement security.`
+        : `长期贷款意味着长期负债，可能影响退休生活质量。`,
+      suggestion: language === 'EN'
+        ? `Shorten loan term or plan early repayment.`
+        : `考虑缩短贷款年限或增加提前还款计划。`,
       emoji: '⏰'
     };
   }
@@ -149,25 +197,25 @@ function detectLifestyleMismatch(params: InvestmentParams): RoastResult | null {
 }
 
 // 主函数：生成所有吐槽
-export function generateHouseRoasts(params: InvestmentParams, result: CalculationResult): RoastResult[] {
+export function generateHouseRoasts(params: InvestmentParams, result: CalculationResult, language: Language = 'ZH'): RoastResult[] {
   const roasts: RoastResult[] = [];
 
-  const budgetRoast = detectBudgetDrift(params, result);
+  const budgetRoast = detectBudgetDrift(params, result, language);
   if (budgetRoast) roasts.push(budgetRoast);
 
-  const locationRoast = detectLocationFantasy(params);
+  const locationRoast = detectLocationFantasy(params, language);
   if (locationRoast) roasts.push(locationRoast);
 
-  const commuteRoast = detectCommuteCost(params);
+  const commuteRoast = detectCommuteCost(params, language);
   if (commuteRoast) roasts.push(commuteRoast);
 
-  const costRoast = detectCostBeautification(params);
+  const costRoast = detectCostBeautification(params, language);
   if (costRoast) roasts.push(costRoast);
 
-  const returnRoast = detectReturnFantasy(params, result);
+  const returnRoast = detectReturnFantasy(params, result, language);
   if (returnRoast) roasts.push(returnRoast);
 
-  const lifestyleRoast = detectLifestyleMismatch(params);
+  const lifestyleRoast = detectLifestyleMismatch(params, language);
   if (lifestyleRoast) roasts.push(lifestyleRoast);
 
   // 按严重程度排序

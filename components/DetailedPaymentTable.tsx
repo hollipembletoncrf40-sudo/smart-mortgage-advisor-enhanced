@@ -51,7 +51,16 @@ const DetailedPaymentTable: React.FC<DetailedPaymentTableProps> = ({ result, t }
 
   // 导出为CSV
   const exportToCSV = () => {
-    const headers = ['期数', '年份', '月份', '日期', '月供(元)', '本金(元)', '利息(元)', '剩余本金(元)'];
+    const headers = [
+      t.paymentDetails.period, 
+      t.paymentDetails.yearN.replace('{year}', ''), 
+      t.paymentDetails.month, 
+      t.paymentDetails.date, 
+      t.paymentDetails.monthlyPayment, 
+      t.paymentDetails.principalValue, 
+      t.paymentDetails.interestValue, 
+      t.paymentDetails.remainingPrincipal
+    ];
     const rows = monthlyData.map(m => [
       m.monthIndex,
       m.year,
@@ -78,7 +87,7 @@ const DetailedPaymentTable: React.FC<DetailedPaymentTableProps> = ({ result, t }
         <div className="flex items-center gap-2 mb-3">
           <Calendar className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
           <h3 className="text-base font-bold text-slate-800 dark:text-white">
-            详细还款计划
+            {t.paymentDetails.title}
           </h3>
         </div>
 
@@ -92,7 +101,7 @@ const DetailedPaymentTable: React.FC<DetailedPaymentTableProps> = ({ result, t }
                 : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30'
             }`}
           >
-            按年
+            {t.paymentDetails.byYear}
           </button>
           <button
             onClick={() => setViewMode('month')}
@@ -102,7 +111,7 @@ const DetailedPaymentTable: React.FC<DetailedPaymentTableProps> = ({ result, t }
                 : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30'
             }`}
           >
-            按月
+            {t.paymentDetails.byMonth}
           </button>
           <button
             onClick={() => setViewMode('all')}
@@ -112,7 +121,7 @@ const DetailedPaymentTable: React.FC<DetailedPaymentTableProps> = ({ result, t }
                 : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30'
             }`}
           >
-            全部
+            {t.paymentDetails.all}
           </button>
         </div>
       </div>
@@ -136,32 +145,32 @@ const DetailedPaymentTable: React.FC<DetailedPaymentTableProps> = ({ result, t }
                         <ChevronDown className="h-4 w-4 text-slate-400" />
                       )}
                       <span className="font-bold text-slate-800 dark:text-white">
-                        第 {yearData.year} 年
+                        {t.paymentDetails.yearN.replace('{year}', yearData.year)}
                       </span>
                     </div>
                     <div className="flex gap-6 text-xs">
                       <div>
-                        <span className="text-slate-500">年供：</span>
+                        <span className="text-slate-500">{t.paymentDetails.annualPayment}：</span>
                         <span className="font-medium text-slate-800 dark:text-white">
-                          {(yearData.totalPayment / 10000).toFixed(2)}万
+                          {(yearData.totalPayment / 10000).toFixed(2)}{t.unitWanSimple}
                         </span>
                       </div>
                       <div>
-                        <span className="text-slate-500">本金：</span>
+                        <span className="text-slate-500">{t.paymentDetails.principal}：</span>
                         <span className="font-medium text-green-600">
-                          {(yearData.totalPrincipal / 10000).toFixed(2)}万
+                          {(yearData.totalPrincipal / 10000).toFixed(2)}{t.unitWanSimple}
                         </span>
                       </div>
                       <div>
-                        <span className="text-slate-500">利息：</span>
+                        <span className="text-slate-500">{t.paymentDetails.interest}：</span>
                         <span className="font-medium text-red-600">
-                          {(yearData.totalInterest / 10000).toFixed(2)}万
+                          {(yearData.totalInterest / 10000).toFixed(2)}{t.unitWanSimple}
                         </span>
                       </div>
                       <div>
-                        <span className="text-slate-500">剩余：</span>
+                        <span className="text-slate-500">{t.paymentDetails.remaining}：</span>
                         <span className="font-medium text-indigo-600">
-                          {(yearData.endingBalance / 10000).toFixed(2)}万
+                          {(yearData.endingBalance / 10000).toFixed(2)}{t.unitWanSimple}
                         </span>
                       </div>
                     </div>
@@ -174,12 +183,12 @@ const DetailedPaymentTable: React.FC<DetailedPaymentTableProps> = ({ result, t }
                     <table className="w-full text-xs">
                       <thead>
                         <tr className="border-b border-slate-200 dark:border-slate-700">
-                          <th className="py-2 text-left text-slate-600 dark:text-slate-400 font-medium">期数</th>
-                          <th className="py-2 text-left text-slate-600 dark:text-slate-400 font-medium">月份</th>
-                          <th className="py-2 text-right text-slate-600 dark:text-slate-400 font-medium">月供(元)</th>
-                          <th className="py-2 text-right text-slate-600 dark:text-slate-400 font-medium">本金(元)</th>
-                          <th className="py-2 text-right text-slate-600 dark:text-slate-400 font-medium">利息(元)</th>
-                          <th className="py-2 text-right text-slate-600 dark:text-slate-400 font-medium">剩余本金(元)</th>
+                          <th className="py-2 text-left text-slate-600 dark:text-slate-400 font-medium">{t.paymentDetails.period}</th>
+                          <th className="py-2 text-left text-slate-600 dark:text-slate-400 font-medium">{t.paymentDetails.month}</th>
+                          <th className="py-2 text-right text-slate-600 dark:text-slate-400 font-medium">{t.paymentDetails.monthlyPayment}</th>
+                          <th className="py-2 text-right text-slate-600 dark:text-slate-400 font-medium">{t.paymentDetails.principalValue}</th>
+                          <th className="py-2 text-right text-slate-600 dark:text-slate-400 font-medium">{t.paymentDetails.interestValue}</th>
+                          <th className="py-2 text-right text-slate-600 dark:text-slate-400 font-medium">{t.paymentDetails.remainingPrincipal}</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -206,12 +215,12 @@ const DetailedPaymentTable: React.FC<DetailedPaymentTableProps> = ({ result, t }
           <table className="w-full text-xs">
             <thead className="sticky top-0 bg-slate-100 dark:bg-slate-800 z-10">
               <tr>
-                <th className="py-3 px-4 text-left text-slate-600 dark:text-slate-400 font-medium">期数</th>
-                <th className="py-3 px-4 text-left text-slate-600 dark:text-slate-400 font-medium">日期</th>
-                <th className="py-3 px-4 text-right text-slate-600 dark:text-slate-400 font-medium">月供(元)</th>
-                <th className="py-3 px-4 text-right text-slate-600 dark:text-slate-400 font-medium">本金(元)</th>
-                <th className="py-3 px-4 text-right text-slate-600 dark:text-slate-400 font-medium">利息(元)</th>
-                <th className="py-3 px-4 text-right text-slate-600 dark:text-slate-400 font-medium">剩余本金(元)</th>
+                <th className="py-3 px-4 text-left text-slate-600 dark:text-slate-400 font-medium">{t.paymentDetails.period}</th>
+                <th className="py-3 px-4 text-left text-slate-600 dark:text-slate-400 font-medium">{t.paymentDetails.date}</th>
+                <th className="py-3 px-4 text-right text-slate-600 dark:text-slate-400 font-medium">{t.paymentDetails.monthlyPayment}</th>
+                <th className="py-3 px-4 text-right text-slate-600 dark:text-slate-400 font-medium">{t.paymentDetails.principalValue}</th>
+                <th className="py-3 px-4 text-right text-slate-600 dark:text-slate-400 font-medium">{t.paymentDetails.interestValue}</th>
+                <th className="py-3 px-4 text-right text-slate-600 dark:text-slate-400 font-medium">{t.paymentDetails.remainingPrincipal}</th>
               </tr>
             </thead>
             <tbody>
@@ -238,27 +247,27 @@ const DetailedPaymentTable: React.FC<DetailedPaymentTableProps> = ({ result, t }
               >
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm font-bold text-slate-800 dark:text-white">
-                    第 {month.monthIndex} 期 - {month.date.toLocaleDateString('zh-CN')}
+                    {t.paymentDetails.periodN.replace('{n}', month.monthIndex)} - {month.date.toLocaleDateString('zh-CN')}
                   </span>
                   <span className="text-xs text-slate-500">
-                    第 {month.year} 年第 {month.monthInYear} 月
+                    {t.paymentDetails.monthN.replace('{year}', month.year).replace('{month}', month.monthInYear)}
                   </span>
                 </div>
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   <div className="flex justify-between">
-                    <span className="text-slate-500">月供：</span>
+                    <span className="text-slate-500">{t.paymentDetails.annualPayment.substr(0,2)}：</span>
                     <span className="font-medium text-slate-800 dark:text-white">{month.payment.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-500">本金：</span>
+                    <span className="text-slate-500">{t.paymentDetails.principal}：</span>
                     <span className="font-medium text-green-600">{month.principal.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-500">利息：</span>
+                    <span className="text-slate-500">{t.paymentDetails.interest}：</span>
                     <span className="font-medium text-red-600">{month.interest.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-500">剩余：</span>
+                    <span className="text-slate-500">{t.paymentDetails.remaining}：</span>
                     <span className="font-medium text-indigo-600">{month.remainingPrincipal.toFixed(2)}</span>
                   </div>
                 </div>
@@ -272,19 +281,19 @@ const DetailedPaymentTable: React.FC<DetailedPaymentTableProps> = ({ result, t }
       <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50">
         <div className="grid grid-cols-3 gap-4 text-xs">
           <div className="text-center">
-            <div className="text-slate-500 mb-1">总期数</div>
-            <div className="font-bold text-slate-800 dark:text-white">{monthlyData.length} 期</div>
+            <div className="text-slate-500 mb-1">{t.paymentDetails.totalTerms}</div>
+            <div className="font-bold text-slate-800 dark:text-white">{t.paymentDetails.termsCount.replace('{n}', monthlyData.length)}</div>
           </div>
           <div className="text-center">
-            <div className="text-slate-500 mb-1">累计还款</div>
+            <div className="text-slate-500 mb-1">{t.paymentDetails.totalRepayment}</div>
             <div className="font-bold text-slate-800 dark:text-white">
-              {(monthlyData.reduce((sum, m) => sum + m.payment, 0) / 10000).toFixed(2)}万
+              {(monthlyData.reduce((sum, m) => sum + m.payment, 0) / 10000).toFixed(2)}{t.unitWanSimple}
             </div>
           </div>
           <div className="text-center">
-            <div className="text-slate-500 mb-1">累计利息</div>
+            <div className="text-slate-500 mb-1">{t.paymentDetails.totalInterest}</div>
             <div className="font-bold text-red-600">
-              {(monthlyData.reduce((sum, m) => sum + m.interest, 0) / 10000).toFixed(2)}万
+              {(monthlyData.reduce((sum, m) => sum + m.interest, 0) / 10000).toFixed(2)}{t.unitWanSimple}
             </div>
           </div>
         </div>

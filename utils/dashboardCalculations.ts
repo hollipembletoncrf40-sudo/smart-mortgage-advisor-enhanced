@@ -77,25 +77,71 @@ export interface RiskGradientPoint {
   color: string;
 }
 
-export const calculateRiskGradient = (
-  totalPrice: number,
-  downPaymentRatio: number,
-  interestRate: number,
-  monthlyIncome: number
-): RiskGradientPoint[] => {
-  const loanAmount = totalPrice * (1 - downPaymentRatio / 100);
-  const monthlyPayment = loanAmount * 10000 * (interestRate / 100 / 12) * 
-    Math.pow(1 + interestRate / 100 / 12, 30 * 12) / 
-    (Math.pow(1 + interestRate / 100 / 12, 30 * 12) - 1);
+export interface RiskGradientStart {
+  category: string;
+  value: number;
+  threshold: number;
+  status: 'low' | 'medium' | 'high';
+  label: string;
+  color: string;
+}
+
+// Calculate Risk Gradient Data
+export const calculateRiskGradient = (params: InvestmentParams): RiskGradientStart[] => {
+  const annualIncome = (params.familyMonthlyIncome || 30000) * 12;
+  const loanAmount = (params.totalPrice || 200) * 0.7 * 10000;
+  const monthlyPayment = loanAmount * 0.035 / 12; // Simplified
+  const dti = monthlyPayment / (params.familyMonthlyIncome || 30000);
   
-  const dti = monthlyPayment / monthlyIncome;
-  const ltv = (loanAmount / totalPrice) * 100;
+  // Advanced parameters
+  const maxDti = (params.maxPaymentRatio || 35) / 100;
+  const emergencyMonths = params.emergencyReserves || 6;
+  const rateHike = (params.rateHikeAssumption || 1.0) / 100;
   
-  return [
-    { label: 'DTI', value: Math.round(dti * 100), color: dti < 0.35 ? '#10b981' : dti < 0.5 ? '#f59e0b' : '#ef4444' },
-    { label: 'LTV', value: Math.round(ltv), color: ltv < 70 ? '#10b981' : ltv < 80 ? '#f59e0b' : '#ef4444' },
-    { label: '综合风险', value: Math.round((dti * 100 + ltv) / 2), color: '#6366f1' }
+  // Stress test calculations
+  const stressedMonthlyPayment = loanAmount * (0.035 + rateHike) / 12;
+  const stressedDti = stressedMonthlyPayment / (params.familyMonthlyIncome || 30000);
+
+  const getStatusColor = (status: 'low' | 'medium' | 'high') => {
+    switch (status) {
+      case 'low': return '#10b981'; // Emerald 500
+      case 'medium': return '#f59e0b'; // Amber 500
+      case 'high': return '#ef4444'; // Red 500
+    }
+  };
+
+  const dtiStatus = dti > 0.5 ? 'high' : dti > 0.3 ? 'medium' : 'low';
+  const stressStatus = stressedDti > 0.6 ? 'high' : stressedDti > 0.45 ? 'medium' : 'low';
+  const reserveStatus = emergencyMonths < 3 ? 'high' : emergencyMonths < 6 ? 'medium' : 'low';
+
+  const risks: RiskGradientStart[] = [
+    {
+      category: 'DTI (月供收入比)',
+      value: Math.min(100, dti * 100),
+      threshold: maxDti * 100, // User defined threshold
+      status: dtiStatus,
+      label: `${(dti * 100).toFixed(1)}%`,
+      color: getStatusColor(dtiStatus)
+    },
+    {
+      category: 'Stress Test (加息压力)',
+      value: Math.min(100, stressedDti * 100),
+      threshold: 50,
+      status: stressStatus,
+      label: `+${(rateHike * 100).toFixed(1)}% -> ${(stressedDti * 100).toFixed(1)}%`,
+      color: getStatusColor(stressStatus)
+    },
+    {
+      category: 'Anti-Fragility (反脆弱)',
+      value: Math.min(100, (1 - emergencyMonths / 24) * 100), // Lower reserve = higher risk
+      threshold: 75, // 6 months reserve corresponds to 25% risk score
+      status: reserveStatus,
+      label: `${emergencyMonths}个月储备`,
+      color: getStatusColor(reserveStatus)
+    }
   ];
+
+  return risks;
 };
 
 // Cash Flow Breathing Data
@@ -107,26 +153,34 @@ export interface CashFlowBreathing {
   status: 'healthy' | 'tight' | 'critical';
 }
 
-export const calculateCashFlowBreathing = (
-  totalPrice: number,
-  downPaymentRatio: number,
-  interestRate: number,
-  loanTerm: number,
-  monthlyIncome: number
-): CashFlowBreathing => {
-  const loanAmount = totalPrice * (1 - downPaymentRatio / 100);
-  const monthlyPayment = loanAmount * 10000 * (interestRate / 100 / 12) * 
-    Math.pow(1 + interestRate / 100 / 12, loanTerm * 12) / 
-    (Math.pow(1 + interestRate / 100 / 12, loanTerm * 12) - 1);
+export const calculateCashFlowBreathing = (params: InvestmentParams): CashFlowBreathing => {
+  const monthlyIncome = params.familyMonthlyIncome || 30000;
+  // Calculate monthly payment based on loan details
+  const loanAmount = (params.totalPrice || 200) * (1 - (params.downPaymentRatio || 30) / 100) * 10000;
+  const rate = (params.interestRate || 3.5) / 100 / 12;
+  const terms = (params.loanTerm || 30) * 12;
+  
+  const monthlyPayment = loanAmount * rate * Math.pow(1 + rate, terms) / (Math.pow(1 + rate, terms) - 1);
+  
+  // Advanced parameters impact
+  const fluctuation = (params.incomeFluctuation || 10) / 100;
+  const worstCaseIncome = monthlyIncome * (1 - fluctuation);
+  const minExpenses = params.minLivingExpenses || 5000;
   
   const discretionary = monthlyIncome - monthlyPayment;
-  const breathingRoom = Math.max(0, Math.min(100, (discretionary / monthlyIncome) * 100));
+  // Breathing room calculation: (worstCaseIncome - monthlyPayment - minExpenses) / minExpenses
+  // Positive means survival, negative means deficit
+  const safetyMargin = worstCaseIncome - monthlyPayment - minExpenses;
   
+  // Normalize breathing room to 0-100 score for visualization
+  // 0 = Deficit (Suffocating), 100 = Double expenses coverage (Easy breathing)
+  const breathingRoom = Math.max(0, Math.min(100, ((safetyMargin + minExpenses) / (minExpenses * 2)) * 100));
+
   let status: 'healthy' | 'tight' | 'critical';
-  if (breathingRoom > 50) status = 'healthy';
-  else if (breathingRoom > 30) status = 'tight';
+  if (safetyMargin > 2000) status = 'healthy';
+  else if (safetyMargin >= 0) status = 'tight';
   else status = 'critical';
-  
+
   return {
     monthlyIncome,
     monthlyPayment,
@@ -143,12 +197,19 @@ export interface RegretHeatmapCell {
   regretScore: number; // 0-100, higher = more regret
 }
 
-export const calculateRegretHeatmap = (
-  basePrice: number,
-  baseRate: number,
-  downPaymentRatio: number,
-  monthlyIncome: number
-): RegretHeatmapCell[] => {
+export const calculateRegretHeatmap = (params: InvestmentParams): RegretHeatmapCell[] => {
+  const basePrice = params.totalPrice || 200;
+  const baseRate = params.interestRate || 3.5;
+  const downPaymentRatio = params.downPaymentRatio || 30;
+  const monthlyIncome = params.familyMonthlyIncome || 30000;
+  
+  // Advanced params
+  const maxDtiLimit = (params.maxPaymentRatio || 50) / 100;
+  const fluctuation = (params.incomeFluctuation || 0) / 100;
+  // Effective income for regret calculation is conservative income
+  const effectiveIncome = monthlyIncome * (1 - fluctuation);
+  const futureRateRisk = (params.rateHikeAssumption || 0) / 100;
+
   const heatmap: RegretHeatmapCell[] = [];
   
   // Price range: -20% to +20%
@@ -159,26 +220,43 @@ export const calculateRegretHeatmap = (
   for (const priceOffset of priceSteps) {
     for (const rateOffset of rateSteps) {
       const price = basePrice * (1 + priceOffset / 100);
-      const rate = baseRate + rateOffset;
+      const rate = Math.max(0.1, baseRate + rateOffset);
       
       const loanAmount = price * (1 - downPaymentRatio / 100);
+      // Monthly pay
       const monthlyPayment = loanAmount * 10000 * (rate / 100 / 12) * 
         Math.pow(1 + rate / 100 / 12, 30 * 12) / 
         (Math.pow(1 + rate / 100 / 12, 30 * 12) - 1);
       
-      const dti = monthlyPayment / monthlyIncome;
+      // Stress test payment (if rate hikes happen)
+      const stressedRate = rate + futureRateRisk * 100;
+      const stressedPayment = loanAmount * 10000 * (stressedRate / 100 / 12) * 
+        Math.pow(1 + stressedRate / 100 / 12, 30 * 12) / 
+        (Math.pow(1 + stressedRate / 100 / 12, 30 * 12) - 1);
+
+      const dti = monthlyPayment / effectiveIncome;
+      const stressedDti = stressedPayment / effectiveIncome;
       
       // Regret factors:
-      // 1. High DTI = regret
-      // 2. Buying at high price when could be lower = regret
-      // 3. High rate when could be lower = regret
+      // 1. DTI exceeds personal max limit -> HIGH REGRET
+      // 2. Stressed DTI exceeds catastrophic limit (e.g. 60%) -> HIGH REGRET
+      // 3. Overpaying price/rate -> Moderate regret
+      
       let regretScore = 0;
       
-      if (dti > 0.5) regretScore += 40;
-      else if (dti > 0.35) regretScore += 20;
+      // Base financial pressure
+      if (dti > maxDtiLimit) regretScore += 50 + (dti - maxDtiLimit) * 100; // Immediate dealbreaker
+      else if (dti > maxDtiLimit * 0.8) regretScore += 20; // High pressure
       
-      if (priceOffset > 0) regretScore += priceOffset; // Overpaying
-      if (rateOffset > 0) regretScore += rateOffset * 10; // High rate
+      // Future risk pressure
+      if (stressedDti > 0.6) regretScore += 30; // Dangerous if rates rise
+      
+      // Market regret (buying high / high rate)
+      if (priceOffset > 0) regretScore += priceOffset * 0.5; 
+      if (rateOffset > 0) regretScore += rateOffset * 5; 
+      
+      // Bonus: If DTI is very low, reduce regret (safety comfort)
+      if (dti < 0.2) regretScore -= 10;
       
       heatmap.push({
         price: Math.round(price),

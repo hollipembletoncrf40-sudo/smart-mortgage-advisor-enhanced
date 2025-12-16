@@ -23,6 +23,7 @@ export enum PurchaseScenario {
 
 export type Language = 'ZH' | 'EN';
 export type Currency = 'CNY' | 'USD';
+export type ThemeMode = 'light' | 'dark' | 'professional' | 'gaming' | 'deepblack';
 
 // 地段选筹因子 (0-10分)
 export interface LocationFactors {
@@ -51,7 +52,15 @@ export interface InvestmentParams {
   // 隐性成本 (新增)
   deedTaxRate: number; // % 契税
   agencyFeeRatio: number; // % 中介费
-  renovationCost: number; // 万元 装修
+  educationBudget: number; // 万元
+  renovationCost?: number; // 万元 (装修成本)
+  
+  // Advanced Financial Parameters (Anti-Fragility)
+  incomeFluctuation?: number; // % (0-50, default 10)
+  minLivingExpenses?: number; // 元/月 (default 5000)
+  emergencyReserves?: number; // 月 (default 6)
+  maxPaymentRatio?: number; // % (default 35)
+  rateHikeAssumption?: number; // % (default 1.0)
   
   // 贷款信息
   loanType: LoanType; // 贷款类型
