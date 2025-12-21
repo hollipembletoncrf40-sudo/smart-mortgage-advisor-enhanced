@@ -14,6 +14,9 @@ export const TRANSLATIONS = {
     exportMarkdown: "导出 Markdown",
     methodology: "计算原理",
     settings: "设置",
+    headerPreset: "快速预设",
+    headerLogin: "登录",
+    headerSave: "保存决策与复盘",
     darkMode: "暗黑模式",
     inputPanelTitle: "投资参数配置",
     baseInfo: "基础信息",
@@ -999,6 +1002,9 @@ export const TRANSLATIONS = {
     exportMarkdown: "Export Markdown",
     methodology: "Methodology",
     settings: "Settings",
+    headerPreset: "Quick Preset",
+    headerLogin: "Login",
+    headerSave: "Save & Review",
     darkMode: "Dark Mode",
     inputPanelTitle: "Investment Parameters",
     baseInfo: "Basic Info",
@@ -1811,6 +1817,42 @@ export const TRANSLATIONS = {
     negAIPlaceholder: "Click button to generate a custom negotiation script based on data.",
     negTagUrgent: "Urgent/Hard to sell",
 
+    // Social Perspective
+    socialTitle: "Social Perspective",
+    socialAiCheck: "AI Perspective",
+    socialPeer: "Peer Choice",
+    socialMinority: "Minority Report",
+    socialFuture: "Future Buyer Overlap",
+    socialFamily: "Family Impact",
+    
+    // Peer Choices
+    peerFullPay: "Full Payment",
+    peerHighDown: "High Down Payment",
+    peerLowDown: "Low Down Payment",
+    peerRent: "Continue Renting",
+    
+    // Minority Status
+    minConservative: "Conservative Minority - High Down Payment, Low Leverage.",
+    minAggressive: "Aggressive Minority - Low Down Payment, High Leverage.",
+    minMainstream: "Mainstream - Balanced Risk/Reward.",
+    minBalanced: "Balanced - Slightly Cautious.",
+    
+    // Future Buyer Dimensions
+    dimIncome: "Income Level",
+    dimDownPay: "Down Payment Ability",
+    dimTotal: "Total Price Acceptance",
+    dimRisk: "Risk Appetite",
+    
+    // Family Impact
+    famYou: "You (Primary)",
+    famSpouse: "Spouse",
+    famParents: "Parents",
+    famChildren: "Future Children",
+    famConcernJob: "Career Stability + Mortgage Stress",
+    famConcernLife: "Budget Cuts + Quality of Life",
+    famConcernElder: "Dependent Care + Financial Aid",
+    famConcernEdu: "Education Budget + Family Time",
+
     // Liquidity Check
     liqTitle: "Future Buyer Profiler",
     liqSubTitle: "Counter-intuitive: You don't sell to the market, but to specific people.",
@@ -1867,6 +1909,26 @@ export const TRANSLATIONS = {
     liqStrPol: 'Favorable policy, active market',
     liqRiskPol: 'Restrictive policy, slow transaction',
     
+    // House Roast
+    roastTitle: "House's Inner Thoughts",
+    roastSubtitle: "Reality Check: Wake Up",
+    roastClose: "Close",
+    roastExpand: "View {count} Roasts",
+    roastCollapse: "Hide Roasts",
+    roastCritical: "{count} Danger Signals",
+    roastSerious: "{count} Serious Issues",
+    roastMild: "{count} Tips",
+    roastReality: "Reality Check",
+    roastSuggestion: "Advice",
+    roastFooter: "💜 Roast is tough love. Buy smart, live happy.",
+    
+    roastCatBudget: "Budget Issue",
+    roastCatLocation: "Location Fantasy",
+    roastCatCommute: "Commute Cost",
+    roastCatCost: "Cost Beautification",
+    roastCatReturn: "Return Fantasy",
+    roastCatLifestyle: "Lifestyle Mismatch",
+
     // Buyer Profiles
     liqBuyerYoung: 'Young First-time Buyers',
     liqBuyerUpgrade: 'Upgrading Families',

@@ -1807,7 +1807,7 @@ function App() {
                 className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition-colors border border-indigo-100 dark:border-indigo-900/30"
               >
                 <Zap className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">{t.presets?.title || '快速预设'}</span>
+                <span className="hidden sm:inline">{t.headerPreset || '快速预设'}</span>
               </button>
               
               {showPresetMenu && (
@@ -1908,7 +1908,7 @@ function App() {
                 className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-500/20 font-medium"
               >
                 <LogIn className="h-4 w-4" />
-                <span className="hidden sm:inline">登录</span>
+                <span className="hidden sm:inline">{t.headerLogin || '登录'}</span>
               </button>
             )}
             
@@ -1916,7 +1916,7 @@ function App() {
               onClick={handleSaveSnapshot}
               className="hidden md:flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-500/20"
             >
-              <History className="h-3.5 w-3.5" /> 保存决策与复盘
+              <History className="h-3.5 w-3.5" /> {t.headerSave || '保存决策与复盘'}
             </button>
           </div>
         </div>

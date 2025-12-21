@@ -73,10 +73,11 @@ const DecisionDashboard: React.FC<DecisionDashboardProps> = ({ params, result, t
   const aiPerspective = generateAIPerspective(params, language);
 
   // Social perspective calculations
-  const peerDistribution = calculatePeerDistribution(params.totalPrice || 300, params.familyMonthlyIncome || 30000, 30);
-  const minorityStatus = calculateMinorityStatus(params.downPaymentRatio || 30, params.totalPrice || 300, params.familyMonthlyIncome || 30000);
-  const futureBuyerOverlap = calculateFutureBuyerOverlap(params.totalPrice || 300, params.downPaymentRatio || 30, params.familyMonthlyIncome || 30000);
-  const familyImpact = calculateFamilyImpact(params.totalPrice || 300, params.familyMonthlyIncome || 30000, params.loanTerm || 30);
+  // Social perspective calculations
+  const peerDistribution = calculatePeerDistribution(params.totalPrice || 300, params.familyMonthlyIncome || 30000, 30, t);
+  const minorityStatus = calculateMinorityStatus(params.downPaymentRatio || 30, params.totalPrice || 300, params.familyMonthlyIncome || 30000, t);
+  const futureBuyerOverlap = calculateFutureBuyerOverlap(params.totalPrice || 300, params.downPaymentRatio || 30, params.familyMonthlyIncome || 30000, t);
+  const familyImpact = calculateFamilyImpact(params.totalPrice || 300, params.familyMonthlyIncome || 30000, params.loanTerm || 30, t);
   
   const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444'];
 
@@ -109,8 +110,8 @@ const DecisionDashboard: React.FC<DecisionDashboardProps> = ({ params, result, t
                <Users className="h-5 w-5 text-white" />
              </div>
               <div>
-                <h3 className="text-lg font-bold text-slate-800 dark:text-white">{t.socialPerspective}</h3>
-                <p className="text-xs text-slate-500">{t.aiPerspectiveCheck}</p>
+                <h3 className="text-lg font-bold text-slate-800 dark:text-white">{t.socialTitle || 'Social Perspective'}</h3>
+                <p className="text-xs text-slate-500">{t.socialAiCheck || 'AI Perspective'}</p>
               </div>
            </div>
            
@@ -140,7 +141,7 @@ const DecisionDashboard: React.FC<DecisionDashboardProps> = ({ params, result, t
            <div className="bg-white dark:bg-slate-800 rounded-xl p-4">
               {socialTab === 'peer' && (
                 <div>
-                  <h4 className="text-sm font-bold text-slate-800 dark:text-white mb-3">{t.peerChoice}</h4>
+                  <h4 className="text-sm font-bold text-slate-800 dark:text-white mb-3">{t.socialPeer || 'Peer Choice'}</h4>
                  <ResponsiveContainer width="100%" height={200}>
                    <PieChart>
                      <Pie

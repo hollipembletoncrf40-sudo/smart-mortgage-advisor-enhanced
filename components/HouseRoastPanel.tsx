@@ -100,17 +100,17 @@ const HouseRoastPanel: React.FC<HouseRoastPanelProps> = ({ params, result, t, la
         <div className="flex gap-2 mt-3">
           {roasts.filter(r => r.severity === 'critical').length > 0 && (
             <span className="px-3 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-full text-xs font-medium">
-              {roasts.filter(r => r.severity === 'critical').length} 个危险信号
+              {(t.roastCritical || '{count} Danger Signals').replace('{count}', roasts.filter(r => r.severity === 'critical').length)}
             </span>
           )}
           {roasts.filter(r => r.severity === 'serious').length > 0 && (
             <span className="px-3 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 rounded-full text-xs font-medium">
-              {roasts.filter(r => r.severity === 'serious').length} 个严重问题
+              {(t.roastSerious || '{count} Serious Issues').replace('{count}', roasts.filter(r => r.severity === 'serious').length)}
             </span>
           )}
           {roasts.filter(r => r.severity === 'mild').length > 0 && (
             <span className="px-3 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 rounded-full text-xs font-medium">
-              {roasts.filter(r => r.severity === 'mild').length} 个提醒
+              {(t.roastMild || '{count} Tips').replace('{count}', roasts.filter(r => r.severity === 'mild').length)}
             </span>
           )}
         </div>
@@ -122,7 +122,9 @@ const HouseRoastPanel: React.FC<HouseRoastPanelProps> = ({ params, result, t, la
         className="w-full flex items-center justify-between p-4 bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm rounded-xl hover:bg-white dark:hover:bg-slate-800 transition-all mb-4 relative z-10"
       >
         <span className="font-medium text-slate-700 dark:text-slate-300">
-          {isExpanded ? '收起评价' : `查看 ${roasts.length} 条吐槽`}
+          {isExpanded 
+            ? (t.roastCollapse || 'Hide Roasts') 
+            : (t.roastExpand || 'View {count} Roasts').replace('{count}', roasts.length)}
         </span>
         {isExpanded ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
       </button>
@@ -144,12 +146,12 @@ const HouseRoastPanel: React.FC<HouseRoastPanelProps> = ({ params, result, t, la
                   <div className="flex items-center gap-2 mb-2">
                     {getSeverityIcon(roast.severity)}
                     <span className="text-xs font-bold uppercase text-slate-600 dark:text-slate-400">
-                      {roast.category === 'budget' && '预算问题'}
-                      {roast.category === 'location' && '区域幻想'}
-                      {roast.category === 'commute' && '通勤成本'}
-                      {roast.category === 'cost' && '成本美化'}
-                      {roast.category === 'return' && '回报幻想'}
-                      {roast.category === 'lifestyle' && '生活方式'}
+                      {roast.category === 'budget' && (t.roastCatBudget || 'Budget Issue')}
+                      {roast.category === 'location' && (t.roastCatLocation || 'Location Fantasy')}
+                      {roast.category === 'commute' && (t.roastCatCommute || 'Commute Cost')}
+                      {roast.category === 'cost' && (t.roastCatCost || 'Cost Beautification')}
+                      {roast.category === 'return' && (t.roastCatReturn || 'Return Fantasy')}
+                      {roast.category === 'lifestyle' && (t.roastCatLifestyle || 'Lifestyle Mismatch')}
                     </span>
                   </div>
                   <p className="text-base font-medium text-slate-800 dark:text-white leading-relaxed">
@@ -164,7 +166,7 @@ const HouseRoastPanel: React.FC<HouseRoastPanelProps> = ({ params, result, t, la
                   <Info className="h-4 w-4 text-indigo-500 mt-0.5 flex-shrink-0" />
                   <div>
                     <p className="text-xs font-bold text-indigo-600 dark:text-indigo-400 mb-1">
-                      📊 现实检查
+                      📊 {t.roastReality || 'Reality Check'}
                     </p>
                     <p className="text-sm text-slate-700 dark:text-slate-300">
                       {roast.realityCheck}
@@ -179,7 +181,7 @@ const HouseRoastPanel: React.FC<HouseRoastPanelProps> = ({ params, result, t, la
                   <Lightbulb className="h-4 w-4 text-amber-500 mt-0.5 flex-shrink-0" />
                   <div>
                     <p className="text-xs font-bold text-amber-600 dark:text-amber-400 mb-1">
-                      💡 建议
+                      💡 {t.roastSuggestion || 'Advice'}
                     </p>
                     <p className="text-sm text-slate-700 dark:text-slate-300">
                       {roast.suggestion}
@@ -193,7 +195,7 @@ const HouseRoastPanel: React.FC<HouseRoastPanelProps> = ({ params, result, t, la
           {/* 底部提示 */}
           <div className="text-center pt-4 border-t border-purple-200 dark:border-purple-800">
             <p className="text-sm text-slate-600 dark:text-slate-400">
-              💜 吐槽虽毒舌，但都是为了你好。理性购房，幸福生活。
+              {t.roastFooter || '💜 Roast is tough love. Buy smart, live happy.'}
             </p>
           </div>
         </div>
