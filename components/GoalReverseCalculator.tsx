@@ -114,9 +114,9 @@ const GoalReverseCalculator: React.FC<GoalReverseCalculatorProps> = ({ t, curren
   };
 
   const cashFlowData = [
-    { name: '收入', value: monthlyIncome + otherMonthlyIncome, fill: '#10b981' },
-    { name: '支出', value: monthlyExpenses + (yearlyExpenses/12), fill: '#ef4444' },
-    { name: '净储蓄', value: netMonthlySavings, fill: '#6366f1' },
+    { name: t.incomeLabel || '收入', value: monthlyIncome + otherMonthlyIncome, fill: '#10b981' },
+    { name: t.holdingCost || '支出', value: monthlyExpenses + (yearlyExpenses/12), fill: '#ef4444' },
+    { name: t.netCashFlow || '净储蓄', value: netMonthlySavings, fill: '#6366f1' },
   ];
 
   return (
@@ -134,7 +134,7 @@ const GoalReverseCalculator: React.FC<GoalReverseCalculatorProps> = ({ t, curren
           
           {/* Target Section */}
           <div className="bg-slate-50 dark:bg-slate-800/50 p-5 rounded-2xl border border-slate-100 dark:border-slate-800">
-             <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2"><Target className="h-3 w-3"/> 购房目标</h3>
+             <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2"><Target className="h-3 w-3"/> {t.goalCalculatorTitle?.split(' ')[0] || '购房目标'}</h3>
              <div className="space-y-4">
                 <div>
                     <label className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 block">{t.targetPrice || '目标房价 (万)'}</label>
@@ -145,7 +145,7 @@ const GoalReverseCalculator: React.FC<GoalReverseCalculatorProps> = ({ t, curren
                         onChange={(e) => setTargetPrice(Number(e.target.value))}
                         className="w-full pl-4 pr-12 py-2.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-pink-500 outline-none font-bold text-slate-700 dark:text-white transition-all"
                     />
-                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">万</span>
+                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">{t.unitWanSimple || '万'}</span>
                     </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
@@ -158,7 +158,7 @@ const GoalReverseCalculator: React.FC<GoalReverseCalculatorProps> = ({ t, curren
                             onChange={(e) => setTargetYears(Number(e.target.value))}
                             className="w-full pl-4 pr-12 py-2.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-pink-500 outline-none font-bold text-slate-700 dark:text-white transition-all"
                         />
-                        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">年</span>
+                        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">Years</span>
                         </div>
                     </div>
                     <div>
@@ -175,15 +175,15 @@ const GoalReverseCalculator: React.FC<GoalReverseCalculatorProps> = ({ t, curren
                     </div>
                 </div>
                 <div className="flex justify-between items-center pt-2 text-sm">
-                    <span className="text-slate-500">目标首付金额:</span>
-                    <span className="font-bold text-pink-600 dark:text-pink-400 text-lg">{targetDownPaymentWan.toFixed(1)} 万</span>
+                    <span className="text-slate-500">{t.labelDownPayment}:</span>
+                    <span className="font-bold text-pink-600 dark:text-pink-400 text-lg">{targetDownPaymentWan.toFixed(1)} {t.unitWanSimple || '万'}</span>
                 </div>
              </div>
           </div>
 
           {/* Financial Status Section */}
           <div className="bg-slate-50 dark:bg-slate-800/50 p-5 rounded-2xl border border-slate-100 dark:border-slate-800">
-             <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2"><Wallet className="h-3 w-3"/> 财务状况</h3>
+             <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2"><Wallet className="h-3 w-3"/> {t.baseInfo || '财务状况'}</h3>
              
              <div className="space-y-4">
                 <div>
@@ -195,13 +195,13 @@ const GoalReverseCalculator: React.FC<GoalReverseCalculatorProps> = ({ t, curren
                             onChange={(e) => setCurrentSavings(Number(e.target.value))}
                             className="w-full pl-4 pr-12 py-2.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none font-bold text-slate-700 dark:text-white transition-all"
                         />
-                        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">万</span>
+                        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">{t.unitWanSimple || '万'}</span>
                     </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                     <div>
-                        <label className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 block">月收入 (元)</label>
+                        <label className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 block">{t.incomeLabel || '月收入'}</label>
                         <input 
                             type="number" 
                             value={monthlyIncome} 
@@ -210,7 +210,7 @@ const GoalReverseCalculator: React.FC<GoalReverseCalculatorProps> = ({ t, curren
                         />
                     </div>
                     <div>
-                        <label className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 block">其他月收入 (元)</label>
+                        <label className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 block">Other Inv. Income</label>
                         <input 
                             type="number" 
                             value={otherMonthlyIncome} 
@@ -219,7 +219,7 @@ const GoalReverseCalculator: React.FC<GoalReverseCalculatorProps> = ({ t, curren
                         />
                     </div>
                     <div>
-                        <label className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 block">月固定支出 (元)</label>
+                        <label className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 block">Monthly Exp.</label>
                         <input 
                             type="number" 
                             value={monthlyExpenses} 
@@ -228,7 +228,7 @@ const GoalReverseCalculator: React.FC<GoalReverseCalculatorProps> = ({ t, curren
                         />
                     </div>
                     <div>
-                        <label className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 block">年均大额支出 (元)</label>
+                        <label className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 block">Yearly Big Exp.</label>
                         <input 
                             type="number" 
                             value={yearlyExpenses} 
@@ -239,8 +239,8 @@ const GoalReverseCalculator: React.FC<GoalReverseCalculatorProps> = ({ t, curren
                 </div>
 
                 <div className="bg-indigo-50 dark:bg-indigo-900/20 p-3 rounded-xl flex items-center justify-between border border-indigo-100 dark:border-indigo-800">
-                    <span className="text-sm font-bold text-indigo-700 dark:text-indigo-300">每月净储蓄:</span>
-                    <span className="text-lg font-black text-indigo-600 dark:text-indigo-400">{netMonthlySavings.toFixed(0)} 元</span>
+                    <span className="text-sm font-bold text-indigo-700 dark:text-indigo-300">{t.netCashFlow || '每月净储蓄'}:</span>
+                    <span className="text-lg font-black text-indigo-600 dark:text-indigo-400">{netMonthlySavings.toFixed(0)}</span>
                 </div>
              </div>
           </div>
@@ -256,7 +256,7 @@ const GoalReverseCalculator: React.FC<GoalReverseCalculatorProps> = ({ t, curren
                   {requiredRate !== null ? (
                     <span>{requiredRate.toFixed(2)}<span className="text-2xl ml-1">%</span></span>
                   ) : (
-                    <span className="text-3xl">无法达成</span>
+                    <span className="text-3xl">{t.goalImpossible}</span>
                   )}
                 </div>
                 
@@ -269,7 +269,7 @@ const GoalReverseCalculator: React.FC<GoalReverseCalculatorProps> = ({ t, curren
                 </div>
                 
                 <p className="text-sm opacity-90 leading-relaxed bg-white/50 dark:bg-black/20 p-3 rounded-lg backdrop-blur-sm">
-                   {feasibility === 'Achieved' && '恭喜！您目前的资金已经足以支付首付。'}
+                   {feasibility === 'Achieved' && (t.goalAchieved || '恭喜！您目前的资金已经足以支付首付。')}
                    {feasibility === 'Easy' && (t.adviceEasy || '您的目标非常稳健，建议选择低风险理财产品，如定期存款或国债。')}
                    {feasibility === 'Moderate' && (t.adviceModerate || '目标合理，建议构建股债平衡的投资组合，关注稳健型基金。')}
                    {feasibility === 'Hard' && (t.adviceHard || '目标具有挑战性，需要承担较高风险，建议增加月储蓄或延长购房时间。')}
@@ -283,7 +283,7 @@ const GoalReverseCalculator: React.FC<GoalReverseCalculatorProps> = ({ t, curren
 
            {/* Cash Flow Viz */}
            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-4 shadow-sm h-[200px]">
-              <h4 className="text-xs font-bold text-slate-400 uppercase mb-2 text-center">月度收支分析</h4>
+              <h4 className="text-xs font-bold text-slate-400 uppercase mb-2 text-center">{t.cashFlowProjection || '月度收支分析'}</h4>
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={cashFlowData} layout="vertical" margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" horizontal={false} strokeOpacity={0.1} />

@@ -44,14 +44,26 @@ export interface LocationScore {
 
 // 对应截图中的输入参数
 export interface InvestmentParams {
-  // 房屋信息
+  // 基本房产信息
   totalPrice: number; // 万元
-  downPaymentRatio: number; // %
+  propertyArea: number; // 平方米 (房屋面积)
+  unitPrice: number; // 元/平米 (单价，自动计算)
+  communityName: string; // 小区名称
+  district: string; // 所在区域
+  floorLevel: string; // 楼层 ("低楼层"|"中楼层"|"高楼层")
+  propertyType: string; // 房屋类型 ("普通住宅"|"公寓"|"别墅"|"loft"|"其他")
+  buildingAge: number; // 房龄(年)
+  decorationStatus: string; // 装修状况 ("毛坯"|"简装"|"精装"|"豪装")
+  propertyRightYears: number; // 产权年限(年)
+  
+  downPaymentRatio: number; // % (首付比例)
   holdingYears: number; // 年
   
-  // 隐性成本 (新增)
-  deedTaxRate: number; // % 契税
+  // 一次性费用
+  deedTaxRate: number; // % (契税)
   agencyFeeRatio: number; // % 中介费
+  
+  // 隐性成本
   educationBudget: number; // 万元
   renovationCost?: number; // 万元 (装修成本)
   
@@ -98,6 +110,10 @@ export interface InvestmentParams {
   // 机会成本与通胀 (新增 inflationRate)
   alternativeReturnRate: number; // % (理财/股票年化收益率)
   inflationRate: number; // % (通货膨胀率)
+  
+  // 利率调整 (新增)
+  rateAdjustmentPeriod: number; // 利率调整周期(年)
+  expectedRateChange: number; // 预期利率变化(%)
 
   method: RepaymentMethod;
 }

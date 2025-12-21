@@ -18,20 +18,20 @@ const LifePathSimulator: React.FC<LifePathSimulatorProps> = ({ params, t }) => {
     
     // Path A: Buy & Hold (Stable)
     const pathAStages: PropertyStage[] = [
-      { id: 'a1', name: '首套房', price: startPrice, area: 90, yearStart: 1, yearEnd: 30, comfortLevel: 6 }
+      { id: 'a1', name: t.lpStageStarter, price: startPrice, area: 90, yearStart: 1, yearEnd: 30, comfortLevel: 6 }
     ];
 
     // Path B: 1 Exchange (Agile) - Upgrade at year 7
     const pathBStages: PropertyStage[] = [
-      { id: 'b1', name: '首套上车', price: startPrice, area: 70, yearStart: 1, yearEnd: 7, comfortLevel: 5 },
-      { id: 'b2', name: '改善置换', price: startPrice * 1.8, area: 120, yearStart: 7, yearEnd: 30, comfortLevel: 9 }
+      { id: 'b1', name: t.lpStageStarter, price: startPrice, area: 70, yearStart: 1, yearEnd: 7, comfortLevel: 5 },
+      { id: 'b2', name: t.lpStageUpgrade, price: startPrice * 1.8, area: 120, yearStart: 7, yearEnd: 30, comfortLevel: 9 }
     ];
 
     // Path C: 2 Exchanges (Dynamic) - Upgrade at year 5 and 15
     const pathCStages: PropertyStage[] = [
-      { id: 'c1', name: '老破小', price: startPrice * 0.8, area: 50, yearStart: 1, yearEnd: 5, comfortLevel: 3 },
-      { id: 'c2', name: '次新两居', price: startPrice * 1.5, area: 90, yearStart: 5, yearEnd: 15, comfortLevel: 7 },
-      { id: 'c3', name: '终极改善', price: startPrice * 2.5, area: 150, yearStart: 15, yearEnd: 30, comfortLevel: 10 }
+      { id: 'c1', name: t.lpStageOldSmall, price: startPrice * 0.8, area: 50, yearStart: 1, yearEnd: 5, comfortLevel: 3 },
+      { id: 'c2', name: t.lpStageNewTwo, price: startPrice * 1.5, area: 90, yearStart: 5, yearEnd: 15, comfortLevel: 7 },
+      { id: 'c3', name: t.lpStageLux, price: startPrice * 2.5, area: 150, yearStart: 15, yearEnd: 30, comfortLevel: 10 }
     ];
 
     return {
@@ -39,7 +39,7 @@ const LifePathSimulator: React.FC<LifePathSimulatorProps> = ({ params, t }) => {
       B: calculateLifePathMetrics(params, pathBStages),
       C: calculateLifePathMetrics(params, pathCStages)
     };
-  }, [params]);
+  }, [params, t]);
 
   const currentResult = scenarios[activePath];
 
@@ -60,10 +60,10 @@ const LifePathSimulator: React.FC<LifePathSimulatorProps> = ({ params, t }) => {
         <div>
           <h2 className="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
             <Map className="h-6 w-6 text-indigo-500" />
-            {t.lifePathTitle || '人生换房路线模拟'}
+            {t.lpTitle}
           </h2>
           <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
-            {t.lifePathDesc || '模拟不同换房策略下的资产积累与生活质量'}
+            {t.lpDesc}
           </p>
         </div>
         
@@ -79,7 +79,7 @@ const LifePathSimulator: React.FC<LifePathSimulatorProps> = ({ params, t }) => {
                   : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
               }`}
             >
-              {path === 'A' ? '一房到底' : path === 'B' ? '一次置换' : '多次折腾'}
+              {path === 'A' ? t.lpPathA : path === 'B' ? t.lpPathB : t.lpPathC}
             </button>
           ))}
         </div>
@@ -92,13 +92,13 @@ const LifePathSimulator: React.FC<LifePathSimulatorProps> = ({ params, t }) => {
             <div className="p-2 bg-indigo-500 rounded-xl">
               <DollarSign className="h-4 w-4 text-white" />
             </div>
-            <h4 className="font-bold text-slate-800 dark:text-white text-sm">最终净资产</h4>
+            <h4 className="font-bold text-slate-800 dark:text-white text-sm">{t.lpFinalNetWorth}</h4>
           </div>
           <div className="text-3xl font-bold text-indigo-600 dark:text-indigo-400 mb-1">
-            {currentResult.totalAssets.toFixed(0)}<span className="text-sm">万</span>
+            {currentResult.totalAssets.toFixed(0)}<span className="text-sm">{t.unitWanSimple}</span>
           </div>
           <p className="text-xs text-slate-600 dark:text-slate-400">
-            30年后房产价值 - 剩余贷款
+            {t.lpNetWorthDesc}
           </p>
         </div>
 
@@ -107,13 +107,13 @@ const LifePathSimulator: React.FC<LifePathSimulatorProps> = ({ params, t }) => {
             <div className="p-2 bg-rose-500 rounded-xl">
               <Truck className="h-4 w-4 text-white" />
             </div>
-            <h4 className="font-bold text-slate-800 dark:text-white text-sm">交易摩擦成本</h4>
+            <h4 className="font-bold text-slate-800 dark:text-white text-sm">{t.lpTotalCost}</h4>
           </div>
           <div className="text-3xl font-bold text-rose-600 dark:text-rose-400 mb-1">
-            {currentResult.totalCosts.toFixed(0)}<span className="text-sm">万</span>
+            {currentResult.totalCosts.toFixed(0)}<span className="text-sm">{t.unitWanSimple}</span>
           </div>
           <p className="text-xs text-slate-600 dark:text-slate-400">
-            中介费 + 税费 + 装修损耗
+            {t.lpTotalCostDesc}
           </p>
         </div>
 
@@ -122,13 +122,13 @@ const LifePathSimulator: React.FC<LifePathSimulatorProps> = ({ params, t }) => {
             <div className="p-2 bg-emerald-500 rounded-xl">
               <Home className="h-4 w-4 text-white" />
             </div>
-            <h4 className="font-bold text-slate-800 dark:text-white text-sm">居住舒适度</h4>
+            <h4 className="font-bold text-slate-800 dark:text-white text-sm">{t.lpAvgComfort}</h4>
           </div>
           <div className="text-3xl font-bold text-emerald-600 dark:text-emerald-400 mb-1">
             {currentResult.avgComfort.toFixed(1)}<span className="text-sm">/10</span>
           </div>
           <p className="text-xs text-slate-600 dark:text-slate-400">
-            加权平均居住体验评分
+            {t.lpComfortDesc}
           </p>
         </div>
       </div>
@@ -137,7 +137,7 @@ const LifePathSimulator: React.FC<LifePathSimulatorProps> = ({ params, t }) => {
       <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-xl border border-slate-100 dark:border-slate-800 overflow-hidden">
         <h3 className="font-bold text-slate-800 dark:text-white mb-6 flex items-center gap-2">
           <TrendingUp className="h-4 w-4 text-indigo-500"/>
-          换房时间轴
+          {t.lpTimeline}
         </h3>
         
         <div className="relative pt-8 pb-4 px-4">
@@ -148,34 +148,34 @@ const LifePathSimulator: React.FC<LifePathSimulatorProps> = ({ params, t }) => {
             {/* Start Point */}
             <div className="flex flex-col items-center">
               <div className="w-4 h-4 rounded-full bg-slate-400 border-4 border-white dark:border-slate-900 mb-2"></div>
-              <span className="text-xs text-slate-500">第1年</span>
+              <span className="text-xs text-slate-500">{t.lpYear1}</span>
             </div>
 
             {/* Exchange Events */}
             {currentResult.events.map((event, idx) => (
               <div key={idx} className="flex flex-col items-center" style={{ position: 'absolute', left: `${(event.year / 30) * 100}%`, transform: 'translateX(-50%)' }}>
                 <div className="bg-indigo-600 text-white text-[10px] px-2 py-1 rounded-full mb-2 shadow-lg whitespace-nowrap">
-                  置换 #{idx + 1}
+                  {t.lpExchange} #{idx + 1}
                 </div>
                 <div className="w-8 h-8 rounded-full bg-indigo-500 border-4 border-white dark:border-slate-900 flex items-center justify-center shadow-md cursor-pointer group relative">
                   <ArrowRight className="h-4 w-4 text-white" />
                   
                   {/* Tooltip */}
                   <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-48 bg-slate-800 text-white text-xs p-3 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
-                    <div className="font-bold mb-1">第 {event.year} 年置换</div>
-                    <div className="flex justify-between"><span>卖出:</span> <span>{event.sellPrice.toFixed(0)}万</span></div>
-                    <div className="flex justify-between"><span>买入:</span> <span>{event.buyPrice.toFixed(0)}万</span></div>
-                    <div className="flex justify-between text-rose-300"><span>成本:</span> <span>-{event.transactionCost.toFixed(0)}万</span></div>
+                    <div className="font-bold mb-1">{t.lpExchange} {event.year}</div>
+                    <div className="flex justify-between"><span>{t.lpSell}:</span> <span>{event.sellPrice.toFixed(0)}{t.unitWanSimple}</span></div>
+                    <div className="flex justify-between"><span>{t.lpBuy}:</span> <span>{event.buyPrice.toFixed(0)}{t.unitWanSimple}</span></div>
+                    <div className="flex justify-between text-rose-300"><span>{t.lpCost}:</span> <span>-{event.transactionCost.toFixed(0)}{t.unitWanSimple}</span></div>
                   </div>
                 </div>
-                <span className="text-xs font-bold text-indigo-600 mt-2">第{event.year}年</span>
+                <span className="text-xs font-bold text-indigo-600 mt-2">{t.axisYear.replace('{v}', event.year)}</span>
               </div>
             ))}
 
             {/* End Point */}
             <div className="flex flex-col items-center">
               <div className="w-4 h-4 rounded-full bg-slate-400 border-4 border-white dark:border-slate-900 mb-2"></div>
-              <span className="text-xs text-slate-500">第30年</span>
+              <span className="text-xs text-slate-500">{t.lpYear30}</span>
             </div>
           </div>
         </div>
@@ -185,7 +185,7 @@ const LifePathSimulator: React.FC<LifePathSimulatorProps> = ({ params, t }) => {
       <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-xl border border-slate-100 dark:border-slate-800">
         <h3 className="font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
           <TrendingUp className="h-4 w-4 text-indigo-500"/>
-          资产积累对比
+          {t.lpChartTitle}
         </h3>
         <div className="h-[300px]">
           <ResponsiveContainer width="100%" height="100%">
@@ -209,12 +209,12 @@ const LifePathSimulator: React.FC<LifePathSimulatorProps> = ({ params, t }) => {
               <YAxis tick={{ fontSize: 12, fill: '#64748b' }} />
               <Tooltip 
                 contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
-                formatter={(value: any) => `${value.toFixed(0)}万`}
+                formatter={(value: any) => `${value.toFixed(0)}${t.unitWanSimple}`}
               />
               <Legend />
-              <Area type="monotone" dataKey="PathA" name="一房到底" stroke="#94a3b8" fillOpacity={1} fill="url(#colorA)" strokeWidth={2} />
-              <Area type="monotone" dataKey="PathB" name="一次置换" stroke="#6366f1" fillOpacity={1} fill="url(#colorB)" strokeWidth={3} />
-              <Area type="monotone" dataKey="PathC" name="多次折腾" stroke="#10b981" fillOpacity={1} fill="url(#colorC)" strokeWidth={2} />
+              <Area type="monotone" dataKey="PathA" name={t.lpPathA} stroke="#94a3b8" fillOpacity={1} fill="url(#colorA)" strokeWidth={2} />
+              <Area type="monotone" dataKey="PathB" name={t.lpPathB} stroke="#6366f1" fillOpacity={1} fill="url(#colorB)" strokeWidth={3} />
+              <Area type="monotone" dataKey="PathC" name={t.lpPathC} stroke="#10b981" fillOpacity={1} fill="url(#colorC)" strokeWidth={2} />
             </AreaChart>
           </ResponsiveContainer>
         </div>
@@ -224,7 +224,7 @@ const LifePathSimulator: React.FC<LifePathSimulatorProps> = ({ params, t }) => {
       <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-6 border border-slate-200 dark:border-slate-700">
         <h3 className="font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
           <Award className="h-5 w-5 text-amber-500" />
-          智能推荐
+          {t.lpRecTitle}
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="flex gap-4">
@@ -232,16 +232,16 @@ const LifePathSimulator: React.FC<LifePathSimulatorProps> = ({ params, t }) => {
               <DollarSign className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
             </div>
             <div>
-              <h4 className="font-bold text-slate-800 dark:text-white">资产最优解</h4>
+              <h4 className="font-bold text-slate-800 dark:text-white">{t.lpRecAsset}</h4>
               <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
                 {scenarios.A.totalAssets > scenarios.B.totalAssets && scenarios.A.totalAssets > scenarios.C.totalAssets 
-                  ? '一房到底 (Path A)' 
+                  ? `${t.lpPathA} (Path A)` 
                   : scenarios.B.totalAssets > scenarios.C.totalAssets 
-                  ? '一次置换 (Path B)' 
-                  : '多次折腾 (Path C)'}
+                  ? `${t.lpPathB} (Path B)` 
+                  : `${t.lpPathC} (Path C)`}
               </p>
               <p className="text-xs text-slate-500 mt-1">
-                交易成本越低，复利效应越强。如果房价涨幅不高，频繁换房会损耗大量财富。
+                {t.lpRecAssetDesc}
               </p>
             </div>
           </div>
@@ -251,12 +251,12 @@ const LifePathSimulator: React.FC<LifePathSimulatorProps> = ({ params, t }) => {
               <Home className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
             </div>
             <div>
-              <h4 className="font-bold text-slate-800 dark:text-white">体验最优解</h4>
+              <h4 className="font-bold text-slate-800 dark:text-white">{t.lpRecExp}</h4>
               <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-                {scenarios.C.avgComfort > scenarios.B.avgComfort ? '多次折腾 (Path C)' : '一次置换 (Path B)'}
+                {scenarios.C.avgComfort > scenarios.B.avgComfort ? `${t.lpPathC} (Path C)` : `${t.lpPathB} (Path B)`}
               </p>
               <p className="text-xs text-slate-500 mt-1">
-                通过阶梯式置换，可以在不同人生阶段匹配最适合的居住环境，生活质量更高。
+                {t.lpRecExpDesc}
               </p>
             </div>
           </div>

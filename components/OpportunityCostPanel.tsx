@@ -18,9 +18,10 @@ interface Props {
   result: CalculationResult;
   params: InvestmentParams;
   darkMode: boolean;
+  t: any;
 }
 
-const OpportunityCostPanel: React.FC<Props> = ({ result, params, darkMode }) => {
+const OpportunityCostPanel: React.FC<Props> = ({ result, params, darkMode, t }) => {
   const [volatility, setVolatility] = useState(15); // Standard Deviation % (Stock Market default ~15%)
   
   // Calculate Probabilistic Stock Outcomes
@@ -75,18 +76,21 @@ const OpportunityCostPanel: React.FC<Props> = ({ result, params, darkMode }) => 
             </div>
             <div>
                <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-1">
-                  {winningScenario === 'House' ? '房产投资胜出' : '指数基金胜出'}
+                  {winningScenario === 'House' ? (t.oppWinHouse || '房产投资胜出') : (t.oppWinStock || '指数基金胜出')}
                </h3>
                <p className="text-sm text-slate-600 dark:text-slate-300">
-                  在 {params.holdingYears} 年持有的情况下，{winningScenario === 'House' ? '购房' : '投资股市'} 预计比另一种选择的净资产高出 <span className="font-bold text-lg mx-1">{netWorthDiff} 万</span>。
+                  {(t.oppWinDesc || '在 {years} 年持有的情况下，{winner} 预计比另一种选择的净资产高出 {diff} 万。')
+                    .replace('{years}', params.holdingYears)
+                    .replace('{winner}', winningScenario === 'House' ? (t.oppHouseName || '购房') : (t.oppStockName || '投资股市'))
+                    .replace('{diff}', `<span class="font-bold text-lg mx-1">${netWorthDiff}</span>`)}
                </p>
                <div className="mt-4 flex gap-4 text-xs">
                   <div>
-                      <span className="block text-slate-400 mb-0.5">房产预期 IRR</span>
+                      <span className="block text-slate-400 mb-0.5">{t.oppIrrHouse || '房产预期 IRR'}</span>
                       <span className="font-mono font-bold text-indigo-600 text-lg">{result.annualizedReturn.toFixed(2)}%</span>
                   </div>
                   <div>
-                      <span className="block text-slate-400 mb-0.5">基金预期 IRR</span>
+                      <span className="block text-slate-400 mb-0.5">{t.oppIrrStock || '基金预期 IRR'}</span>
                       <span className="font-mono font-bold text-emerald-600 text-lg">{params.alternativeReturnRate.toFixed(2)}%</span>
                   </div>
                </div>
@@ -97,22 +101,22 @@ const OpportunityCostPanel: React.FC<Props> = ({ result, params, darkMode }) => 
       {/* 2. Deterministic Comparison Chart */}
       <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-slate-800">
          <h4 className="font-bold text-slate-800 dark:text-white mb-6 flex items-center gap-2">
-            <ArrowRightLeft className="h-5 w-5 text-indigo-500" /> 净资产增长对比
+            <ArrowRightLeft className="h-5 w-5 text-indigo-500" /> {t.oppChartTitle || '净资产增长对比'}
          </h4>
          <div className="h-80 w-full">
             <ResponsiveContainer width="100%" height="100%">
                <ComposedChart data={stockProjections} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke={darkMode ? '#334155' : '#e2e8f0'} vertical={false} />
-                  <XAxis dataKey="year" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 10}} tickFormatter={(v)=>`第${v}年`} />
-                  <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 10}} unit="万" />
+                  <XAxis dataKey="year" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 10}} tickFormatter={(v)=>`${v}`} />
+                  <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 10}} unit={t.unitWanSimple || "万"} />
                   <Tooltip 
                      contentStyle={{ backgroundColor: darkMode ? '#1e293b' : '#fff', borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                     formatter={(value: number) => [value.toFixed(0) + '万', '']}
-                     labelFormatter={(v) => `第 ${v} 年`}
+                     formatter={(value: number) => [value.toFixed(0) + (t.unitWanSimple || '万'), '']}
+                     labelFormatter={(v) => `${t.yearLabel || '第'} ${v} ${t.yearSuffix || '年'}`}
                   />
                   <Legend />
-                  <Line type="monotone" dataKey="houseNetWorth" name="房产净值" stroke="#6366f1" strokeWidth={3} dot={false} />
-                  <Line type="monotone" dataKey="stockBase" name="基金净值 (基准)" stroke="#10b981" strokeWidth={3} dot={false} strokeDasharray="5 5" />
+                  <Line type="monotone" dataKey="houseNetWorth" name={t.oppChartHouse || '房产净值'} stroke="#6366f1" strokeWidth={3} dot={false} />
+                  <Line type="monotone" dataKey="stockBase" name={t.oppChartStock || '基金净值 (基准)'} stroke="#10b981" strokeWidth={3} dot={false} strokeDasharray="5 5" />
                </ComposedChart>
             </ResponsiveContainer>
          </div>
@@ -122,10 +126,10 @@ const OpportunityCostPanel: React.FC<Props> = ({ result, params, darkMode }) => 
       <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-slate-800">
          <div className="flex justify-between items-center mb-6">
             <h4 className="font-bold text-slate-800 dark:text-white flex items-center gap-2">
-               <AlertTriangle className="h-5 w-5 text-amber-500" /> 逆向思考：如果不买房？
+               <AlertTriangle className="h-5 w-5 text-amber-500" /> {t.oppRiskTitle || '逆向思考：如果不买房？'}
             </h4>
             <div className="flex items-center gap-2">
-               <span className="text-xs text-slate-500">市场波动率(Risk)</span>
+               <span className="text-xs text-slate-500">{t.oppRiskVol || '市场波动率(Risk)'}</span>
                <input 
                  type="range" 
                  min="5" 
@@ -139,43 +143,26 @@ const OpportunityCostPanel: React.FC<Props> = ({ result, params, darkMode }) => 
          </div>
          
          <p className="text-sm text-slate-500 mb-4">
-            股市投资具有不确定性。下图展示了在不同市场表现下，您的财富（同等本金投资指数基金）的可能分布范围 (90% 置信区间)。
+            {t.oppRiskDesc || '股市投资具有不确定性。下图展示了在不同市场表现下，您的财富（同等本金投资指数基金）的可能分布范围 (90% 置信区间)。'}
          </p>
 
          <div className="h-80 w-full">
             <ResponsiveContainer width="100%" height="100%">
                <ComposedChart data={stockProjections} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke={darkMode ? '#334155' : '#e2e8f0'} vertical={false} />
-                  <XAxis dataKey="year" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 10}} tickFormatter={(v)=>`第${v}年`} />
-                  <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 10}} unit="万" />
+                  <XAxis dataKey="year" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 10}} tickFormatter={(v)=>`${v}`} />
+                  <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 10}} unit={t.unitWanSimple || "万"} />
                   <Tooltip 
                      contentStyle={{ backgroundColor: darkMode ? '#1e293b' : '#fff', borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                     labelFormatter={(v) => `第 ${v} 年`}
+                     labelFormatter={(v) => `${t.yearLabel || '第'} ${v} ${t.yearSuffix || '年'}`}
                   />
                   <Legend />
-                  <Area type="monotone" dataKey="stockOptimistic" name="牛市 (90%)" stackId="1" stroke="none" fill="#10b981" fillOpacity={0.1} />
-                  <Area type="monotone" dataKey="stockPessimistic" name="熊市 (10%)" stackId="2" stroke="none" fill="#fff" fillOpacity={1} /> {/* Hacker way to create band? No, area is stacked or assumes 0 baseline */}
-                  
-                  {/* Correct way to do Range Area in Recharts is tricky. 
-                      Standard Recharts Area is 'from 0 to value'.
-                      To do range, we can use `ranged` data if utilizing Area with baseValue? 
-                      Or use two areas where one covers the bottom.
-                      Let's try: 
-                      Area 1: Pessimistic (White/Transparent to hide bottom?) -> No, Recharts doesn't support 'floating' area easily without 'range' prop in newer versions.
-                      Simple workaround: 
-                      Draw 'Optimistic' fill. 
-                      Draw 'Pessimistic' fill with 'background color' so it masks the bottom? 
-                      Issue: Grid lines will be covered.
-                      
-                      Better approach: 
-                      Just 3 Lines.
-                  */}
-                  <Line type="monotone" dataKey="stockOptimistic" name="牛市上限" stroke="#34d399" strokeWidth={1} dot={false} strokeDasharray="3 3" />
-                  <Line type="monotone" dataKey="stockBase" name="基准预测" stroke="#10b981" strokeWidth={2} dot={false} />
-                  <Line type="monotone" dataKey="stockPessimistic" name="熊市下限" stroke="#ef4444" strokeWidth={1} dot={false} strokeDasharray="3 3" />
+                  <Line type="monotone" dataKey="stockOptimistic" name={t.oppBull || "牛市上限"} stroke="#34d399" strokeWidth={1} dot={false} strokeDasharray="3 3" />
+                  <Line type="monotone" dataKey="stockBase" name={t.oppBase || "基准预测"} stroke="#10b981" strokeWidth={2} dot={false} />
+                  <Line type="monotone" dataKey="stockPessimistic" name={t.oppBear || "熊市下限"} stroke="#ef4444" strokeWidth={1} dot={false} strokeDasharray="3 3" />
                   
                   {/* Compare with House */}
-                  <Line type="monotone" dataKey="houseNetWorth" name="房产净值" stroke="#6366f1" strokeWidth={3} dot={false} />
+                  <Line type="monotone" dataKey="houseNetWorth" name={t.oppChartHouse || '房产净值'} stroke="#6366f1" strokeWidth={3} dot={false} />
                </ComposedChart>
             </ResponsiveContainer>
          </div>

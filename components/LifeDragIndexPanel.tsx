@@ -32,7 +32,7 @@ const LifeDragIndexPanel: React.FC<LifeDragIndexPanelProps> = ({
   onOpenSettings,
   t 
 }) => {
-  const metrics = calculateLifeDragIndex(params, liquidityParams, monthlyIncome);
+  const metrics = calculateLifeDragIndex(params, liquidityParams, monthlyIncome, t);
   const [aiAnalysis, setAiAnalysis] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
 
@@ -75,9 +75,9 @@ const LifeDragIndexPanel: React.FC<LifeDragIndexPanelProps> = ({
       <div className="p-6 bg-gradient-to-r from-slate-800 to-slate-900 text-white">
         <h2 className="text-xl font-bold flex items-center gap-2">
           <Lock className="h-6 w-6 text-rose-400" />
-          房子拖累指数 (Life Drag Index)
+          {t.lifeDragTitle}
         </h2>
-        <p className="text-slate-400 text-sm mt-1">有些房子不会毁掉你，但会慢慢拖住你。</p>
+        <p className="text-slate-400 text-sm mt-1">{t.lifeDragSubTitle}</p>
       </div>
 
       <div className="p-6 grid md:grid-cols-2 gap-8">
@@ -95,7 +95,7 @@ const LifeDragIndexPanel: React.FC<LifeDragIndexPanelProps> = ({
             </svg>
             <div className="absolute flex flex-col items-center">
               <span className={`text-5xl font-black ${dragColor}`}>{metrics.totalDragScore}</span>
-              <span className="text-sm text-slate-500 uppercase font-bold tracking-wider">拖累值</span>
+              <span className="text-sm text-slate-500 uppercase font-bold tracking-wider">{t.dragValue}</span>
             </div>
           </div>
           <p className="text-center mt-4 text-slate-600 dark:text-slate-300 font-medium px-4">
@@ -107,29 +107,29 @@ const LifeDragIndexPanel: React.FC<LifeDragIndexPanelProps> = ({
         <div className="space-y-4">
           <DragDimension 
             icon={<Bot className="h-5 w-5" />} 
-            label="职业锁定" 
-            subLabel="是否限制换工作/失业风险" 
+            label={t.careerLock} 
+            subLabel={t.careerLockSub} 
             score={metrics.careerLockScore} 
             color="bg-blue-500"
           />
           <DragDimension 
             icon={<MapPin className="h-5 w-5" />} 
-            label="城市枷锁" 
-            subLabel="是否限制城市流动" 
+            label={t.geoLock} 
+            subLabel={t.geoLockSub} 
             score={metrics.geoLockScore} 
             color="bg-purple-500"
           />
           <DragDimension 
             icon={<Coffee className="h-5 w-5" />} 
-            label="生活压缩" 
-            subLabel="是否压缩社交/旅行/学习" 
+            label={t.lifestyleCompression} 
+            subLabel={t.lifestyleCompressionSub} 
             score={metrics.lifestyleCompressionScore} 
             color="bg-amber-500"
           />
           <DragDimension 
             icon={<Hourglass className="h-5 w-5" />} 
-            label="人生推迟" 
-            subLabel="是否推迟结婚/生子/创业" 
+            label={t.futureDelay} 
+            subLabel={t.futureDelaySub} 
             score={metrics.futureDelayScore} 
             color="bg-rose-500"
           />
@@ -146,15 +146,15 @@ const LifeDragIndexPanel: React.FC<LifeDragIndexPanelProps> = ({
               className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center gap-2 mx-auto disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Sparkles className="h-5 w-5" />
-              {isGenerating ? 'AI 正在分析你的人生...' : 'AI 投资顾问：评估我的人生自由度'}
+              {isGenerating ? t.aiEvaluatingLife : t.aiEvalLifeBtn}
             </button>
-            <p className="text-xs text-slate-400 mt-2">基于 AI 深度分析房产对你未来的隐性影响</p>
+            <p className="text-xs text-slate-400 mt-2">{t.aiLifeImpactTip}</p>
           </div>
         ) : (
           <div className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border border-indigo-100 dark:border-indigo-900/30">
             <h3 className="text-md font-bold text-indigo-900 dark:text-indigo-300 mb-4 flex items-center gap-2">
               <Bot className="h-5 w-5" />
-              AI 投资顾问深度评估
+              {t.aiLifeEvalTitle}
             </h3>
             <div 
               className="prose prose-sm dark:prose-invert max-w-none text-slate-700 dark:text-slate-300"
@@ -162,7 +162,7 @@ const LifeDragIndexPanel: React.FC<LifeDragIndexPanelProps> = ({
             />
             <div className="mt-4 flex justify-end">
               <button onClick={() => setAiAnalysis(null)} className="text-sm text-slate-400 hover:text-indigo-500">
-                重新分析
+                {t.reAnalyze}
               </button>
             </div>
           </div>

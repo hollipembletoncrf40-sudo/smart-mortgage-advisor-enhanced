@@ -15,6 +15,9 @@ const KnowledgeTree: React.FC<KnowledgeTreeProps> = ({ isOpen, onClose, selected
   const [selectedTerm, setSelectedTerm] = useState<KnowledgeTerm | null>(null);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
+  // Check language
+  const isEnglish = t.knowledgeTree === 'Knowledge Tree';
+
   // Load user progress from localStorage
   useEffect(() => {
     const stored = localStorage.getItem('knowledgeProgress');
@@ -63,6 +66,11 @@ const KnowledgeTree: React.FC<KnowledgeTreeProps> = ({ isOpen, onClose, selected
   const getCategoryTerms = (category: string) => {
     return Object.values(knowledgeBase).filter(term => term.category === category);
   };
+
+  const getTermTitle = (term: KnowledgeTerm) => isEnglish ? (term.termEn || term.term) : term.term;
+  const getTermShort = (term: KnowledgeTerm) => isEnglish ? (term.shortDescEn || term.shortDesc) : term.shortDesc;
+  const getTermLong = (term: KnowledgeTerm) => isEnglish ? (term.longDescEn || term.longDesc) : term.longDesc;
+  const getCategoryName = (cat: any) => isEnglish ? (cat.nameEn || cat.name) : cat.name;
 
   if (!isOpen) return null;
 
@@ -119,7 +127,7 @@ const KnowledgeTree: React.FC<KnowledgeTreeProps> = ({ isOpen, onClose, selected
                 >
                   <div className="flex items-center gap-2 mb-1">
                     <span className="text-lg">{category.icon}</span>
-                    <span className="text-xs font-bold text-slate-700 dark:text-white">{category.name}</span>
+                    <span className="text-xs font-bold text-slate-700 dark:text-white">{getCategoryName(category)}</span>
                   </div>
                   <div className="text-[10px] text-slate-500 dark:text-slate-400">
                     {unlockedCount}/{categoryTerms.length} {t.unlocked || '已解锁'}
@@ -144,13 +152,13 @@ const KnowledgeTree: React.FC<KnowledgeTreeProps> = ({ isOpen, onClose, selected
                 <div className="space-y-6">
                   {/* Term Header */}
                   <div className="pb-4 border-b border-slate-200 dark:border-slate-700">
-                    <h3 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">{selectedTerm.term}</h3>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">{selectedTerm.shortDesc}</p>
+                    <h3 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">{getTermTitle(selectedTerm)}</h3>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">{getTermShort(selectedTerm)}</p>
                   </div>
 
                   {/* Term Content */}
                   <div>
-                    <MarkdownRenderer content={selectedTerm.longDesc} />
+                    <MarkdownRenderer content={getTermLong(selectedTerm)} />
                   </div>
 
                   {/* Related Terms */}
@@ -177,7 +185,7 @@ const KnowledgeTree: React.FC<KnowledgeTreeProps> = ({ isOpen, onClose, selected
                                   : 'bg-slate-100 dark:bg-slate-800 text-slate-400 cursor-not-allowed'
                               }`}
                             >
-                              {unlocked ? relatedTerm.term : `🔒 ${relatedTerm.term}`}
+                              {unlocked ? getTermTitle(relatedTerm) : `🔒 ${getTermTitle(relatedTerm)}`}
                             </button>
                           );
                         })}
@@ -201,7 +209,7 @@ const KnowledgeTree: React.FC<KnowledgeTreeProps> = ({ isOpen, onClose, selected
                                   {t.unlockNext || '解锁下一个知识点'}
                                 </h5>
                                 <p className="text-xs text-slate-600 dark:text-slate-400 mb-3">
-                                  看完当前内容后，点击下方按钮解锁：<span className="font-bold text-indigo-600 dark:text-indigo-400">{nextTerm.term}</span>
+                                  {t.unlockHint || '看完当前内容后，点击下方按钮解锁：'}<span className="font-bold text-indigo-600 dark:text-indigo-400">{getTermTitle(nextTerm)}</span>
                                 </p>
                                 <button
                                   onClick={() => {
@@ -228,10 +236,10 @@ const KnowledgeTree: React.FC<KnowledgeTreeProps> = ({ isOpen, onClose, selected
               <div className="p-6">
                 <div className="mb-6">
                   <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-2">
-                    {knowledgeCategories[activeCategory as keyof typeof knowledgeCategories].name}
+                    {getCategoryName(knowledgeCategories[activeCategory as keyof typeof knowledgeCategories])}
                   </h3>
                   <p className="text-xs text-slate-500 dark:text-slate-400">
-                    点击术语查看详细解释，看完后可以解锁下一个知识点
+                    {t.clickTermHint || '点击术语查看详细解释，看完后可以解锁下一个知识点'}
                   </p>
                 </div>
                 <div className="space-y-3">
@@ -258,8 +266,8 @@ const KnowledgeTree: React.FC<KnowledgeTreeProps> = ({ isOpen, onClose, selected
                             )}
                           </div>
                           <div className="flex-1">
-                            <div className="font-bold text-sm text-slate-800 dark:text-white mb-1">{term.term}</div>
-                            <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-2">{term.shortDesc}</p>
+                            <div className="font-bold text-sm text-slate-800 dark:text-white mb-1">{getTermTitle(term)}</div>
+                            <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-2">{getTermShort(term)}</p>
                             {!unlocked && (
                               <div className="text-[10px] text-amber-600 dark:text-amber-400 mt-2">
                                 🔒 {t.unlockHint || '完成相关操作后解锁'}

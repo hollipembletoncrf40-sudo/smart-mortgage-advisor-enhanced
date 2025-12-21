@@ -1238,70 +1238,74 @@ export const calculateComparison = (baseParams: InvestmentParams, scenarios: imp
 };
 
 // Liquidity Reality Check Calculation
-export const calculateLiquidityAnalysis = (params: import('../types').LiquidityParams): import('../types').LiquidityAnalysis => {
+export const calculateLiquidityAnalysis = (params: LiquidityParams, t?: any): LiquidityAnalysis => {
+  // Mock t if not provided (fallback to hardcoded Chinese for safety, but UI passes t)
+  // Actually, for better typing, we assume t is passed or we default to returning keys/Chinese
+  const tr = (key: string, fallback: string) => t && t[key] ? t[key] : fallback;
+
   let score = 50;
   const riskFactors: string[] = [];
   const strengths: string[] = [];
   
   if (params.area >= 70 && params.area <= 120) {
     score += 15;
-    strengths.push('面积适中，受众广泛');
+    strengths.push(tr('liqStrAreaOk', '面积适中，受众广泛'));
   } else if (params.area > 150) {
     score -= 15;
-    riskFactors.push('大户型流动性较差');
+    riskFactors.push(tr('liqRiskAreaBig', '大户型流动性较差'));
   } else if (params.area < 60) {
     score -= 5;
-    riskFactors.push('面积偏小，限制家庭类型');
+    riskFactors.push(tr('liqRiskAreaSmall', '面积偏小，限制家庭类型'));
   }
   
   if (params.hasSchool) {
     score += 10;
-    strengths.push('学区房，刚需强劲');
+    strengths.push(tr('liqStrSchool', '学区房，刚需强劲'));
   }
   
   if (params.transitScore >= 8) {
     score += 10;
-    strengths.push('交通便利，通勤友好');
+    strengths.push(tr('liqStrTransit', '交通便利，通勤友好'));
   } else if (params.transitScore <= 4) {
     score -= 8;
-    riskFactors.push('交通不便，影响出售');
+    riskFactors.push(tr('liqRiskTransit', '交通不便，影响出售'));
   }
   
   if (params.priceLevel === 'low') {
     score += 10;
-    strengths.push('价格亲民，购买力强');
+    strengths.push(tr('liqStrPriceLow', '价格亲民，购买力强'));
   } else if (params.priceLevel === 'luxury') {
     score -= 20;
-    riskFactors.push('豪宅市场窄，接盘人少');
+    riskFactors.push(tr('liqRiskPriceLux', '豪宅市场窄，接盘人少'));
   }
   
   if (params.propertyAge < 5) {
     score += 10;
-    strengths.push('次新房，品质保证');
+    strengths.push(tr('liqStrNew', '次新房，品质保证'));
   } else if (params.propertyAge > 20) {
     score -= 10;
-    riskFactors.push('房龄较老，维护成本高');
+    riskFactors.push(tr('liqRiskOld', '房龄较老，维护成本高'));
   }
   
   if (params.competitionLevel === 'high') {
     score -= 15;
-    riskFactors.push('新房竞争激烈');
+    riskFactors.push(tr('liqRiskComp', '新房竞争激烈'));
   }
   
   if (params.populationTrend === 'growing') {
     score += 15;
-    strengths.push('人口流入，需求增长');
+    strengths.push(tr('liqStrPop', '人口流入，需求增长'));
   } else if (params.populationTrend === 'declining') {
     score -= 20;
-    riskFactors.push('人口流出，需求萎缩');
+    riskFactors.push(tr('liqRiskPop', '人口流出，需求萎缩'));
   }
   
   if (params.policyEnvironment === 'favorable') {
     score += 10;
-    strengths.push('政策利好，市场活跃');
+    strengths.push(tr('liqStrPol', '政策利好，市场活跃'));
   } else if (params.policyEnvironment === 'restrictive') {
     score -= 15;
-    riskFactors.push('政策限制，交易受阻');
+    riskFactors.push(tr('liqRiskPol', '政策限制，交易受阻'));
   }
   
   score = Math.max(0, Math.min(100, score));
@@ -1320,10 +1324,10 @@ export const calculateLiquidityAnalysis = (params: import('../types').LiquidityP
   if (params.area >= 60 && params.area <= 90 && params.priceLevel !== 'luxury' && params.transitScore >= 6) {
     buyerProfiles.push({
       type: BuyerType.FIRST_TIME_YOUNG,
-      label: '首次置业年轻家庭',
+      label: tr('liqBuyerYoung', '首次置业年轻家庭'),
       percentage: params.hasSchool ? 45 : 35,
       trend: params.populationTrend === 'growing' ? 'increasing' : params.populationTrend === 'declining' ? 'decreasing' : 'stable',
-      characteristics: ['25-35岁', '小家庭', '注重性价比', '首套房'],
+      characteristics: tr('liqTraitYoung', '25-35岁, 小家庭, 注重性价比').split(', '),
       concerns: ['总价', '交通', '学区', '月供压力']
     });
   }
@@ -1331,10 +1335,10 @@ export const calculateLiquidityAnalysis = (params: import('../types').LiquidityP
   if (params.area >= 90 && params.area <= 130 && params.bedrooms >= 3) {
     buyerProfiles.push({
       type: BuyerType.UPGRADING_FAMILY,
-      label: '改善型家庭',
+      label: tr('liqBuyerUpgrade', '改善型家庭'),
       percentage: params.hasSchool ? 40 : 30,
       trend: params.policyEnvironment === 'restrictive' ? 'decreasing' : 'stable',
-      characteristics: ['35-45岁', '二孩家庭', '追求品质', '二套房'],
+      characteristics: tr('liqTraitUpgrade', '35-45岁, 二孩家庭, 追求品质').split(', '),
       concerns: ['学区', '户型', '小区环境', '配套设施']
     });
   }
@@ -1342,10 +1346,10 @@ export const calculateLiquidityAnalysis = (params: import('../types').LiquidityP
   if (params.transitScore >= 7 && params.location === 'cbd' && params.populationTrend !== 'declining') {
     buyerProfiles.push({
       type: BuyerType.INVESTOR,
-      label: '投资型买家',
+      label: tr('liqBuyerInvest', '投资型买家'),
       percentage: params.policyEnvironment === 'favorable' ? 25 : 15,
       trend: params.policyEnvironment === 'favorable' ? 'increasing' : params.policyEnvironment === 'restrictive' ? 'decreasing' : 'stable',
-      characteristics: ['资金充裕', '看重增值', '多套房产', '长期持有'],
+      characteristics: tr('liqTraitInvest', '资金充裕, 看重增值, 长期持有').split(', '),
       concerns: ['地段', '租金回报', '增值潜力', '政策风险']
     });
   }
@@ -1353,10 +1357,10 @@ export const calculateLiquidityAnalysis = (params: import('../types').LiquidityP
   if (params.area < 80 && params.location !== 'remote' && params.propertyAge < 15) {
     buyerProfiles.push({
       type: BuyerType.DOWNSIZING,
-      label: '换小型买家',
+      label: tr('liqBuyerDown', '换小型买家'),
       percentage: 20,
       trend: 'stable',
-      characteristics: ['50岁以上', '子女独立', '简化生活', '置换房产'],
+      characteristics: tr('liqTraitDown', '50岁以上, 子女独立, 简化生活').split(', '),
       concerns: ['地段', '物业', '医疗配套', '生活便利']
     });
   }
@@ -1364,10 +1368,10 @@ export const calculateLiquidityAnalysis = (params: import('../types').LiquidityP
   if (buyerProfiles.length === 0 || score < 30) {
     buyerProfiles.push({
       type: BuyerType.RARE,
-      label: '接盘人稀少',
+      label: tr('liqBuyerRare', '接盘人稀少'),
       percentage: 10,
       trend: 'decreasing',
-      characteristics: ['特殊需求', '非主流选择', '议价能力强'],
+      characteristics: tr('liqTraitRare', '特殊需求, 非主流选择').split(', '),
       concerns: ['大幅折价', '长期持有风险']
     });
   }
@@ -1381,7 +1385,7 @@ export const calculateLiquidityAnalysis = (params: import('../types').LiquidityP
   } else if (params.populationTrend === 'declining' || params.policyEnvironment === 'restrictive') {
     trendIndicator = 'decreasing';
   }
-  
+
   return {
     liquidityScore: Math.round(score),
     expectedSaleMonths: expectedMonths,
@@ -1392,6 +1396,7 @@ export const calculateLiquidityAnalysis = (params: import('../types').LiquidityP
     strengths
   };
 };
+
 
 // Market Position Radar Chart Calculation
 export const calculateMarketRadarData = (
@@ -1485,7 +1490,8 @@ export const calculateMarketRadarData = (
 export const calculateLifeDragIndex = (
   params: InvestmentParams,
   liquidityParams?: LiquidityParams,
-  monthlyIncome: number = 30000 
+  monthlyIncome: number = 30000,
+  t?: any
 ): LifeDragMetrics => {
   // 1. Calculate Monthly Payment and DTI
   const loanAmountWan = params.totalPrice * (1 - params.downPaymentRatio / 100);
@@ -1555,10 +1561,17 @@ export const calculateLifeDragIndex = (
   const totalDragScore = Math.round((careerLock + geoLock + lifestyleCompression + futureDelay) / 4);
 
   let advice = "";
-  if (totalDragScore < 30) advice = "这套房子是你的助力，不是负担。";
-  else if (totalDragScore < 60) advice = "有一定的束缚，特别是职业选择上需要更谨慎。";
-  else if (totalDragScore < 80) advice = "警惕！这套房子正在显著挤压你的生活空间和未来选择。";
-  else advice = "极高风险！你可能正在为了房子牺牲整个人生的可能性。";
+  if (t) {
+    if (totalDragScore < 30) advice = t.adviceDragLow;
+    else if (totalDragScore < 60) advice = t.adviceDragMed;
+    else if (totalDragScore < 80) advice = t.adviceDragHigh;
+    else advice = t.adviceDragExtreme;
+  } else {
+    if (totalDragScore < 30) advice = "这套房子是你的助力，不是负担。";
+    else if (totalDragScore < 60) advice = "有一定的束缚，特别是职业选择上需要更谨慎。";
+    else if (totalDragScore < 80) advice = "警惕！这套房子正在显著挤压你的生活空间和未来选择。";
+    else advice = "极高风险！你可能正在为了房子牺牲整个人生的可能性。";
+  }
 
   return {
     totalDragScore,

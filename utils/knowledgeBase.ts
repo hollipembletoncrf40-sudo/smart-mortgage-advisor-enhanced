@@ -1,8 +1,11 @@
 export interface KnowledgeTerm {
   id: string;
   term: string;
+  termEn?: string;
   shortDesc: string;
+  shortDescEn?: string;
   longDesc: string;
+  longDescEn?: string;
   category: 'loan' | 'investment' | 'tax' | 'risk' | 'basic';
   relatedTerms: string[];
   unlockCondition: 'always' | 'first_calculation' | 'comparison_complete' | 'stress_test' | 'goal_set';
@@ -13,7 +16,9 @@ export const knowledgeBase: Record<string, KnowledgeTerm> = {
   lpr: {
     id: 'lpr',
     term: 'LPR',
+    termEn: 'LPR (Loan Prime Rate)',
     shortDesc: '贷款市场报价利率，是银行对最优质客户的贷款利率，作为贷款定价的基准。',
+    shortDescEn: 'Loan Prime Rate, the benchmark rate for loans.',
     longDesc: `LPR（Loan Prime Rate）是贷款市场报价利率，由18家报价行根据其对最优质客户的贷款利率报价，剔除最高和最低报价后算术平均得出。
 
 **为什么重要？**
@@ -23,6 +28,15 @@ export const knowledgeBase: Record<string, KnowledgeTerm> = {
 
 **实际影响：**
 假设您的房贷利率是"LPR + 0.5%"，当前5年期LPR为4.2%，那么您的实际利率就是4.7%。如果下月LPR降至4.1%，您的利率也会降至4.6%。`,
+    longDescEn: `LPR (Loan Prime Rate) is the benchmark interest rate for loans in China, calculated based on quotes from 18 designated banks.
+
+**Why is it important?**
+- Since 2019, new loans are priced based on LPR.
+- It helps determine your actual mortgage rate (LPR + Basis Points).
+- Updated monthly on the 20th.
+
+**Impact:**
+If your rate is "LPR + 50bps" and current 5-year LPR is 4.2%, your rate is 4.7%. If LPR drops to 4.1%, your rate drops to 4.6% (upon repricing date).`,
     category: 'loan',
     relatedTerms: ['fixed_rate', 'floating_rate', 'interest_rate'],
     unlockCondition: 'always'
@@ -31,7 +45,9 @@ export const knowledgeBase: Record<string, KnowledgeTerm> = {
   equal_principal_interest: {
     id: 'equal_principal_interest',
     term: '等额本息',
+    termEn: 'Equal Payment',
     shortDesc: '每月还款金额固定，前期利息多、本金少，后期本金多、利息少。',
+    shortDescEn: 'Fixed monthly payment. More interest upfront.',
     longDesc: `等额本息是最常见的还款方式，特点是每月还款金额相同，便于规划家庭财务。
 
 **计算原理：**
@@ -47,6 +63,20 @@ export const knowledgeBase: Record<string, KnowledgeTerm> = {
 - 收入稳定的工薪族
 - 希望每月还款压力均衡的购房者
 - 不打算提前还款的人群`,
+    longDescEn: `Equal Principal and Interest (Equal Payment).
+
+**Mechanism:**
+Monthly payment amount remains the same throughout the loan term.
+
+**Pros & Cons:**
+✅ Predictable monthly budget
+✅ Lower initial pressure compared to Equal Principal
+❌ Higher total interest paid
+❌ Initial payments are mostly interest
+
+**Best for:**
+- People with stable income
+- Those who prefer consistent monthly outflows`,
     category: 'loan',
     relatedTerms: ['equal_principal', 'prepayment', 'interest'],
     unlockCondition: 'first_calculation'
@@ -55,7 +85,9 @@ export const knowledgeBase: Record<string, KnowledgeTerm> = {
   equal_principal: {
     id: 'equal_principal',
     term: '等额本金',
+    termEn: 'Equal Principal',
     shortDesc: '每月偿还固定本金，利息递减，前期还款压力大但总利息少。',
+    shortDescEn: 'Fixed principal payment. Monthly payment decreases over time.',
     longDesc: `等额本金还款方式下，每月偿还的本金固定，利息随剩余本金递减。
 
 **计算原理：**
@@ -73,6 +105,20 @@ export const knowledgeBase: Record<string, KnowledgeTerm> = {
 - 收入较高且稳定的人群
 - 计划提前还款的购房者
 - 希望减少总利息支出的人群`,
+    longDescEn: `Equal Principal Repayment.
+
+**Mechanism:**
+You pay the same amount of principal every month, plus interest on the remaining balance. Total monthly payment decreases over time.
+
+**Pros & Cons:**
+✅ Lower total interest
+✅ Payment burden decreases
+❌ Higher initial monthly payments
+❌ Requires higher initial income
+
+**Best for:**
+- Those with high repayment capability
+- Plans for early repayment`,
     category: 'loan',
     relatedTerms: ['equal_principal_interest', 'prepayment', 'interest'],
     unlockCondition: 'first_calculation'
@@ -81,7 +127,9 @@ export const knowledgeBase: Record<string, KnowledgeTerm> = {
   annual_return: {
     id: 'annual_return',
     term: '年化收益率',
+    termEn: 'Annual Return',
     shortDesc: '投资一年的预期收益率，用于衡量投资回报水平。',
+    shortDescEn: 'Expected yearly return rate on investment.',
     longDesc: `年化收益率是把当前收益率（日收益率、周收益率、月收益率）换算成年收益率来计算的理论收益率。
 
 **计算方式：**
@@ -94,6 +142,17 @@ export const knowledgeBase: Record<string, KnowledgeTerm> = {
 
 **实际应用：**
 在买房vs投资对比中，我们假设租房省下的钱用于投资。如果年化收益率设为6%，意味着您预期每年能获得6%的投资回报。这个数字应该根据您的风险承受能力和投资策略来设定。`,
+    longDescEn: `Annualized Rate of Return.
+
+**Calculation:**
+Theoretical rate if the investment return was extrapolated to a full year.
+
+**Usage:**
+In the Buy vs Rent comparison, we assume savings from renting are invested. A 6% return means you expect your portfolio to grow by 6% annually.
+
+**Note:**
+⚠️ Past performance does not guarantee future results.
+⚠️ Consider risk adjustment.`,
     category: 'investment',
     relatedTerms: ['compound_interest', 'risk', 'inflation'],
     unlockCondition: 'comparison_complete'
@@ -102,7 +161,9 @@ export const knowledgeBase: Record<string, KnowledgeTerm> = {
   compound_interest: {
     id: 'compound_interest',
     term: '复利',
+    termEn: 'Compound Interest',
     shortDesc: '利滚利，收益再投资产生新收益，是财富增长的核心动力。',
+    shortDescEn: 'Interest on interest. Key to wealth growth.',
     longDesc: `复利是指在每经过一个计息期后，都要将所生利息加入本金，以计算下期的利息。
 
 **爱因斯坦名言：**
@@ -121,6 +182,21 @@ export const knowledgeBase: Record<string, KnowledgeTerm> = {
 - 时间是复利的好朋友
 - 越早开始投资，复利效应越明显
 - 即使小额投资，长期坚持也能积累可观财富`,
+    longDescEn: `Compound Interest.
+
+**Mechanism:**
+Earning interest on both the principal and previously earned interest.
+
+**Quote:**
+"Compound interest is the eighth wonder of the world." - Einstein
+
+**Example:**
+$10k invested at 8% for 10 years:
+- Simple Interest: $18k
+- Compound Interest: $21.6k
+
+**Takeaway:**
+Start early. Time is the most important factor in compounding.`,
     category: 'investment',
     relatedTerms: ['annual_return', 'time_value'],
     unlockCondition: 'comparison_complete'
@@ -129,7 +205,9 @@ export const knowledgeBase: Record<string, KnowledgeTerm> = {
   inflation: {
     id: 'inflation',
     term: '通货膨胀',
+    termEn: 'Inflation',
     shortDesc: '物价普遍上涨，货币购买力下降，影响长期财务规划。',
+    shortDescEn: 'General increase in prices and fall in purchasing power.',
     longDesc: `通货膨胀是指货币供应量超过实际需求，导致货币贬值、物价上涨的经济现象。
 
 **对购房决策的影响：**
@@ -146,6 +224,19 @@ export const knowledgeBase: Record<string, KnowledgeTerm> = {
 ✓ 适度负债购买资产
 ✓ 投资能跑赢通胀的产品
 ✓ 避免长期持有大量现金`,
+    longDescEn: `Inflation.
+
+**Mechanism:**
+Currency loses value over time as prices rise.
+
+**Impact on Housing:**
+1. **Debt Dilution**: Fixed-rate debt becomes "cheaper" in real terms.
+2. **Asset Hedge**: Real estate values often rise with inflation.
+3. **Cash Drag**: Holding cash loses purchasing power.
+
+**Example (3% Inflation):**
+- $1M today = $740k purchasing power in 10 years.
+- $10k mortgage payment today = $7.4k real burden in 10 years.`,
     category: 'basic',
     relatedTerms: ['real_return', 'purchasing_power'],
     unlockCondition: 'always'
@@ -154,7 +245,9 @@ export const knowledgeBase: Record<string, KnowledgeTerm> = {
   down_payment: {
     id: 'down_payment',
     term: '首付比例',
+    termEn: 'Down Payment Ratio',
     shortDesc: '购房时需要支付的首笔款项占房价的比例，影响贷款额度和月供。',
+    shortDescEn: 'Initial upfront payment as a percentage of total price.',
     longDesc: `首付比例是购房时必须自己支付的资金占房屋总价的百分比，剩余部分可以通过贷款支付。
 
 **政策规定：**
@@ -171,6 +264,18 @@ export const knowledgeBase: Record<string, KnowledgeTerm> = {
 - 首付不是越高越好，要平衡流动性
 - 保留一定现金应对突发情况
 - 考虑投资机会成本`,
+    longDescEn: `Down Payment Ratio.
+
+**Overview:**
+The percentage of the home price you pay upfront.
+
+**Typical Rates:**
+- First Home: 20-30%
+- Second Home: 40-50%
+
+**Trade-offs:**
+Higher down payment = Lower monthly payment & Less interest paid.
+Lower down payment = Higher leverage & More cash on hand for other investments.`,
     category: 'loan',
     relatedTerms: ['ltv', 'monthly_payment'],
     unlockCondition: 'always'
@@ -179,7 +284,9 @@ export const knowledgeBase: Record<string, KnowledgeTerm> = {
   prepayment: {
     id: 'prepayment',
     term: '提前还款',
+    termEn: 'Prepayment',
     shortDesc: '在贷款期限内提前偿还部分或全部贷款，可减少利息支出。',
+    shortDescEn: 'Paying off loan early to save interest.',
     longDesc: `提前还款是指借款人在贷款到期日前，提前偿还部分或全部贷款本金。
 
 **两种方式：**
@@ -200,6 +307,19 @@ export const knowledgeBase: Record<string, KnowledgeTerm> = {
 **最佳时机：**
 - 等额本息：前1/3期限内提前还款效果最好
 - 等额本金：越早还越划算`,
+    longDescEn: `Prepayment.
+
+**Methods:**
+1. **Reduce Term**: Keep monthly payment same, finish loan earlier. (Saves most interest)
+2. **Reduce Payment**: Lower monthly payment, same term. (Improves cash flow)
+
+**Decision Logic:**
+Compare Mortgage Rate vs. Investment Return Rate.
+- If Invest Rate > Mortgage Rate: Don't prepay. Invest instead.
+- If Mortgage Rate > Invest Rate: Prepay.
+
+**Note:**
+Check for prepayment penalties and keep emergency funds!`,
     category: 'loan',
     relatedTerms: ['equal_principal_interest', 'interest', 'opportunity_cost'],
     unlockCondition: 'first_calculation'
@@ -208,7 +328,9 @@ export const knowledgeBase: Record<string, KnowledgeTerm> = {
   opportunity_cost: {
     id: 'opportunity_cost',
     term: '机会成本',
+    termEn: 'Opportunity Cost',
     shortDesc: '选择一项投资时放弃的其他投资机会的潜在收益。',
+    shortDescEn: 'Potential gain given up when choosing one alternative over another.',
     longDesc: `机会成本是指为了得到某种东西而必须放弃的东西的价值。
 
 **在买房决策中的应用：**
@@ -226,6 +348,15 @@ export const knowledgeBase: Record<string, KnowledgeTerm> = {
 - 没有完美的选择，只有相对合适的选择
 - 要基于自己的风险承受能力
 - 考虑多元化配置，降低机会成本`,
+    longDescEn: `Opportunity Cost.
+
+**Definition:**
+The value of the next-best alternative foregone.
+
+**In Real Estate:**
+Buying a house locks up your capital (down payment). The opportunity cost is the return you COULD have earned if you invested that money in stocks/bonds instead.
+
+Conversely, renting has an opportunity cost of missing out on potential property appreciation and leverage benefits.`,
     category: 'basic',
     relatedTerms: ['annual_return', 'risk'],
     unlockCondition: 'comparison_complete'
@@ -234,7 +365,9 @@ export const knowledgeBase: Record<string, KnowledgeTerm> = {
   stress_test: {
     id: 'stress_test',
     term: '压力测试',
+    termEn: 'Stress Test',
     shortDesc: '模拟极端市场情况下的财务状况，评估风险承受能力。',
+    shortDescEn: 'Simulating extreme scenarios to test financial resilience.',
     longDesc: `压力测试是指在极端不利情况下，测试投资组合或财务计划的抗风险能力。
 
 **常见压力情景：**
@@ -253,6 +386,18 @@ export const knowledgeBase: Record<string, KnowledgeTerm> = {
 ✓ 控制负债率在可承受范围内
 ✓ 多元化收入来源
 ✓ 购买必要的保险`,
+    longDescEn: `Stress Test.
+
+**Purpose:**
+To see if you can survive financially if things go wrong.
+
+**Common Scenarios:**
+1. Rate Hike: Interest rate goes up by 1-2%.
+2. Income Loss: Unemployment or pay cut.
+3. Market Crash: Property value drops 20-30%.
+
+**Advice:**
+Ensure you have 6-12 months of emergency funds and keep DTI (Debt-to-Income) ratio safe (<50%).`,
     category: 'risk',
     relatedTerms: ['opportunity_cost', 'down_payment'],
     unlockCondition: 'stress_test'
@@ -261,7 +406,9 @@ export const knowledgeBase: Record<string, KnowledgeTerm> = {
   ltv: {
     id: 'ltv',
     term: 'LTV (贷款价值比)',
+    termEn: 'LTV (Loan-to-Value)',
     shortDesc: '贷款金额占房产价值的比例，是银行评估风险的重要指标。',
+    shortDescEn: 'Loan amount divided by property value.',
     longDesc: `LTV (Loan-to-Value Ratio) 是贷款金额与房产评估价值的比率。
 
 **计算公式：**
@@ -282,6 +429,17 @@ LTV = (贷款金额 / 房产价值) × 100%
 - 增加首付降低LTV
 - 选择评估价值高的房产
 - 考虑组合贷款方式`,
+    longDescEn: `LTV (Loan-to-Value Ratio).
+
+**Formula:**
+LTV = (Loan Amount / Property Value) × 100%
+
+**Significance:**
+Higher LTV = Higher Risk for banks = Higher Interest Rate (usually).
+Banks typically cap LTV at 70-80%.
+
+**Example:**
+$1M Home, $300k Down => $700k Loan => 70% LTV.`,
     category: 'loan',
     relatedTerms: ['down_payment', 'interest_rate'],
     unlockCondition: 'first_calculation'
@@ -290,7 +448,9 @@ LTV = (贷款金额 / 房产价值) × 100%
   deed_tax: {
     id: 'deed_tax',
     term: '契税',
+    termEn: 'Deed Tax',
     shortDesc: '购买房产时需要缴纳的税费，根据房屋面积和是否首套有不同税率。',
+    shortDescEn: 'Tax paid upon property transfer.',
     longDesc: `契税是在土地、房屋权属转移时，向承受人征收的一种税。
 
 **税率标准：**
@@ -312,6 +472,18 @@ LTV = (贷款金额 / 房产价值) × 100%
 - 首套房优先选择90-140㎡
 - 了解当地优惠政策
 - 合理规划购房时间`,
+    longDescEn: `Deed Tax.
+
+**Overview:**
+A tax levied on the transfer of property title.
+
+**Typical Rates in China:**
+- First Home < 90sqm: 1%
+- First Home 90-140sqm: 1.5%
+- Larger/Second Home: 3%
+
+**Note:**
+Must be paid to receive the property title certificate.`,
     category: 'tax',
     relatedTerms: ['down_payment'],
     unlockCondition: 'first_calculation'
@@ -320,7 +492,9 @@ LTV = (贷款金额 / 房产价值) × 100%
   fixed_rate: {
     id: 'fixed_rate',
     term: '固定利率',
+    termEn: 'Fixed Rate',
     shortDesc: '贷款期间利率保持不变，月供固定，便于长期规划。',
+    shortDescEn: 'Interest rate remains the same throughout loan term.',
     longDesc: `固定利率是指在整个贷款期限内，利率保持不变的贷款方式。
 
 **优点：**
@@ -340,6 +514,20 @@ LTV = (贷款金额 / 房产价值) × 100%
 
 **vs 浮动利率：**
 固定利率适合利率上行周期，浮动利率适合利率下行周期。`,
+    longDescEn: `Fixed Interest Rate.
+
+**Mechanism:**
+The rate is locked in when you take the loan and won't change.
+
+**Pros & Cons:**
+✅ Stability and predictability
+✅ Protection against rate hikes
+❌ Usually higher initial rate than floating
+❌ No benefit if market rates drop
+
+**Best for:**
+- Conservative borrowers
+- Financing during low-rate environment before hikes`,
     category: 'loan',
     relatedTerms: ['lpr', 'floating_rate'],
     unlockCondition: 'first_calculation'
@@ -348,7 +536,9 @@ LTV = (贷款金额 / 房产价值) × 100%
   floating_rate: {
     id: 'floating_rate',
     term: '浮动利率',
+    termEn: 'Floating Rate',
     shortDesc: '利率随市场变化而调整，通常与LPR挂钩。',
+    shortDescEn: 'Rate adjusts with market benchmarks (LPR).',
     longDesc: `浮动利率是指贷款利率会随着市场基准利率（如LPR）的变化而调整。
 
 **调整机制：**
@@ -370,6 +560,20 @@ LTV = (贷款金额 / 房产价值) × 100%
 - 设定利率上限预警
 - 保留应急资金
 - 考虑提前还款`,
+    longDescEn: `Floating (Variable) Interest Rate.
+
+**Mechanism:**
+The rate changes periodically based on a benchmark (like LPR).
+
+**Pros & Cons:**
+✅ Often lower initial rate
+✅ Benefit from rate cuts
+❌ Uncertainty in monthly payments
+❌ Risk of rate hikes
+
+**Best for:**
+- Short-term holders
+- High-rate environment (expecting cuts)`,
     category: 'loan',
     relatedTerms: ['lpr', 'fixed_rate'],
     unlockCondition: 'first_calculation'
@@ -378,7 +582,9 @@ LTV = (贷款金额 / 房产价值) × 100%
   emergency_fund: {
     id: 'emergency_fund',
     term: '应急储备金',
+    termEn: 'Emergency Fund',
     shortDesc: '用于应对突发情况的流动资金，建议保留3-6个月生活费。',
+    shortDescEn: 'Cash reserve for unexpected expenses (3-6 months).',
     longDesc: `应急储备金是预留的用于应对突发事件的流动资金。
 
 **建议金额：**
@@ -403,6 +609,16 @@ LTV = (贷款金额 / 房产价值) × 100%
 
 **与买房的关系：**
 买房后仍需保留足够应急金，不要把所有积蓄都用于首付。`,
+    longDescEn: `Emergency Fund.
+
+**Concept:**
+Liquid cash set aside for unplanned expenses (job loss, medical, repairs).
+
+**Rule of Thumb:**
+Keep 3-6 months of living expenses (including mortgage).
+
+**Importance:**
+Prevents you from being forced to sell assets (like your house) at a bad time due to liquidity shock.`,
     category: 'risk',
     relatedTerms: ['stress_test', 'down_payment'],
     unlockCondition: 'stress_test'
@@ -411,7 +627,9 @@ LTV = (贷款金额 / 房产价值) × 100%
   real_return: {
     id: 'real_return',
     term: '实际收益率',
+    termEn: 'Real Return',
     shortDesc: '扣除通货膨胀后的真实收益率，反映购买力的实际增长。',
+    shortDescEn: 'Return adjusted for inflation.',
     longDesc: `实际收益率 = 名义收益率 - 通货膨胀率
 
 **为什么重要？**
@@ -434,6 +652,17 @@ LTV = (贷款金额 / 房产价值) × 100%
 - 房价往往随通胀上涨
 - 租金收入可调整
 - 实物资产保值`,
+    longDescEn: `Real Rate of Return.
+
+**Formula:**
+Real Return ≈ Nominal Return - Inflation Rate
+
+**Significance:**
+It tells you if you are actually getting richer in purchasing power.
+If your bank gives 2% interest but inflation is 3%, your real return is -1%.
+
+**Real Estate:**
+Often considered good inflation hedge as rents and values tend to rise with price levels.`,
     category: 'investment',
     relatedTerms: ['inflation', 'annual_return'],
     unlockCondition: 'comparison_complete'
@@ -442,7 +671,9 @@ LTV = (贷款金额 / 房产价值) × 100%
   purchasing_power: {
     id: 'purchasing_power',
     term: '购买力',
+    termEn: 'Purchasing Power',
     shortDesc: '货币能够购买商品和服务的能力，会随通胀而下降。',
+    shortDescEn: 'Value of currency expressed in terms of goods/services.',
     longDesc: `购买力是指一定数量的货币能够购买的商品和服务的数量。
 
 **通胀对购买力的影响：**
@@ -470,6 +701,16 @@ LTV = (贷款金额 / 房产价值) × 100%
 - 房贷是"好债务"
 - 用今天的钱买房，用未来贬值的钱还贷
 - 房产本身可能增值`,
+    longDescEn: `Purchasing Power.
+
+**Concept:**
+What your money can buy. Inflation erodes this.
+
+**Example:**
+At 3% inflation, $100 today buys only ~$50 worth of goods in 24 years.
+
+**Strategy:**
+Invest in assets (stocks, real estate) that grow faster than inflation to preserve purchasing power. Mortgage debt can be a hedge (repaying fixed amount with depreciated currency).`,
     category: 'basic',
     relatedTerms: ['inflation', 'real_return'],
     unlockCondition: 'always'
@@ -478,7 +719,9 @@ LTV = (贷款金额 / 房产价值) × 100%
   time_value: {
     id: 'time_value',
     term: '货币时间价值',
+    termEn: 'Time Value of Money',
     shortDesc: '今天的1元钱比未来的1元钱更有价值。',
+    shortDescEn: 'Money available now is worth more than the same amount later.',
     longDesc: `货币时间价值是指货币随时间推移而产生的增值。
 
 **核心概念：**
@@ -508,6 +751,14 @@ LTV = (贷款金额 / 房产价值) × 100%
 - 早买房可能更划算（房价上涨 + 货币贬值）
 - 合理利用杠杆
 - 时间是财富增长的朋友`,
+    longDescEn: `Time Value of Money (TVM).
+
+**Core Principle:**
+A dollar today is worth more than a dollar tomorrow because of its potential earning capacity (interest/investment).
+
+**Application:**
+- **Mortgage:** Delaying payments (via 30yr loan) allows you to invest that cash elsewhere.
+- **Valuation:** Future cash flows (rents) are discounted back to present value to determine fair price.`,
     category: 'basic',
     relatedTerms: ['compound_interest', 'opportunity_cost'],
     unlockCondition: 'comparison_complete'
@@ -515,11 +766,11 @@ LTV = (贷款金额 / 房产价值) × 100%
 };
 
 export const knowledgeCategories = {
-  loan: { name: '贷款知识', icon: '🏦', color: '#6366f1' },
-  investment: { name: '投资理财', icon: '📈', color: '#10b981' },
-  tax: { name: '税务政策', icon: '📋', color: '#f59e0b' },
-  risk: { name: '风险管理', icon: '🛡️', color: '#ef4444' },
-  basic: { name: '基础概念', icon: '📚', color: '#8b5cf6' }
+  loan: { name: '贷款知识', nameEn: 'Loan Knowledge', icon: '🏦', color: '#6366f1' },
+  investment: { name: '投资理财', nameEn: 'Investment', icon: '📈', color: '#10b981' },
+  tax: { name: '税务政策', nameEn: 'Taxes', icon: '📋', color: '#f59e0b' },
+  risk: { name: '风险管理', nameEn: 'Risk Mgmt', icon: '🛡️', color: '#ef4444' },
+  basic: { name: '基础概念', nameEn: 'Basics', icon: '📚', color: '#8b5cf6' }
 };
 
 export const getTermsByCategory = (category: string): KnowledgeTerm[] => {

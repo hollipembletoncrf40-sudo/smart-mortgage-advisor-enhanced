@@ -11,8 +11,11 @@ import {
   Wallet, ShieldAlert, BadgeCheck, Coffee, Send, User, Bot, BarChart3,
   List, X, History, BadgePercent, Settings, Key, Info, BookOpen, ArrowRightLeft,
   Landmark, Loader, Download, FileText, Image as ImageIcon, FileType2, Share2, ChevronDown, CheckCircle2, XCircle, PieChart as PieChartIcon, Coins, Building2, MapPin, Globe2, Lightbulb, ClipboardCheck, ArrowDown, Home, PiggyBank, DollarSign, Droplets, Target, Zap,
-  Compass, ChevronRight, Database, MessageCircle, ExternalLink
+  Compass, ChevronRight, Database, MessageCircle, ExternalLink, LogIn, LogOut
 } from 'lucide-react';
+import { User as FirebaseUser } from 'firebase/auth';
+import { onAuthChange, logout } from './services/authService';
+import { AuthModal } from './components/AuthModal';
 import HousingTrendsPanel from './components/HousingTrendsPanel';
 import AffordabilityPanel from './components/AffordabilityPanel';
 import LifePathSimulator from './components/LifePathSimulator';
@@ -72,7 +75,7 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
         </div>
       );
     }
-    return this.props.children;
+    return (this as any).props.children;
   }
 }
 
@@ -1448,11 +1451,27 @@ function App() {
 
   // Custom API Key State
   const [customApiKey, setCustomApiKey] = useState("");
+  
+  // Authentication State
+  const [user, setUser] = useState<FirebaseUser | null>(null);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  
+  // Collapsible sections state
+  const [isBasicInfoExpanded, setIsBasicInfoExpanded] = useState(true);
   const [aiConfig, setAIConfig] = useState(loadAIConfig());
   const [tempApiKey, setTempApiKey] = useState(""); 
 
   const [params, setParams] = useState<InvestmentParams>({
     totalPrice: 300,
+    propertyArea: 90,
+    unitPrice: 33333,
+    communityName: "",
+    district: "",
+    floorLevel: "中楼层",
+    propertyType: "普通住宅",
+    buildingAge: 5,
+    decorationStatus: "精装",
+    propertyRightYears: 70,
     downPaymentRatio: 30,
     holdingYears: 10,
     loanType: LoanType.COMMERCIAL,
@@ -1477,6 +1496,8 @@ function App() {
     method: RepaymentMethod.EQUAL_PRINCIPAL_AND_INTEREST,
     alternativeReturnRate: 4.0, 
     inflationRate: 2.5, 
+    rateAdjustmentPeriod: 1,
+    expectedRateChange: 0,
     existingPropertyCount: 0,
     existingMonthlyDebt: 0,
     monthlyIncome: 30000, // 默认月收入3万
@@ -1563,16 +1584,37 @@ function App() {
     localStorage.setItem('theme', theme);
   }, [theme]);
   
+  // Listen for authentication state changes
+  useEffect(() => {
+    const unsubscribe = onAuthChange((user) => {
+      setUser(user);
+    });
+    return () => unsubscribe();
+  }, []);
+  
   const darkMode = theme !== 'light'; // For backward compatibility with existing code
 
 
 
   // --- Handlers ---
   const handleInputChange = (field: keyof InvestmentParams, value: number | string | boolean) => {
-    setParams(prev => ({
-      ...prev,
-      [field]: typeof value === 'string' && !['method', 'prepaymentStrategy', 'loanType', 'purchaseScenario'].includes(field) ? Number(value) : value
-    }));
+    setParams(prev => {
+      const newParams = {
+        ...prev,
+        [field]: typeof value === 'string' && !['method', 'prepaymentStrategy', 'loanType', 'purchaseScenario', 'communityName', 'district', 'floorLevel', 'propertyType', 'decorationStatus'].includes(field) ? Number(value) : value
+      };
+      
+      // Auto-calculate unitPrice when totalPrice or propertyArea changes
+      if (field === 'totalPrice' || field === 'propertyArea') {
+        const totalPrice = field === 'totalPrice' ? Number(value) : prev.totalPrice;
+        const area = field === 'propertyArea' ? Number(value) : prev.propertyArea;
+        if (area > 0) {
+          newParams.unitPrice = Math.round((totalPrice * 10000) / area);
+        }
+      }
+      
+      return newParams;
+    });
   };
 
   const handleSaveApiKey = () => {
@@ -1835,6 +1877,41 @@ function App() {
                 </div>
               )}
             </div>
+            
+            {/* Authentication UI */}
+            {user ? (
+              <div className="flex items-center gap-2 pl-2 border-l border-slate-200 dark:border-slate-700">
+                {user.photoURL && (
+                  <img 
+                    src={user.photoURL} 
+                    alt={user.displayName || 'User'} 
+                    className="h-8 w-8 rounded-full border-2 border-indigo-200 dark:border-indigo-800"
+                  />
+                )}
+                <div className="hidden md:block">
+                  <div className="text-xs font-medium text-slate-700 dark:text-slate-300">
+                    {user.displayName || user.email}
+                  </div>
+                </div>
+                <button
+                  onClick={() => logout()}
+                  className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+                  title="登出"
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span className="hidden sm:inline">登出</span>
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => setShowAuthModal(true)}
+                className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-500/20 font-medium"
+              >
+                <LogIn className="h-4 w-4" />
+                <span className="hidden sm:inline">登录</span>
+              </button>
+            )}
+            
             <button 
               onClick={handleSaveSnapshot}
               className="hidden md:flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-500/20"
@@ -1858,35 +1935,229 @@ function App() {
              <MarketSentimentSlider params={params} onChange={(updates) => setParams({...params, ...updates})} result={result} t={t} />
            </div>
            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-8 relative z-10">
-               {/* Column 1 */}
-               <div className="space-y-5">
-                   <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">{t.baseInfo}</h3>
-                   <div className="space-y-4">
-                        <InputGroup label={t.totalPrice} value={params.totalPrice} onChange={v => handleInputChange('totalPrice', v)} tooltip={t.tipTotalPrice} />
-                        <InputGroup label={t.downPaymentRatio} value={params.downPaymentRatio} onChange={v => handleInputChange('downPaymentRatio', v)} subtext={`${t.netDownPayment}: ${(result?.downPayment || 0).toFixed(2)}${t.unitWanSimple}`} tooltip={t.tipDownPayment} />
-                        <div className="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-lg border border-slate-100 dark:border-slate-800">
-                            <div className="flex items-center justify-between mb-2">
-                                <div className="text-[10px] font-bold text-slate-400 uppercase">{t.oneTimeCost}</div>
-                                <button onClick={() => setShowTaxCalculator(true)} className="text-[10px] flex items-center gap-1 text-indigo-600 font-bold hover:underline"><Calculator className="h-3 w-3" /> {t.calcTax}</button>
+                {/* Column 1 - Enhanced Basic Info */}
+                <div className="space-y-5">
+                    <div className="flex items-center justify-between">
+                        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">{t.baseInfo}</h3>
+                        <button 
+                            onClick={() => setIsBasicInfoExpanded(!isBasicInfoExpanded)}
+                            className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1"
+                        >
+                            {isBasicInfoExpanded ? '收起' : '展开'}
+                            <ChevronDown className={`h-3 w-3 transition-transform ${isBasicInfoExpanded ? 'rotate-180' : ''}`} />
+                        </button>
+                    </div>
+                    
+                    {isBasicInfoExpanded && (
+                        <div className="space-y-4 animate-fade-in">
+                            {/* Community & District */}
+                            <div className="grid grid-cols-2 gap-2">
+                                <div className="flex flex-col gap-1.5">
+                                    <label className="text-xs font-medium text-slate-500 dark:text-slate-400">{t.communityName}</label>
+                                    <input 
+                                        type="text"
+                                        value={params.communityName}
+                                        onChange={(e) => handleInputChange('communityName', e.target.value)}
+                                        placeholder="请输入小区名称"
+                                        className="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white transition-all"
+                                    />
+                                </div>
+                                <div className="flex flex-col gap-1.5">
+                                    <label className="text-xs font-medium text-slate-500 dark:text-slate-400">{t.district}</label>
+                                    <input 
+                                        type="text"
+                                        value={params.district}
+                                        onChange={(e) => handleInputChange('district', e.target.value)}
+                                        placeholder="请输入所在区域"
+                                        className="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white transition-all"
+                                    />
+                                </div>
                             </div>
-                            <div className="space-y-2">
-                                <InputGroup label={t.deedTax} value={params.deedTaxRate} onChange={v => handleInputChange('deedTaxRate', v)} step={0.1} tooltip={t.tipDeedTax} />
-                                <InputGroup label={t.agencyFee} value={params.agencyFeeRatio} onChange={v => handleInputChange('agencyFeeRatio', v)} step={0.1} tooltip={t.tipAgencyFee} />
-                                <InputGroup label={t.renovationCost} value={params.renovationCost} onChange={v => handleInputChange('renovationCost', v)} tooltip={t.tipRenovation} />
+                            
+                            {/* Area & Unit Price & Total Price */}
+                            <div className="grid grid-cols-3 gap-2">
+                                <InputGroup label={t.propertyArea} value={params.propertyArea} onChange={v => handleInputChange('propertyArea', v)} tooltip={t.tipPropertyArea} />
+                                <div className="flex flex-col gap-1.5">
+                                    <div className="flex items-center gap-1">
+                                        <label className="text-xs font-medium text-slate-500 dark:text-slate-400">{t.unitPrice}</label>
+                                        <KnowledgeTooltip term={t.tipUnitPrice} />
+                                    </div>
+                                    <input 
+                                        type="text"
+                                        value={params.unitPrice.toLocaleString()}
+                                        readOnly
+                                        className="w-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-600 dark:text-slate-400 cursor-not-allowed"
+                                    />
+                                </div>
+                                <InputGroup label={t.totalPrice} value={params.totalPrice} onChange={v => handleInputChange('totalPrice', v)} tooltip={t.tipTotalPrice} />
+                            </div>
+                            
+                            {/* Property Type & Floor & Building Age */}
+                            <div className="grid grid-cols-3 gap-2">
+                                <div className="flex flex-col gap-1.5">
+                                    <div className="flex items-center gap-1">
+                                        <label className="text-xs font-medium text-slate-500 dark:text-slate-400">{t.propertyType}</label>
+                                        <KnowledgeTooltip term={t.tipPropertyType} />
+                                    </div>
+                                    <select 
+                                        value={params.propertyType}
+                                        onChange={(e) => handleInputChange('propertyType', e.target.value)}
+                                        className="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white transition-all"
+                                    >
+                                        <option value="普通住宅">普通住宅</option>
+                                        <option value="公寓">公寓</option>
+                                        <option value="别墅">别墅</option>
+                                        <option value="loft">loft</option>
+                                        <option value="其他">其他</option>
+                                    </select>
+                                </div>
+                                <div className="flex flex-col gap-1.5">
+                                    <div className="flex items-center gap-1">
+                                        <label className="text-xs font-medium text-slate-500 dark:text-slate-400">{t.floorLevel}</label>
+                                        <KnowledgeTooltip term={t.tipFloorLevel} />
+                                    </div>
+                                    <select 
+                                        value={params.floorLevel}
+                                        onChange={(e) => handleInputChange('floorLevel', e.target.value)}
+                                        className="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white transition-all"
+                                    >
+                                        <option value="低楼层">低楼层 (1-5层)</option>
+                                        <option value="中楼层">中楼层 (6-15层)</option>
+                                        <option value="高楼层">高楼层 (16层以上)</option>
+                                    </select>
+                                </div>
+                                <InputGroup label={t.buildingAge} value={params.buildingAge} onChange={v => handleInputChange('buildingAge', v)} tooltip={t.tipBuildingAge} />
+                            </div>
+                            
+                            {/* Decoration & Property Rights & Down Payment */}
+                            <div className="grid grid-cols-3 gap-2">
+                                <div className="flex flex-col gap-1.5">
+                                    <div className="flex items-center gap-1">
+                                        <label className="text-xs font-medium text-slate-500 dark:text-slate-400">{t.decorationStatus}</label>
+                                        <KnowledgeTooltip term={t.tipDecorationStatus} />
+                                    </div>
+                                    <select 
+                                        value={params.decorationStatus}
+                                        onChange={(e) => handleInputChange('decorationStatus', e.target.value)}
+                                        className="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white transition-all"
+                                    >
+                                        <option value="毛坯">毛坯</option>
+                                        <option value="简装">简装</option>
+                                        <option value="精装">精装</option>
+                                        <option value="豪装">豪装</option>
+                                    </select>
+                                </div>
+                                <InputGroup label={t.propertyRightYears} value={params.propertyRightYears} onChange={v => handleInputChange('propertyRightYears', v)} tooltip={t.tipPropertyRightYears} />
+                                <InputGroup label={t.downPaymentRatio} value={params.downPaymentRatio} onChange={v => handleInputChange('downPaymentRatio', v)} subtext={`${t.netDownPayment}: ${(result?.downPayment || 0).toFixed(2)}${t.unitWanSimple}`} tooltip={t.tipDownPayment} />
+                            </div>
+                            
+                            {/* One-time Costs */}
+                            <div className="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-lg border border-slate-100 dark:border-slate-800">
+                                <div className="flex items-center justify-between mb-2">
+                                    <div className="text-[10px] font-bold text-slate-400 uppercase">{t.oneTimeCost}</div>
+                                    <button onClick={() => setShowTaxCalculator(true)} className="text-[10px] flex items-center gap-1 text-indigo-600 font-bold hover:underline"><Calculator className="h-3 w-3" /> {t.calcTax}</button>
+                                </div>
+                                <div className="space-y-2">
+                                    <InputGroup label={t.deedTax} value={params.deedTaxRate} onChange={v => handleInputChange('deedTaxRate', v)} step={0.1} tooltip={t.tipDeedTax} />
+                                    <InputGroup label={t.agencyFee} value={params.agencyFeeRatio} onChange={v => handleInputChange('agencyFeeRatio', v)} step={0.1} tooltip={t.tipAgencyFee} />
+                                    <InputGroup label={t.renovationCost} value={params.renovationCost} onChange={v => handleInputChange('renovationCost', v)} tooltip={t.tipRenovation} />
+                                </div>
                             </div>
                         </div>
-                   </div>
-               </div>
-               {/* Column 2 */}
-               <div className="space-y-5">
-                   <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">{t.loanScheme}</h3>
-                   <div className="space-y-4">
-                       <div className="flex flex-col gap-1.5"><label className="text-xs font-medium text-slate-500 dark:text-slate-400">{t.loanType}</label><div className="flex bg-slate-50 dark:bg-slate-800 p-1 rounded-lg"><button onClick={() => handleInputChange('loanType', LoanType.COMMERCIAL)} className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-all ${params.loanType === LoanType.COMMERCIAL ? 'bg-white dark:bg-slate-700 shadow-sm text-indigo-600 dark:text-indigo-400' : 'text-slate-500'}`}>{t.commercial}</button><button onClick={() => handleInputChange('loanType', LoanType.PROVIDENT)} className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-all ${params.loanType === LoanType.PROVIDENT ? 'bg-white dark:bg-slate-700 shadow-sm text-indigo-600 dark:text-indigo-400' : 'text-slate-500'}`}>{t.provident}</button><button onClick={() => handleInputChange('loanType', LoanType.COMBINATION)} className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-all ${params.loanType === LoanType.COMBINATION ? 'bg-white dark:bg-slate-700 shadow-sm text-indigo-600 dark:text-indigo-400' : 'text-slate-500'}`}>{t.combination}</button></div></div>
-                       {(params.loanType === LoanType.COMMERCIAL || params.loanType === LoanType.COMBINATION) && <InputGroup label={t.commercialRate} value={params.interestRate} onChange={v => handleInputChange('interestRate', v)} step={0.01} tooltip={t.tipInterestRate} />}
-                       {(params.loanType === LoanType.PROVIDENT || params.loanType === LoanType.COMBINATION) && <div className="animate-fade-in"><InputGroup label={t.providentRate} value={params.providentInterestRate} onChange={v => handleInputChange('providentInterestRate', v)} step={0.01} tooltip={t.tipProvidentRate} />{params.loanType === LoanType.COMBINATION && <InputGroup label={t.providentQuota} value={params.providentQuota} onChange={v => handleInputChange('providentQuota', v)} tooltip={t.tipProvidentQuota} />}</div>}
-                       <InputGroup label={t.loanTerm} value={params.loanTerm} onChange={v => handleInputChange('loanTerm', v)} tooltip={t.tipLoanTerm} />
-                   </div>
-               </div>
+                    )}
+                </div>
+                {/* Column 2 - Enhanced Loan Scheme */}
+                <div className="space-y-5">
+                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">{t.loanScheme}</h3>
+                    <div className="space-y-4">
+                        {/* Loan Type Selector */}
+                        <div className="flex flex-col gap-1.5">
+                            <label className="text-xs font-medium text-slate-500 dark:text-slate-400">{t.loanType}</label>
+                            <div className="flex bg-slate-50 dark:bg-slate-800 p-1 rounded-lg">
+                                <button 
+                                    onClick={() => handleInputChange('loanType', LoanType.COMMERCIAL)} 
+                                    className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-all ${params.loanType === LoanType.COMMERCIAL ? 'bg-white dark:bg-slate-700 shadow-sm text-indigo-600 dark:text-indigo-400' : 'text-slate-500'}`}
+                                >
+                                    {t.commercial}
+                                </button>
+                                <button 
+                                    onClick={() => handleInputChange('loanType', LoanType.PROVIDENT)} 
+                                    className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-all ${params.loanType === LoanType.PROVIDENT ? 'bg-white dark:bg-slate-700 shadow-sm text-indigo-600 dark:text-indigo-400' : 'text-slate-500'}`}
+                                >
+                                    {t.provident}
+                                </button>
+                                <button 
+                                    onClick={() => handleInputChange('loanType', LoanType.COMBINATION)} 
+                                    className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-all ${params.loanType === LoanType.COMBINATION ? 'bg-white dark:bg-slate-700 shadow-sm text-indigo-600 dark:text-indigo-400' : 'text-slate-500'}`}
+                                >
+                                    {t.combination}
+                                </button>
+                            </div>
+                        </div>
+                        
+                        {/* Interest Rates */}
+                        {(params.loanType === LoanType.COMMERCIAL || params.loanType === LoanType.COMBINATION) && (
+                            <InputGroup label={t.commercialRate} value={params.interestRate} onChange={v => handleInputChange('interestRate', v)} step={0.01} tooltip={t.tipInterestRate} />
+                        )}
+                        {(params.loanType === LoanType.PROVIDENT || params.loanType === LoanType.COMBINATION) && (
+                            <div className="animate-fade-in space-y-4">
+                                <InputGroup label={t.providentRate} value={params.providentInterestRate} onChange={v => handleInputChange('providentInterestRate', v)} step={0.01} tooltip={t.tipProvidentRate} />
+                                {params.loanType === LoanType.COMBINATION && (
+                                    <InputGroup label={t.providentQuota} value={params.providentQuota} onChange={v => handleInputChange('providentQuota', v)} tooltip={t.tipProvidentQuota} />
+                                )}
+                            </div>
+                        )}
+                        
+                        {/* Loan Term */}
+                        <InputGroup label={t.loanTerm} value={params.loanTerm} onChange={v => handleInputChange('loanTerm', v)} tooltip={t.tipLoanTerm} />
+                        
+                        {/* Repayment Method */}
+                        <div className="flex flex-col gap-1.5">
+                            <div className="flex items-center gap-1">
+                                <label className="text-xs font-medium text-slate-500 dark:text-slate-400">{t.repaymentMethod}</label>
+                                <KnowledgeTooltip term={t.tipRepaymentMethod} />
+                            </div>
+                            <select 
+                                value={params.method}
+                                onChange={(e) => handleInputChange('method', e.target.value)}
+                                className="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white transition-all"
+                            >
+                                <option value={RepaymentMethod.EQUAL_PRINCIPAL_AND_INTEREST}>{t.equalPrincipalAndInterest}</option>
+                                <option value={RepaymentMethod.EQUAL_PRINCIPAL}>{t.equalPrincipal}</option>
+                            </select>
+                        </div>
+                        
+                        {/* Rate Adjustment */}
+                        <div className="grid grid-cols-2 gap-2">
+                            <InputGroup 
+                                label={t.rateAdjustmentPeriod} 
+                                value={params.rateAdjustmentPeriod} 
+                                onChange={v => handleInputChange('rateAdjustmentPeriod', v)} 
+                                tooltip={t.tipRateAdjustment} 
+                            />
+                            <InputGroup 
+                                label={t.expectedRateChange} 
+                                value={params.expectedRateChange} 
+                                onChange={v => handleInputChange('expectedRateChange', v)} 
+                                step={0.1}
+                                tooltip={t.tipExpectedRateChange} 
+                            />
+                        </div>
+                        
+                        {/* LTV Display */}
+                        <div className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 p-3 rounded-lg border border-indigo-100 dark:border-indigo-800">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-1">
+                                    <span className="text-xs font-medium text-slate-700 dark:text-slate-300">{t.ltvRatio}</span>
+                                    <KnowledgeTooltip term={t.tipLTV} />
+                                </div>
+                                <span className="text-lg font-bold text-indigo-600 dark:text-indigo-400">
+                                    {(100 - params.downPaymentRatio).toFixed(1)}%
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                {/* Column 3 */}
                <div className="space-y-5">
                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">{t.financeAndRepayment}</h3>
@@ -2007,23 +2278,23 @@ function App() {
                      {activeTab === 'token' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-indigo-600 dark:bg-indigo-400 rounded-full" />}
                    </button>
                    <button onClick={() => setActiveTab('knowledge')} className={`pb-3 px-1 relative ${activeTab === 'knowledge' ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}>
-                     {t.knowledgeTree || '知识树'}
+                     {t.navKnowledgeTree || '知识树'}
                      {activeTab === 'knowledge' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-indigo-600 dark:bg-indigo-400 rounded-full" />}
                    </button>
                    <button onClick={() => setActiveTab('opportunity')} className={`pb-3 px-1 relative ${activeTab === 'opportunity' ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}>
-                     机会成本 & 股市对比
+                     {t.navOpportunity || '机会成本 & 股市对比'}
                      {activeTab === 'opportunity' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-indigo-600 dark:bg-indigo-400 rounded-full" />}
                    </button>
                    <button onClick={() => setActiveTab('journal')} className={`pb-3 px-1 relative ${activeTab === 'journal' ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}>
-                     决策复盘
+                     {t.navReview || '决策复盘'}
                      {activeTab === 'journal' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-indigo-600 dark:bg-indigo-400 rounded-full" />}
                    </button>
                    <button onClick={() => setActiveTab('negotiation')} className={`pb-3 px-1 relative ${activeTab === 'negotiation' ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}>
-                     谈判助手
+                     {t.navNegotiation || '谈判助手'}
                      {activeTab === 'negotiation' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-indigo-600 dark:bg-indigo-400 rounded-full" />}
                    </button>
                    <button onClick={() => setActiveTab('liquidity')} className={`pb-3 px-1 relative ${activeTab === 'liquidity' ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}>
-                     流动性分析
+                     {t.navLiquidity || '流动性分析'}
                      {activeTab === 'liquidity' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-indigo-600 dark:bg-indigo-400 rounded-full" />}
                    </button>
                    <button onClick={() => setActiveTab('life_drag')} className={`pb-3 px-1 relative ${activeTab === 'life_drag' ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}>
@@ -2088,7 +2359,7 @@ function App() {
                    </div>
                  )}
                  {activeTab === 'opportunity' && (
-                    <OpportunityCostPanel result={result} params={params} darkMode={darkMode} />
+                    <OpportunityCostPanel result={result} params={params} darkMode={darkMode} t={t} />
                  )}
                  {activeTab === 'journal' && (
                     <DecisionJournalPanel 
@@ -2419,6 +2690,8 @@ function App() {
       {showDonation && <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setShowDonation(false)}><div className="bg-white dark:bg-slate-900 rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl relative" onClick={e => e.stopPropagation()}><h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">{t.donationTitle}</h3><p className="text-slate-500 dark:text-slate-400 text-xs mb-6">{t.donationDesc}</p><div className="bg-emerald-500 p-4 rounded-xl inline-block mb-4 shadow-lg shadow-emerald-500/30"><div className="bg-white p-2 rounded-lg"><img src="/mm_reward_qrcode_1764664984491.png" alt="Payment QR" className="w-48 h-48 object-contain"/></div></div><button onClick={() => setShowDonation(false)} className="block w-full text-sm text-slate-400 hover:text-slate-600 mt-2">{t.donationClose}</button></div></div>}
       {showMethodology && <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setShowMethodology(false)}><div className="bg-white dark:bg-slate-900 rounded-2xl max-w-3xl w-full shadow-2xl max-h-[85vh] overflow-y-auto" onClick={e => e.stopPropagation()}><div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center sticky top-0 bg-white dark:bg-slate-900 z-10"><h3 className="text-lg font-bold dark:text-white flex items-center gap-2"><BookOpen className="h-5 w-5 text-indigo-500"/> {t.methodologyTitle}</h3><button onClick={() => setShowMethodology(false)} className="text-slate-400 hover:text-slate-600"><X className="h-5 w-5"/></button></div><div className="p-8 space-y-8 text-sm text-slate-600 dark:text-slate-300" dangerouslySetInnerHTML={{ __html: t.methodologyContent }} /></div></div>}
 
+      {/* Authentication Modal */}
+      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
 
 
 
