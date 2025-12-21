@@ -1412,6 +1412,7 @@ function App() {
     return (saved as ThemeMode) || 'light';
   });
   const [showDonation, setShowDonation] = useState(false);
+  const [showWeChat, setShowWeChat] = useState(false);
   const [chartGranularity, setChartGranularity] = useState<'month' | 'year'>('year'); 
   const [showSettings, setShowSettings] = useState(false); 
   const [showMethodology, setShowMethodology] = useState(false);
@@ -2636,6 +2637,13 @@ function App() {
                   <Coffee className="h-3 w-3" />
                   {t.donateBtn || '赞赏支持'}
                 </button>
+                <button 
+                  onClick={() => setShowWeChat(true)} 
+                  className="w-full flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white rounded-lg text-xs font-medium shadow-lg shadow-green-500/30 transition-all transform hover:scale-105"
+                >
+                  <User className="h-3 w-3" />
+                  {t.contactAuthor || '联系作者'}
+                </button>
               </div>
             </div>
           </div>
@@ -2677,9 +2685,21 @@ function App() {
                 </p>
               </div>
 
+              {/* Navigation Link */}
+              <a
+                href="https://hilarious-cajeta-a096d8.netlify.app/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex items-center gap-2 px-4 py-1.5 bg-gradient-to-r from-violet-100 to-indigo-100 dark:from-violet-900/30 dark:to-indigo-900/30 border border-violet-200 dark:border-violet-800/50 rounded-full text-xs font-medium text-violet-700 dark:text-violet-300 hover:from-violet-200 hover:to-indigo-200 dark:hover:from-violet-800/40 dark:hover:to-indigo-800/40 hover:border-violet-300 dark:hover:border-violet-700 transition-all shadow-sm hover:shadow-md hover:scale-105"
+              >
+                <span className="text-sm">✨</span>
+                <span>璃光导航</span>
+                <ExternalLink className="h-3 w-3 opacity-60 group-hover:opacity-100 transition-opacity" />
+              </a>
+
               {/* Copyright */}
               <div className="text-xs text-slate-500 dark:text-slate-500">
-                © 2024 Smart Mortgage Advisor
+                © 2025 Smart Mortgage Advisor
               </div>
             </div>
           </div>
@@ -2688,6 +2708,28 @@ function App() {
       
       <AISettingsModal isOpen={showSettings} onClose={() => { setShowSettings(false); setAIConfig(loadAIConfig()); }} t={t} />
       {showDonation && <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setShowDonation(false)}><div className="bg-white dark:bg-slate-900 rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl relative" onClick={e => e.stopPropagation()}><h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">{t.donationTitle}</h3><p className="text-slate-500 dark:text-slate-400 text-xs mb-6">{t.donationDesc}</p><div className="bg-emerald-500 p-4 rounded-xl inline-block mb-4 shadow-lg shadow-emerald-500/30"><div className="bg-white p-2 rounded-lg"><img src="/mm_reward_qrcode_1764664984491.png" alt="Payment QR" className="w-48 h-48 object-contain"/></div></div><button onClick={() => setShowDonation(false)} className="block w-full text-sm text-slate-400 hover:text-slate-600 mt-2">{t.donationClose}</button></div></div>}
+      
+      {/* Contact Author WeChat Modal */}
+      {showWeChat && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setShowWeChat(false)}>
+          <div className="bg-white dark:bg-slate-900 rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl relative" onClick={e => e.stopPropagation()}>
+            <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">
+              {t.contactAuthorTitle || '联系作者'}
+            </h3>
+            <p className="text-slate-500 dark:text-slate-400 text-xs mb-6">
+              {t.contactAuthorDesc || '扫码添加微信，期待与你交流 ✨'}
+            </p>
+            <div className="bg-gradient-to-r from-green-500 to-emerald-500 p-4 rounded-xl inline-block mb-4 shadow-lg shadow-green-500/30">
+              <div className="bg-white p-2 rounded-lg">
+                <img src="/4e357b455c718f917a05a611ec1efd8f.jpg" alt="WeChat QR" className="w-48 h-48 object-contain"/>
+              </div>
+            </div>
+            <button onClick={() => setShowWeChat(false)} className="block w-full text-sm text-slate-400 hover:text-slate-600 mt-2">
+              {t.contactClose || '关闭'}
+            </button>
+          </div>
+        </div>
+      )}
       {showMethodology && <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setShowMethodology(false)}><div className="bg-white dark:bg-slate-900 rounded-2xl max-w-3xl w-full shadow-2xl max-h-[85vh] overflow-y-auto" onClick={e => e.stopPropagation()}><div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center sticky top-0 bg-white dark:bg-slate-900 z-10"><h3 className="text-lg font-bold dark:text-white flex items-center gap-2"><BookOpen className="h-5 w-5 text-indigo-500"/> {t.methodologyTitle}</h3><button onClick={() => setShowMethodology(false)} className="text-slate-400 hover:text-slate-600"><X className="h-5 w-5"/></button></div><div className="p-8 space-y-8 text-sm text-slate-600 dark:text-slate-300" dangerouslySetInnerHTML={{ __html: t.methodologyContent }} /></div></div>}
 
       {/* Authentication Modal */}
