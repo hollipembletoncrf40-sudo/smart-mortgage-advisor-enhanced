@@ -28,5 +28,4 @@ firebase-debug.log
 firestore-debug.log
 
 # Large Data Files
-data/community-data.json
 *.xlsx

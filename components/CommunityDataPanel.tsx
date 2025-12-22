@@ -2,6 +2,24 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { MapPin, Building, Search, TrendingUp, BarChart3, ChevronRight, Calendar, DollarSign, TreePine, X, Home, Loader, Star, ThumbsUp, ThumbsDown, AlertCircle, CheckCircle, Info } from 'lucide-react';
 import communityStats from '../data/community-stats.json';
 
+// NOTE: community-data.json is 100MB+ and excluded from GitHub Pages deployment.
+// The full data can be added locally for development, but the panel will show
+// a placeholder message in production when the data isn't available.
+let communityData: Community[] = [];
+try {
+  // Dynamic import is split by Vite; exclude for production build
+  if (import.meta.env.DEV) {
+    // This will be tree-shaken in production
+    import('../data/community-data.json').then((data: any) => {
+      communityData = data.default || [];
+    }).catch(() => {
+      console.warn('community-data.json not found, using empty dataset');
+    });
+  }
+} catch (e) {
+  // Silently fail if file not available
+}
+
 interface Community {
   name: string;
   province: string;
