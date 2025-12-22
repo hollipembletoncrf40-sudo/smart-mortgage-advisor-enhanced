@@ -28,6 +28,8 @@ import DetailedPaymentTable from './components/DetailedPaymentTable';
 import MarketSentimentSlider from './components/MarketSentimentSlider';
 import RentHiddenCostCalculator from './components/RentHiddenCostCalculator';
 import GoalReverseCalculator from './components/GoalReverseCalculator';
+import CarPurchasePanel from './components/CarPurchasePanel';
+import AssetAllocationPanel from './components/AssetAllocationPanel';
 import TokenExchangePanel from './components/TokenExchangePanel';
 import RiskHeartbeatChart from './components/RiskHeartbeatChart';
 import AmortizationMoodBar from './components/AmortizationMoodBar';
@@ -41,6 +43,8 @@ import NegotiationHelperPanel from './components/NegotiationHelperPanel';
 import LiquidityCheckPanel from './components/LiquidityCheckPanel';
 import MarketPositionRadar from './components/MarketPositionRadar';
 import LifeDragIndexPanel from './components/LifeDragIndexPanel';
+import CommunityDataPanel from './components/CommunityDataPanel';
+import IncomeRequirementPanel from './components/IncomeRequirementPanel';
 import { loadAIConfig, sendAIMessage, AIMessage, getProviderName } from './utils/aiProvider';
 import { InvestmentParams, RepaymentMethod, CalculationResult, PrepaymentStrategy, StressTestResult, LoanType, PurchaseScenario, LocationFactors, LocationScore, AssetComparisonItem, KnowledgeCardData, Language, Currency, TaxParams, TaxResult, AppreciationPredictorParams, AppreciationPrediction, MonthlyCashFlow, CustomStressTestParams, DecisionSnapshot } from './types';
 import { TRANSLATIONS } from './utils/translations';
@@ -204,40 +208,178 @@ const AssetComparisonTable = ({ data, t }: { data: AssetComparisonItem[], t: any
   );
 };
 
-// New: KnowledgeCarousel
-const KnowledgeCarousel = ({ cards, t }: { cards: KnowledgeCardData[], t: any }) => {
-  const getIcon = (iconName?: string) => {
-      switch(iconName) {
-          case 'ArrowRightLeft': return ArrowRightLeft;
-          case 'TrendingUp': return TrendingUp;
-          case 'AlertTriangle': return AlertTriangle;
-          case 'Building2': return Building2;
-          case 'BarChart3': return BarChart3;
-          default: return Lightbulb;
+// New: KnowledgeCarousel - Enhanced with auto-scroll and bilingual cards
+const KnowledgeCarousel = ({ cards, t, language = 'ZH' }: { cards: KnowledgeCardData[], t: any, language?: Language }) => {
+  const scrollRef = React.useRef<HTMLDivElement>(null);
+  const [isPaused, setIsPaused] = React.useState(false);
+
+  // Define enhanced bilingual knowledge cards
+  const enhancedCards = [
+    {
+      icon: 'ArrowRightLeft',
+      title: language === 'EN' ? 'Opportunity Cost' : '机会成本',
+      titleEn: 'Opportunity Cost',
+      content: language === 'EN' 
+        ? 'Buying a house means giving up potential returns from stocks or bonds. The "Asset Comparison" feature quantifies this hidden cost.'
+        : '选择买房意味着这笔首付款失去了投资股市或债券赚取收益的机会。计算器中的"资产对比"正是量化了这一隐形成本。',
+      color: 'from-violet-500 to-purple-600'
+    },
+    {
+      icon: 'TrendingUp',
+      title: language === 'EN' ? 'Compound Effect' : '复利效应',
+      titleEn: 'Compound Effect',
+      content: language === 'EN'
+        ? 'Investment returns grow exponentially over time through compounding; while real estate gains mainly come from leveraged price appreciation.'
+        : '理财收益通常具有复利效应（利滚利），时间越长威力越大；而房产收益主要来自杠杆放大后的资产增值。',
+      color: 'from-cyan-500 to-teal-600'
+    },
+    {
+      icon: 'AlertTriangle',
+      title: language === 'EN' ? 'Liquidity Trap' : '流动性陷阱',
+      titleEn: 'Liquidity Trap',
+      content: language === 'EN'
+        ? 'Real estate is illiquid. Selling in a downturn may take months or require a discount, while stocks can be sold instantly.'
+        : '房产是低流动性资产。在经济下行或市场下行时，可能需要数月才能卖出，而股票基金可以速赎回。',
+      color: 'from-amber-500 to-orange-600'
+    },
+    {
+      icon: 'Building2',
+      title: language === 'EN' ? 'Leverage Sword' : '杠杆双刃剑',
+      titleEn: 'Leverage Sword',
+      content: language === 'EN'
+        ? 'A 30% down payment gives you 3.3x leverage. Prices up 10% = 33% return. But a 10% drop could wipe out your equity.'
+        : '首付30%意味着3.3倍杠杆。房价涨10%=收益33%。但房价跌10%可能亏掉全部首付。',
+      color: 'from-rose-500 to-pink-600'
+    },
+    {
+      icon: 'BarChart3',
+      title: language === 'EN' ? 'DTI Ratio' : '债务收入比',
+      titleEn: 'Debt-to-Income',
+      content: language === 'EN'
+        ? 'Banks recommend keeping monthly debt payments under 36% of income. Exceeding 50% puts you in the financial danger zone.'
+        : '银行建议月供总额不超过月收入的36%。超过50%即进入财务危险区域。',
+      color: 'from-emerald-500 to-green-600'
+    },
+    {
+      icon: 'Lightbulb',
+      title: language === 'EN' ? 'Hedonic Adaptation' : '享乐适应',
+      titleEn: 'Hedonic Adaptation',
+      content: language === 'EN'
+        ? 'Studies show the happiness boost from a new home fades within 2 years. Consider this before overextending financially.'
+        : '研究表明，新房带来的幸福感会在2年内消退。在过度负债前请考虑这一心理因素。',
+      color: 'from-indigo-500 to-blue-600'
+    },
+    {
+      icon: 'TrendingUp',
+      title: language === 'EN' ? 'Mean Reversion' : '均值回归',
+      titleEn: 'Mean Reversion',
+      content: language === 'EN'
+        ? 'Asset prices tend to return to their long-term average. Past high growth doesn\'t guarantee future performance.'
+        : '资产价格倾向于回归长期均值。过去的高增长并不保证未来的表现。',
+      color: 'from-fuchsia-500 to-purple-600'
+    },
+    {
+      icon: 'AlertTriangle',
+      title: language === 'EN' ? 'Recency Bias' : '近因偏差',
+      titleEn: 'Recency Bias',
+      content: language === 'EN'
+        ? 'We overweight recent trends when making decisions. Just because prices rose last year doesn\'t mean they will this year.'
+        : '人们倾向于高估近期趋势。去年房价上涨并不意味着今年也会上涨。',
+      color: 'from-red-500 to-rose-600'
+    }
+  ];
+
+  // Auto-scroll effect
+  React.useEffect(() => {
+    const container = scrollRef.current;
+    if (!container) return;
+
+    let animationId: number;
+    let scrollPos = 0;
+    const scrollSpeed = 0.5; // pixels per frame
+
+    const scroll = () => {
+      if (!isPaused && container) {
+        scrollPos += scrollSpeed;
+        
+        // Reset when reaching the end
+        if (scrollPos >= container.scrollWidth - container.clientWidth) {
+          scrollPos = 0;
+        }
+        
+        container.scrollLeft = scrollPos;
       }
-  };
+      animationId = requestAnimationFrame(scroll);
+    };
+
+    animationId = requestAnimationFrame(scroll);
+
+    return () => cancelAnimationFrame(animationId);
+  }, [isPaused]);
 
   return (
     <div>
-        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-1">
-            <BookOpen className="h-3 w-3"/> {t.financeClass}
-        </h3>
-        <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar snap-x">
-        {cards.map((card, i) => {
-            const IconComp = getIcon(card.icon);
-            return (
-            <div key={i} className="min-w-[220px] max-w-[220px] p-4 bg-gradient-to-br from-slate-50 to-white dark:from-slate-800 dark:to-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm snap-start hover:border-indigo-300 transition-colors">
-                <div className="flex items-center gap-2 mb-2 text-indigo-600 dark:text-indigo-400">
+      <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-1">
+        <BookOpen className="h-3 w-3"/> {language === 'EN' ? 'Finance Lessons' : '金融小课堂'} 
+        <span className="text-[10px] font-normal ml-2 text-slate-500">{language === 'EN' ? '(Auto-scroll)' : '(自动轮播)'}</span>
+      </h3>
+      <div 
+        ref={scrollRef}
+        className="flex gap-4 overflow-x-auto pb-4 no-scrollbar snap-x"
+        onMouseEnter={() => setIsPaused(true)}
+        onMouseLeave={() => setIsPaused(false)}
+        onTouchStart={() => setIsPaused(true)}
+        onTouchEnd={() => setIsPaused(false)}
+      >
+        {enhancedCards.map((card, i) => {
+          const IconComp = card.icon === 'ArrowRightLeft' ? ArrowRightLeft :
+                          card.icon === 'TrendingUp' ? TrendingUp :
+                          card.icon === 'AlertTriangle' ? AlertTriangle :
+                          card.icon === 'Building2' ? Building2 :
+                          card.icon === 'BarChart3' ? BarChart3 : Lightbulb;
+          return (
+            <div 
+              key={i} 
+              className={`min-w-[260px] max-w-[260px] p-5 bg-gradient-to-br ${card.color} rounded-2xl shadow-lg snap-start hover:scale-[1.02] transition-all duration-300 cursor-pointer`}
+            >
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2 text-white">
+                  <div className="p-2 bg-white/20 rounded-lg">
                     <IconComp className="h-4 w-4" />
-                    <h4 className="font-bold text-sm">{card.title}</h4>
+                  </div>
+                  <h4 className="font-bold text-sm">{card.title}</h4>
                 </div>
-                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                    {card.content}
-                </p>
+              </div>
+              <p className="text-xs text-white/90 leading-relaxed mb-3">
+                {card.content}
+              </p>
+              <div className="pt-2 border-t border-white/20">
+                <span className="text-[10px] text-white/60 font-medium">{card.titleEn}</span>
+              </div>
             </div>
-            );
+          );
         })}
+      </div>
+      
+      {/* Progress indicator */}
+      <div className="mt-2 flex items-center gap-2">
+        <div className="flex-1 h-1 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+          <div 
+            className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all duration-100"
+            style={{ 
+              width: scrollRef.current 
+                ? `${(scrollRef.current.scrollLeft / (scrollRef.current.scrollWidth - scrollRef.current.clientWidth)) * 100}%` 
+                : '0%' 
+            }}
+          />
         </div>
+        <button 
+          onClick={() => setIsPaused(!isPaused)}
+          className="text-xs text-slate-500 hover:text-indigo-600 transition-colors"
+        >
+          {isPaused ? '▶️' : '⏸️'}
+        </button>
+      </div>
     </div>
   );
 };
@@ -322,11 +464,66 @@ const LocationGuideModal = ({ onClose, onApply, t }: { onClose: () => void, onAp
 const TourGuide = ({ onComplete, t }: { onComplete: () => void, t: any }) => {
   const [step, setStep] = useState(0);
   const steps = [
-    { targetId: 'header-title', title: t.tourWelcomeTitle || '欢迎使用智能房贷顾问', content: t.tourWelcomeContent || '让我们快速了解如何使用这个工具来做出明智的购房决策', position: 'bottom' },
-    { targetId: 'input-panel', title: t.tourStep1Title || '输入参数', content: t.tourStep1Content || '在左侧输入您的房产信息、贷款条件和投资预期', position: 'right' },
-    { targetId: 'market-sentiment', title: '市场情绪调节', content: '拖动滑块调整市场预期，系统会自动调整房产增值率、理财收益率和贷款利率', position: 'top' },
-    { targetId: 'result-panel', title: t.tourStep2Title || '查看结果', content: t.tourStep2Content || '右侧面板显示详细的财富曲线、风险评估和知识树等多个分析维度', position: 'left' },
-    { targetId: 'knowledge-tab', title: '知识树', content: '点击"知识树"标签学习财务知识，看完一个术语后可以解锁下一个', position: 'top' }
+    { 
+      targetId: 'header-title', 
+      title: t.tourWelcomeTitle || '🏠 欢迎使用 WealthCompass 财富罗盘', 
+      content: t.tourWelcomeContent || '这是一款专业的房产投资分析工具，帮助您做出明智的购房决策。接下来让我们快速了解各个功能模块！', 
+      position: 'bottom' 
+    },
+    { 
+      targetId: 'input-panel', 
+      title: t.tourStep1Title || '📝 第一步：输入房产参数', 
+      content: t.tourStep1Content || '在这里输入房屋总价、面积、首付比例、贷款利率等基本信息。系统会根据这些数据计算出详细的投资回报分析。', 
+      position: 'right' 
+    },
+    { 
+      targetId: 'market-sentiment', 
+      title: '📊 市场情绪调节器', 
+      content: '拖动滑块模拟不同的市场环境（乐观/悲观），系统会自动调整房产增值率、理财收益率和贷款利率，帮您在不同市场预期下做压力测试。', 
+      position: 'top' 
+    },
+    { 
+      targetId: 'result-panel', 
+      title: t.tourStep2Title || '💰 核心指标仪表盘', 
+      content: t.tourStep2Content || '这里展示四大核心指标：现金回报率、综合回报率、首月月供和总收益。绿色表示健康，红色需要注意！', 
+      position: 'left' 
+    },
+    { 
+      targetId: 'comparison-panel', 
+      title: '⚔️ 资产大比拼', 
+      content: '买房 vs 理财，哪个更划算？系统会对比两种投资方式在持有期内的净资产增长，让您一目了然。', 
+      position: 'left' 
+    },
+    { 
+      targetId: 'ai-panel', 
+      title: '🤖 AI 智能分析', 
+      content: '右侧面板展示还款计划图表和详细月供表。您还可以使用 AI 顾问获取个性化的购房建议！', 
+      position: 'left' 
+    },
+    { 
+      targetId: 'knowledge-tab', 
+      title: '📚 知识树 & 多维分析', 
+      content: '点击不同标签页探索：财富曲线、租买对比、压力测试、风险评估、人生路径模拟、机会成本分析等多个维度！', 
+      position: 'top' 
+    },
+    { 
+      targetId: 'header-title', 
+      title: '🎯 决策复盘功能', 
+      content: '点击右上角的"保存决策与复盘"按钮，可以保存当前分析结果。日后可以回顾对比不同房源，还能让 AI 帮你分析决策思路！', 
+      position: 'bottom' 
+    },
+    { 
+      targetId: 'header-title', 
+      title: '🌍 中英文切换', 
+      content: '点击顶部的 EN/ZH 按钮可以切换界面语言，方便不同语言习惯的用户使用。', 
+      position: 'bottom' 
+    },
+    { 
+      targetId: 'header-title', 
+      title: '🚀 开始探索吧！', 
+      content: '现在您已经了解了所有主要功能！记得：滚动页面查看更多分析模块，如"房子的内心独白"、"游戏化买房"等有趣功能。祝您购房顺利！', 
+      position: 'bottom' 
+    }
   ];
   
   const currentStep = steps[step];
@@ -1756,10 +1953,10 @@ function App() {
       <header className="sticky top-0 z-30 backdrop-blur-xl bg-white/80 dark:bg-slate-950/80 border-b border-slate-200 dark:border-slate-800">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3" id="header-title">
-            <img src="/logo.png" alt="DeepEstate" className="h-10 w-10 object-contain hover:scale-110 transition-transform" />
+            <img src="/logo.png" alt="WealthCompass" className="h-10 w-10 object-contain hover:scale-110 transition-transform" />
             <div>
-              <h1 className="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-violet-600 dark:from-indigo-400 dark:to-violet-400">
-                {t.appTitle} <span className="text-xs bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-300 px-2 py-0.5 rounded-full ml-2 align-middle">{t.pro}</span>
+              <h1 className="text-xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-violet-600 dark:from-indigo-400 dark:to-violet-400" style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 700, letterSpacing: '-0.02em' }}>
+                {t.appTitle} <span className="text-[10px] tracking-normal bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-300 px-1.5 py-0.5 rounded-md ml-1 align-top font-sans font-bold">{t.pro}</span>
               </h1>
             </div>
           </div>
@@ -1906,16 +2103,16 @@ function App() {
             ) : (
               <button
                 onClick={() => setShowAuthModal(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-500/20 font-medium"
+                className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition-colors border border-indigo-100 dark:border-indigo-900/30"
               >
-                <LogIn className="h-4 w-4" />
+                <LogIn className="h-3.5 w-3.5" />
                 <span className="hidden sm:inline">{t.headerLogin || '登录'}</span>
               </button>
             )}
             
             <button 
               onClick={handleSaveSnapshot}
-              className="hidden md:flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-500/20"
+              className="hidden md:flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-colors border border-emerald-100 dark:border-emerald-900/30"
             >
               <History className="h-3.5 w-3.5" /> {t.headerSave || '保存决策与复盘'}
             </button>
@@ -2208,24 +2405,74 @@ function App() {
 
             {/* Asset Comparison & Cost */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-               {/* Initial Cost - 缩短高度 */}
-               <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-xl border border-slate-100 dark:border-slate-800/50 md:col-span-1 flex flex-col">
-                  <h2 className="text-sm font-bold flex items-center gap-2 dark:text-white mb-4"><PieChartIcon className="h-4 w-4 text-indigo-500" /> {t.chartInitialCost}</h2>
-                  <div className="flex-1 min-h-[120px] relative">
+               {/* Initial Cost - Enhanced Visualization */}
+               <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-xl border border-slate-100 dark:border-slate-800/50 md:col-span-1 flex flex-col relative overflow-hidden">
+                  {/* Decorative elements */}
+                  <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 dark:from-indigo-500/10 dark:to-purple-500/10 rounded-full blur-3xl" />
+                  
+                  <h2 className="text-lg font-bold flex items-center gap-2 text-slate-800 dark:text-white mb-6 relative z-10">
+                    <div className="p-2 bg-indigo-100 dark:bg-indigo-500/20 rounded-xl">
+                      <PieChartIcon className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                    </div>
+                    {t.chartInitialCost}
+                  </h2>
+                  
+                  {/* Large Donut Chart */}
+                  <div className="flex-1 min-h-[220px] relative z-10">
                      <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
-                          <Pie data={initialCostData} cx="50%" cy="50%" innerRadius={30} outerRadius={45} paddingAngle={5} dataKey="value">
-                            {initialCostData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} stroke="none" />)}
+                          <Pie 
+                            data={initialCostData} 
+                            cx="50%" 
+                            cy="50%" 
+                            innerRadius={60} 
+                            outerRadius={90} 
+                            paddingAngle={3} 
+                            dataKey="value"
+                            stroke="rgba(255,255,255,0.3)"
+                            strokeWidth={2}
+                          >
+                            {initialCostData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
                           </Pie>
-                          <Tooltip formatter={(v: number) => `${v.toFixed(1)}${t.unitWanSimple}`} contentStyle={{borderRadius:'8px', fontSize:'12px'}} />
+                          <Tooltip 
+                            formatter={(v: number) => `${v.toFixed(1)}${t.unitWanSimple}`} 
+                            contentStyle={{
+                              background: 'rgba(255, 255, 255, 0.95)',
+                              border: '1px solid rgba(100, 116, 139, 0.2)',
+                              borderRadius: '12px', 
+                              fontSize: '13px',
+                              color: '#1e293b',
+                              boxShadow: '0 10px 40px rgba(0,0,0,0.1)'
+                            }} 
+                          />
                         </PieChart>
                      </ResponsiveContainer>
-                     <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none"><div className="text-base font-bold text-slate-700 dark:text-white">{result.initialCosts.total.toFixed(0)}</div><div className="text-[9px] text-slate-400">{t.labelTotalInvest}</div></div>
+                     {/* Central Display */}
+                     <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                       <div className="text-4xl font-black text-slate-800 dark:text-white drop-shadow-sm">{result.initialCosts.total.toFixed(0)}</div>
+                       <div className="text-sm text-slate-500 dark:text-slate-400 font-medium">{t.labelTotalInvest}</div>
+                     </div>
                   </div>
-                  <div className="mt-2 space-y-1">{initialCostData.map((item, i) => <div key={i} className="flex justify-between text-xs text-slate-500"><span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full" style={{background: item.color}}></span>{item.name}</span><span>{item.value.toFixed(1)}{t.unitWanSimple}</span></div>)}</div>
+                  
+                  {/* Legend Pills */}
+                  <div className="mt-4 grid grid-cols-2 gap-2 relative z-10">
+                    {initialCostData.map((item, i) => (
+                      <div 
+                        key={i} 
+                        className="flex items-center justify-between px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800/50"
+                        style={{ borderLeft: `3px solid ${item.color}` }}
+                      >
+                        <span className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300">
+                          <span className="w-2.5 h-2.5 rounded-full" style={{background: item.color}} />
+                          {item.name}
+                        </span>
+                        <span className="text-sm font-bold text-slate-800 dark:text-white">{item.value.toFixed(1)}<span className="text-xs text-slate-500 dark:text-slate-400">万</span></span>
+                      </div>
+                    ))}
+                  </div>
                   
                   {/* 现金流图表 */}
-                  <div className="mt-6 pt-6 border-t border-slate-100 dark:border-slate-800">
+                  <div className="mt-6 pt-6 border-t border-slate-100 dark:border-slate-800 relative z-10">
                     <CashFlowChart data={result.monthlyCashFlow} t={t} />
                   </div>
                </div>
@@ -2253,55 +2500,32 @@ function App() {
                   <AssetComparisonTable data={result.assetComparison.qualitative} t={t} />
 
                   {/* New Knowledge Carousel */}
-                  <KnowledgeCarousel cards={result.assetComparison.knowledgeCards} t={t} />
+                  <KnowledgeCarousel cards={result.assetComparison.knowledgeCards} t={t} language={language} />
                </div>
             </div>
 
             {/* Wealth Chart */}
             {/* Wealth Chart & Analysis Tabs */}
             <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-xl border border-slate-100 dark:border-slate-800/50">
-               <div className="flex gap-2 mb-4 border-b border-slate-100 dark:border-slate-800 overflow-x-auto">
-                   <button onClick={() => setActiveTab('chart')} className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${activeTab === 'chart' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-slate-500 hover:text-slate-700'}`}>{t.wealthCurve}</button>
-                   <button onClick={() => setActiveTab('rentVsBuy')} className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${activeTab === 'rentVsBuy' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-slate-500 hover:text-slate-700'}`}>{t.rentVsBuyAnalysis}</button>
-                   <button onClick={() => setActiveTab('stress')} className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${activeTab === 'stress' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-slate-500 hover:text-slate-700'}`}>{t.stressTest}</button>
-                   <button onClick={() => setActiveTab('risk')} className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${activeTab === 'risk' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-slate-500 hover:text-slate-700'}`}>{t.riskAssessment}</button>
-                   <button onClick={() => setActiveTab('affordability')} className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${activeTab === 'affordability' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-slate-500 hover:text-slate-700'}`}>{t.affordabilityTitle}</button>
-                   <button onClick={() => setActiveTab('lifePath')} className={`pb-3 px-1 relative ${activeTab === 'lifePath' ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}>
-                     {t.lifePathSimulator || '人生路径模拟'}
-                     {activeTab === 'lifePath' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-indigo-600 dark:bg-indigo-400 rounded-full" />}
-                   </button>
-                   <button onClick={() => setActiveTab('goal')} className={`pb-3 px-1 relative ${activeTab === 'goal' ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}>
-                     {t.goalCalculator || '买房倒计时'}
-                     {activeTab === 'goal' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-indigo-600 dark:bg-indigo-400 rounded-full" />}
-                   </button>
-                   <button onClick={() => setActiveTab('token')} className={`pb-3 px-1 relative ${activeTab === 'token' ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}>
-                     {t.tokenExchange || '财富兑换'}
-                     {activeTab === 'token' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-indigo-600 dark:bg-indigo-400 rounded-full" />}
-                   </button>
-                   <button onClick={() => setActiveTab('knowledge')} className={`pb-3 px-1 relative ${activeTab === 'knowledge' ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}>
-                     {t.navKnowledgeTree || '知识树'}
-                     {activeTab === 'knowledge' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-indigo-600 dark:bg-indigo-400 rounded-full" />}
-                   </button>
-                   <button onClick={() => setActiveTab('opportunity')} className={`pb-3 px-1 relative ${activeTab === 'opportunity' ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}>
-                     {t.navOpportunity || '机会成本 & 股市对比'}
-                     {activeTab === 'opportunity' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-indigo-600 dark:bg-indigo-400 rounded-full" />}
-                   </button>
-                   <button onClick={() => setActiveTab('journal')} className={`pb-3 px-1 relative ${activeTab === 'journal' ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}>
-                     {t.navReview || '决策复盘'}
-                     {activeTab === 'journal' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-indigo-600 dark:bg-indigo-400 rounded-full" />}
-                   </button>
-                   <button onClick={() => setActiveTab('negotiation')} className={`pb-3 px-1 relative ${activeTab === 'negotiation' ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}>
-                     {t.navNegotiation || '谈判助手'}
-                     {activeTab === 'negotiation' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-indigo-600 dark:bg-indigo-400 rounded-full" />}
-                   </button>
-                   <button onClick={() => setActiveTab('liquidity')} className={`pb-3 px-1 relative ${activeTab === 'liquidity' ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}>
-                     {t.navLiquidity || '流动性分析'}
-                     {activeTab === 'liquidity' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-indigo-600 dark:bg-indigo-400 rounded-full" />}
-                   </button>
-                   <button onClick={() => setActiveTab('life_drag')} className={`pb-3 px-1 relative ${activeTab === 'life_drag' ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}>
-                     {t.lifeDragIndex || '房子拖累指数'}
-                     {activeTab === 'life_drag' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-indigo-600 dark:bg-indigo-400 rounded-full" />}
-                   </button>
+               <div className="flex flex-wrap gap-2 mb-6">
+                   <button onClick={() => setActiveTab('chart')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'chart' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{t.wealthCurve}</button>
+                   <button onClick={() => setActiveTab('rentVsBuy')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'rentVsBuy' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{t.rentVsBuyAnalysis}</button>
+                   <button onClick={() => setActiveTab('stress')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'stress' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{t.stressTest}</button>
+                   <button onClick={() => setActiveTab('risk')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'risk' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{t.riskAssessment}</button>
+                   <button onClick={() => setActiveTab('affordability')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'affordability' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{language === 'EN' ? 'Affordability' : '购买力分析'}</button>
+                   <button onClick={() => setActiveTab('lifePath')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'lifePath' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{t.lifePathSimulator || '人生路径模拟'}</button>
+                   <button onClick={() => setActiveTab('goal')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'goal' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{t.goalCalculator || '买房倒计时'}</button>
+                   <button onClick={() => setActiveTab('token')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'token' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{t.tokenExchange || '财富兑换'}</button>
+                   <button onClick={() => setActiveTab('knowledge')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'knowledge' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{t.navKnowledgeTree || '知识树'}</button>
+                   <button onClick={() => setActiveTab('opportunity')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'opportunity' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{t.navOpportunity || '机会成本&股市'}</button>
+                   <button onClick={() => setActiveTab('journal')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'journal' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{t.navReview || '决策复盘'}</button>
+                   <button onClick={() => setActiveTab('negotiation')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'negotiation' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{t.navNegotiation || '谈判助手'}</button>
+                   <button onClick={() => setActiveTab('liquidity')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'liquidity' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{t.navLiquidity || '流动性分析'}</button>
+                   <button onClick={() => setActiveTab('life_drag')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'life_drag' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{t.lifeDragIndex || '房子拖累指数'}</button>
+                   <button onClick={() => setActiveTab('community_data')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'community_data' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>小区数据</button>
+                   <button onClick={() => setActiveTab('income_threshold')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'income_threshold' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{language === 'EN' ? 'Income Threshold' : '收入门槛'}</button>
+                   <button onClick={() => setActiveTab('car_analysis')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'car_analysis' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{language === 'EN' ? 'Car Analysis' : '买车分析'}</button>
+                   <button onClick={() => setActiveTab('asset_allocation')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'asset_allocation' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{language === 'EN' ? 'Asset Alloc.' : '资产配置'}</button>
                 </div>
 
                {activeTab === 'chart' && (
@@ -2338,6 +2562,7 @@ function App() {
                     monthlyIncome={params.familyMonthlyIncome || 30000}
                     monthlyPayment={result.monthlyPayment}
                     t={t}
+                    language={language}
                   />
                 )}
                 {activeTab === 'lifePath' && <LifePathSimulator params={params} t={t} />}
@@ -2346,6 +2571,12 @@ function App() {
                  )}
                  {activeTab === 'token' && (
                    <TokenExchangePanel result={result} params={params} t={t} />
+                 )}
+                 {activeTab === 'car_analysis' && (
+                   <CarPurchasePanel t={t} language={language} />
+                 )}
+                 {activeTab === 'asset_allocation' && (
+                   <AssetAllocationPanel t={t} language={language} />
                  )}
 
                  {activeTab === 'knowledge' && (
@@ -2398,6 +2629,19 @@ function App() {
                    onOpenSettings={() => setShowSettings(true)}
                  />
                )}
+
+               {activeTab === 'community_data' && (
+                 <CommunityDataPanel t={t} />
+               )}
+
+               {activeTab === 'income_threshold' && (
+                 <IncomeRequirementPanel 
+                   params={params} 
+                   result={result} 
+                   t={t} 
+                   language={language}
+                 />
+               )}
              </div>
           </div>
 
@@ -2448,7 +2692,7 @@ function App() {
               
               {/* Detailed Table Section */}
               <DetailedPaymentTable 
-                result={result}
+                monthlyPayments={result.monthlyData}
                 t={t}
               />
             </div>
@@ -2543,6 +2787,24 @@ function App() {
                   <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors flex items-center gap-1">
                     <ChevronRight className="h-3 w-3" />
                     {t.navHome || '首页/对比分析'}
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => { setActiveTab('asset_allocation'); setTimeout(() => document.getElementById('main-report')?.scrollIntoView({ behavior: 'smooth' }), 100); }} className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors flex items-center gap-1">
+                    <ChevronRight className="h-3 w-3" />
+                    {t.navAsset || '资产配置'}
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => { setActiveTab('lifePath'); setTimeout(() => document.getElementById('main-report')?.scrollIntoView({ behavior: 'smooth' }), 100); }} className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors flex items-center gap-1">
+                    <ChevronRight className="h-3 w-3" />
+                    {t.navLifePath || '人生路径'}
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => { setActiveTab('car_analysis'); setTimeout(() => document.getElementById('main-report')?.scrollIntoView({ behavior: 'smooth' }), 100); }} className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors flex items-center gap-1">
+                    <ChevronRight className="h-3 w-3" />
+                    {t.navCar || '购车决策'}
                   </button>
                 </li>
                 <li>
@@ -2690,11 +2952,19 @@ function App() {
                 href="https://hilarious-cajeta-a096d8.netlify.app/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group flex items-center gap-2 px-4 py-1.5 bg-gradient-to-r from-violet-100 to-indigo-100 dark:from-violet-900/30 dark:to-indigo-900/30 border border-violet-200 dark:border-violet-800/50 rounded-full text-xs font-medium text-violet-700 dark:text-violet-300 hover:from-violet-200 hover:to-indigo-200 dark:hover:from-violet-800/40 dark:hover:to-indigo-800/40 hover:border-violet-300 dark:hover:border-violet-700 transition-all shadow-sm hover:shadow-md hover:scale-105"
+                className="relative group flex items-center gap-2 px-5 py-2 rounded-full transition-all duration-300 hover:-translate-y-0.5
+                  bg-white/50 dark:bg-slate-900/50 backdrop-blur-md
+                  border border-indigo-200/60 dark:border-indigo-500/30
+                  text-indigo-600 dark:text-indigo-300 font-bold text-xs
+                  shadow-[0_4px_12px_-2px_rgba(99,102,241,0.15)] dark:shadow-[0_4px_20px_-4px_rgba(99,102,241,0.3)]
+                  hover:shadow-[0_8px_20px_-4px_rgba(99,102,241,0.25)] dark:hover:shadow-[0_8px_30px_-4px_rgba(99,102,241,0.5)]
+                  hover:border-indigo-400 dark:hover:border-indigo-400
+                  hover:bg-white dark:hover:bg-slate-900"
               >
-                <span className="text-sm">✨</span>
-                <span>璃光导航</span>
-                <ExternalLink className="h-3 w-3 opacity-60 group-hover:opacity-100 transition-opacity" />
+                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-indigo-500/10 to-purple-500/10 dark:from-indigo-500/20 dark:to-purple-500/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <span className="text-sm filter drop-shadow-sm">✨</span>
+                <span className="relative z-10">璃光导航</span>
+                <ExternalLink className="relative z-10 h-3 w-3 opacity-60 group-hover:opacity-100 transition-all group-hover:translate-x-0.5" />
               </a>
 
               {/* Copyright */}
@@ -2733,7 +3003,7 @@ function App() {
       {showMethodology && <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setShowMethodology(false)}><div className="bg-white dark:bg-slate-900 rounded-2xl max-w-3xl w-full shadow-2xl max-h-[85vh] overflow-y-auto" onClick={e => e.stopPropagation()}><div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center sticky top-0 bg-white dark:bg-slate-900 z-10"><h3 className="text-lg font-bold dark:text-white flex items-center gap-2"><BookOpen className="h-5 w-5 text-indigo-500"/> {t.methodologyTitle}</h3><button onClick={() => setShowMethodology(false)} className="text-slate-400 hover:text-slate-600"><X className="h-5 w-5"/></button></div><div className="p-8 space-y-8 text-sm text-slate-600 dark:text-slate-300" dangerouslySetInnerHTML={{ __html: t.methodologyContent }} /></div></div>}
 
       {/* Authentication Modal */}
-      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
+      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} t={t} />
 
 
 

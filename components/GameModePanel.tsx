@@ -18,6 +18,7 @@ const GameModePanel: React.FC<GameModePanelProps> = ({ params, t, language = 'ZH
   }, [params, simulationKey, language]);
 
   const getEndingConfig = (ending: EndingType) => {
+    const isEn = language === 'EN';
     switch (ending) {
       case 'WEALTHY':
         return {
@@ -25,8 +26,35 @@ const GameModePanel: React.FC<GameModePanelProps> = ({ params, t, language = 'ZH
           color: 'text-amber-500',
           bg: 'bg-amber-100 dark:bg-amber-900/30',
           border: 'border-amber-200 dark:border-amber-800',
-          title: t.endingWealthy,
-          desc: '资产大幅增值，实现了财务自由！'
+          title: isEn ? 'Wealthy' : '财富自由',
+          desc: isEn ? 'Your assets grew massively!' : '资产大幅增值，实现了财务自由！'
+        };
+      case 'EARLY_FREE':
+        return {
+          icon: Zap,
+          color: 'text-cyan-500',
+          bg: 'bg-cyan-100 dark:bg-cyan-900/30',
+          border: 'border-cyan-200 dark:border-cyan-800',
+          title: isEn ? 'Mortgage Free' : '提前还清',
+          desc: isEn ? 'Paid off mortgage early, living debt-free!' : '提前还清房贷，无债一身轻！'
+        };
+      case 'INVESTOR':
+        return {
+          icon: TrendingUp,
+          color: 'text-violet-500',
+          bg: 'bg-violet-100 dark:bg-violet-900/30',
+          border: 'border-violet-200 dark:border-violet-800',
+          title: isEn ? 'Real Estate Pro' : '投资达人',
+          desc: isEn ? 'Smart investments made you a property expert!' : '聪明的投资让你成为房产达人！'
+        };
+      case 'BALANCE':
+        return {
+          icon: Smile,
+          color: 'text-teal-500',
+          bg: 'bg-teal-100 dark:bg-teal-900/30',
+          border: 'border-teal-200 dark:border-teal-800',
+          title: isEn ? 'Perfect Balance' : '完美平衡',
+          desc: isEn ? 'Achieved perfect work-life balance!' : '工作与生活的完美平衡！'
         };
       case 'DEBT':
         return {
@@ -34,8 +62,17 @@ const GameModePanel: React.FC<GameModePanelProps> = ({ params, t, language = 'ZH
           color: 'text-rose-500',
           bg: 'bg-rose-100 dark:bg-rose-900/30',
           border: 'border-rose-200 dark:border-rose-800',
-          title: t.endingDebt,
-          desc: '高额房贷压垮了生活，陷入财务危机。'
+          title: isEn ? 'Financial Crisis' : '财务危机',
+          desc: isEn ? 'High mortgage crushed your finances.' : '高额房贷压垮了生活，陷入财务危机。'
+        };
+      case 'REGRET':
+        return {
+          icon: Frown,
+          color: 'text-orange-500',
+          bg: 'bg-orange-100 dark:bg-orange-900/30',
+          border: 'border-orange-200 dark:border-orange-800',
+          title: isEn ? 'Regretful' : '后悔买房',
+          desc: isEn ? 'Was buying this house really worth it?' : '常常怀疑当初买房是否值得...'
         };
       case 'ZEN':
         return {
@@ -43,8 +80,8 @@ const GameModePanel: React.FC<GameModePanelProps> = ({ params, t, language = 'ZH
           color: 'text-emerald-500',
           bg: 'bg-emerald-100 dark:bg-emerald-900/30',
           border: 'border-emerald-200 dark:border-emerald-800',
-          title: t.endingZen,
-          desc: '知足常乐，虽然不是巨富，但生活幸福美满。'
+          title: isEn ? 'Zen Life' : '佛系结局',
+          desc: isEn ? 'Not rich, but happy and peaceful.' : '知足常乐，虽然不是巨富，但生活幸福美满。'
         };
       case 'STRUGGLE':
         return {
@@ -52,8 +89,8 @@ const GameModePanel: React.FC<GameModePanelProps> = ({ params, t, language = 'ZH
           color: 'text-purple-500',
           bg: 'bg-purple-100 dark:bg-purple-900/30',
           border: 'border-purple-200 dark:border-purple-800',
-          title: t.endingStruggle,
-          desc: '虽然有房有产，但生活质量被严重挤压。'
+          title: isEn ? 'Struggling' : '苦苦挣扎',
+          desc: isEn ? 'Have assets but life quality suffers.' : '虽然有房有产，但生活质量被严重挤压。'
         };
       default:
         return {
@@ -61,8 +98,8 @@ const GameModePanel: React.FC<GameModePanelProps> = ({ params, t, language = 'ZH
           color: 'text-blue-500',
           bg: 'bg-blue-100 dark:bg-blue-900/30',
           border: 'border-blue-200 dark:border-blue-800',
-          title: t.endingNormal,
-          desc: '平平淡淡才是真，度过了充实的一生。'
+          title: isEn ? 'Normal Life' : '平凡人生',
+          desc: isEn ? 'Plain and fulfilling life.' : '平平淡淡才是真，度过了充实的一生。'
         };
     }
   };

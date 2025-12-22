@@ -456,3 +456,117 @@ export interface MonthlyCashFlow {
   holdingCost: number; // 持有成本
   netCashFlow: number; // 净现金流
 }
+
+// Car Purchase Analysis Types
+export interface CarParams {
+  carPrice: number; // 元
+  downPaymentRatio: number; // %
+  loanTerm: number; // Years
+  interestRate: number; // %
+  monthlyIncome: number; // 元
+  familySupportAmount?: number; // 元 (Family contribution to down payment)
+  
+  // Annual Costs
+  insurance: number; // 元/年
+  maintenance: number; // 元/年
+  fuelCost: number; // 元/年
+  parkingFee: number; // 元/月
+  
+  // New Practical Parameters
+  energyType: 'gas' | 'electric' | 'hybrid'; // 能源类型
+  purchaseTax: number; // 购置税 (元)
+  licensePlateCost: number; // 车牌费用 (元)
+  loanServiceFee: number; // 金融服务费 (元)
+
+  // Mileage Calculator
+  enableMileageCalc: boolean;
+  fuelConsumption: number; // L/100km or kWh/100km
+  energyPrice: number; // ¥/L or ¥/kWh
+  annualMileage: number; // km/year
+
+  // Other
+  depreciationRate: number; // %/year
+  commuteMethod: 'public_transport' | 'taxi' | 'ride_share' | 'none';
+  monthlyCommuteCost: number; // 元 (Current cost without car)
+  weekendUsage: 'low' | 'medium' | 'high'; // low: <50km, medium: 50-200km, high: >200km
+  purchasePurpose: 'commute' | 'marriage' | 'family' | 'status'; // 新增购车目的
+}
+
+export interface CarAnalysisResult {
+  monthlyPayment: number;
+  totalLoanInterest: number;
+  totalCost5Years: number; // Purchase + 5yrs running - resale value
+  monthlyTotalCost: number; // Payment + running costs
+  resaleValue5Years: number;
+  monthlyData: MonthlyPayment[]; // Amortization schedule
+  
+  // Analysis
+  dti: number; // Car payment / Income
+  transportCostRatio: number; // Total transport cost / Income
+  breakEvenYear: number | null; // vs Taxi/Ride-share
+  necessityScore: number; // 0-100
+  
+  recommendation: {
+    action: 'BUY' | 'WAIT' | 'DONT_BUY';
+    reason: string;
+    description: string;
+  };
+  
+  charts: {
+    monthlyCashFlow: { name: string; value: number }[];
+    costBreakdown: { name: string; value: number }[];
+    depreciationCurve: { year: number; value: number; totalCost: number }[];
+  };
+}
+
+// Asset Allocation Analysis Types
+export type AssetCategory = 'fixed' | 'liquid';
+export type AssetType = 
+  | 'property' | 'vehicle' | 'hard_asset' | 'other_fixed' // Fixed
+  | 'stock' | 'crypto' | 'gold' | 'cash' | 'fund_bond' | 'other_liquid'; // Liquid
+
+export interface AssetItem {
+  id: string;
+  name: string;
+  category: AssetCategory;
+  type: AssetType;
+  value: number; // Current Market Value
+  
+  // Growth/Depreciation
+  growthRate: number; // % per year (positive for growth, negative for depreciation)
+  
+  // Risk
+  riskLevel: 'low' | 'medium' | 'high' | 'very_high';
+  liquidityScore: number; // 0-10 (0=Hard to sell, 10=Cash)
+}
+
+export interface PortfolioAnalysisResult {
+  totalNetWorth: number;
+  totalFixed: number;
+  totalLiquid: number;
+  liquidRatio: number; // %
+  
+  // Projection
+  projection: {
+    year: number;
+    total: number;
+    fixed: number;
+    liquid: number;
+    breakdown: { [key: string]: number };
+  }[];
+  
+  // Risk Analysis
+  riskScore: number; // 0-100 (Higher is riskier)
+  weightedReturn: number; // %
+  
+  advice: {
+    profileType: string; // e.g., "Aggressive Investor"
+    warnings: string[];
+    suggestions: string[];
+  };
+  
+  charts: {
+    allocation: { name: string; value: number; type: string }[];
+    riskDistribution: { name: string; value: number }[];
+  };
+}

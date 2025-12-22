@@ -51,7 +51,7 @@ const DecisionDashboard: React.FC<DecisionDashboardProps> = ({ params, result, t
       // Use dataURL for better compatibility
       const dataUrl = canvas.toDataURL('image/png', 1.0);
       const link = document.createElement('a');
-      link.download = `DeepEstate_战报_${new Date().getTime()}.png`;
+      link.download = `WealthCompass_战报_${new Date().getTime()}.png`;
       link.href = dataUrl;
       document.body.appendChild(link);
       link.click();

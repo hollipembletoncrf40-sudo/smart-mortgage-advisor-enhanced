@@ -1,8 +1,10 @@
-# 智能房贷顾问 | Smart Mortgage Advisor
+# WealthCompass (财富罗盘)
 
 <div align="center">
 
-**一个全面的房产投资决策工具，帮助您做出明智的购房选择**
+**Your Personal AI Wealth Decision System | 您的私人 AI 财富决策系统**
+
+*不仅是房贷计算，更涵盖资产配置、人生路径模拟及大额消费决策*
 
 [English](#english) | [中文](#chinese)
 
@@ -17,69 +19,49 @@
 
 <a name="chinese"></a>
 
-## 🏠 项目简介
+## 🧭 项目简介
 
-智能房贷顾问是一个功能强大的房产投资分析工具，通过可视化图表和AI辅助，帮助用户全面评估买房vs租房的财务影响，做出最优决策。
+**WealthCompass (财富罗盘)** 是一个全维度的家庭财富决策系统。它的前身是 "Smart Mortgage Advisor"，经过全面升级，现在的它不仅能帮您算清房贷这笔账，更能从资产配置、人生规划、大额消费（如买车）等多个维度，为您的人每一个十字路口提供理性支持。
 
 ### ✨ 核心特性
 
-#### 📊 **财富分析**
-- **财富曲线对比**：直观展示买房与租房投资30年的财富积累差异
-- **实时计算**：支持等额本息、等额本金、组合贷款等多种还款方式
-- **通胀调整**：可选择查看实际购买力变化
-- **资产对比**：详细对比房产净值与投资净值
+#### 🏠 **深度房产决策 (Deep Real Estate)**
+- **买房 vs 租房终极PK**：30年财富曲线模拟，不仅算账，更算机会成本。
+- **房子拖累指数 (Life Drag Index)**：独创指标，量化房产对职业自由、地理流动性的隐性锁死效应。
+- **市场情绪调节**：一键模拟牛熊市，压力测试您的现金流抗风险能力。
+- **反向评估 (House Roast)**：AI "毒舌" 点评，帮您从全是优点的销售话术中找漏洞。
 
-#### 🎯 **风险评估**
-- **压力测试**：模拟利率上升、收入下降、房价下跌等极端场景
-- **DTI/DSCR指标**：实时计算偿债比和覆盖比
-- **风险心跳图**：可视化展示财务波动性
-- **承受能力分析**：评估购房能力和财务安全边际
+#### 🚗 **购车决策面板 (Car Purchase)**
+- **全生命周期成本**：不仅是车价，更包含油费/电费、保险、保养、折旧及资金占用成本。
+- **必要性评估**：基于通勤频率、家庭结构及社交需求的理性打分。
+- **还款心情条**：可视化的月供压力测试，别让车贷偷走您的快乐。
 
-#### 🎨 **可视化工具**
-- **支付日历**：美观的日历界面展示还款计划
-- **情绪条**：通过本金/利息比例展示还款情绪变化
-- **市场情绪调节**：滑块快速调整市场预期参数
-- **财富兑换**：将财富差异转换为实物资产（特斯拉、MacBook等）
+#### 💰 **资产配置 (Asset Allocation)**
+- **家庭财富大盘**：一站式管理房产、现金、股票、加密货币等多类资产。
+- **净值预测**：基于不同资产增长率的未来财富推演。
+- **风险再平衡**：AI 建议，助您穿越周期。
 
-#### 📚 **知识树系统**
-- **19个财务术语**：涵盖贷款、投资、税务、风险、基础概念
-- **渐进式解锁**：看完一个术语解锁下一个
-- **Markdown渲染**：清晰的格式化内容展示
-- **相关术语链接**：构建完整的知识网络
+#### 🧬 **人生路径模拟 (Life Path)**
+- **平行宇宙**：模拟 "一房到底"、"先上车后置换"、"租房投资" 等不同策略的30年人生轨迹。
+- **关键事件**：结婚、生子、失业、创业等人生变量对财富的影响。
+- **后悔药检测**：提前识别那些不可逆的决策风险。
 
-#### 🤖 **AI 智能助手**
-- **多模型支持**：
-  - Google Gemini (gemini-1.5-flash)
-  - Anthropic Claude (claude-3-5-sonnet)
-  - OpenAI GPT (gpt-4o-mini)
-  - DeepSeek (deepseek-chat)
-- **自定义配置**：每个模型独立配置API Key
-- **智能对话**：基于您的参数提供个性化建议
-- **统一接口**：无缝切换不同AI模型
+#### 🤖 **AI 投资顾问 "Josephine"**
+- **多模型支持**：集成 Gemini, Claude, GPT-4, DeepSeek 等顶尖模型。
+- **私有化部署**：API Key 本地存储，您的财务隐私只属于您。
+- **个性化建议**：不仅仅是通用回复，更是基于您输入参数的深度定制分析。
 
-#### 🎓 **高级功能**
-- **目标倒推计算器**：计算达到购房目标所需的投资收益率
-- **租房隐性成本**：量化搬家、装修、心理压力等成本
-- **现金流预测**：逐月展示现金流状况
-- **税费计算**：契税、增值税、个税等详细计算
-- **提前还款分析**：对比提前还款与继续投资的收益
-
-### 🎨 设计亮点
-
-- **深色模式**：完美支持深色/浅色主题切换
-- **响应式设计**：适配桌面、平板、手机等多种设备
-- **流畅动画**：精心设计的过渡动画和交互效果
-- **中英双语**：完整的中英文界面切换
-- **现代UI**：采用渐变色、毛玻璃效果、卡片设计
+<br/>
 
 ### 🛠️ 技术栈
 
 - **前端框架**：React 18 + TypeScript
-- **样式方案**：Tailwind CSS
-- **图表库**：Recharts
+- **样式方案**：Tailwind CSS + Glassmorphism (磨砂玻璃拟态)
+- **图表可视化**：Recharts
 - **图标库**：Lucide React
 - **构建工具**：Vite
-- **AI集成**：多模型API统一接口
+
+<br/>
 
 ### 🚀 快速开始
 
@@ -100,164 +82,45 @@ npm run dev
 npm run build
 ```
 
-### 📖 使用指南
-
-1. **输入参数**：在左侧面板输入房价、首付、贷款年限等信息
-2. **调整市场情绪**：使用滑块快速调整市场预期
-3. **查看分析**：右侧面板查看财富曲线、风险评估等多维度分析
-4. **学习知识**：点击"知识树"标签学习财务知识
-5. **AI咨询**：配置AI模型后，获取个性化建议
-
-### 🎯 核心计算逻辑
-
-#### 买房路径
-```
-净值 = 当前房价 - 剩余贷款 + 累计租金收入 - 累计月供 - 持有成本
-```
-
-#### 租房投资路径
-```
-净值 = 初始资金 × (1 + 投资收益率)^年数 - 累计租金支出
-```
-
-#### 风险指标
-- **DTI (偿债比)** = 月供 / 月收入
-- **DSCR (覆盖比)** = 租金收入 / 月供
-
-### 📊 数据隐私
-
-- 所有计算在本地浏览器完成
-- API Key 加密存储在 localStorage
-- 不上传任何个人财务数据到服务器
-
-### 🤝 贡献指南
-
-欢迎提交 Issue 和 Pull Request！
-
-### 📄 开源协议
-
-MIT License
+<br/>
 
 ---
 
 <a name="english"></a>
 
-## 🏠 Project Overview
+## 🧭 Project Overview
 
-Smart Mortgage Advisor is a comprehensive real estate investment analysis tool that helps users make informed home-buying decisions through visualizations and AI assistance.
+**WealthCompass** is a multi-dimensional family wealth decision system. Formerly known as "Smart Mortgage Advisor," it has evolved into a comprehensive tool that helps you navigate not just mortgage calculations, but also asset allocation, life path planning, and major purchase decisions (like buying a car).
 
 ### ✨ Key Features
 
-#### 📊 **Wealth Analysis**
-- **Wealth Curve Comparison**: Visualize 30-year wealth accumulation difference between buying vs renting
-- **Real-time Calculation**: Support multiple repayment methods (equal principal & interest, equal principal, combined loan)
-- **Inflation Adjustment**: Optional real purchasing power view
-- **Asset Comparison**: Detailed comparison of property equity vs investment returns
+#### 🏠 **Deep Real Estate Analysis**
+- **Buy vs. Rent Battle**: 30-year wealth simulation that calculates opportunity costs.
+- **Life Drag Index**: A unique metric quantifying how a property might restrict your career and geographic freedom.
+- **Market Sentiment Simulator**: Stress-test your cash flow under bullish or bearish market conditions.
+- **House Roast**: AI-powered "reverse evaluation" to find flaws in potential properties.
 
-#### 🎯 **Risk Assessment**
-- **Stress Testing**: Simulate extreme scenarios (rate hikes, income drops, price falls)
-- **DTI/DSCR Metrics**: Real-time debt-to-income and coverage ratios
-- **Risk Heartbeat Chart**: Visualize financial volatility
-- **Affordability Analysis**: Evaluate purchasing power and financial safety margin
+#### 🚗 **Car Purchase Panel**
+- **Total Cost of Ownership**: Includes fuel/energy, insurance, maintenance, depreciation, and capital costs.
+- **Necessity Score**: Rational scoring based on commute, family, and social needs.
+- **Repayment Mood Bar**: Visualize the emotional impact of monthly car payments.
 
-#### 🎨 **Visualization Tools**
-- **Payment Calendar**: Beautiful calendar interface for repayment schedule
-- **Mood Bar**: Visualize repayment emotions through principal/interest ratio
-- **Market Sentiment Slider**: Quick adjustment of market expectation parameters
-- **Wealth Exchange**: Convert wealth difference into tangible assets (Tesla, MacBook, etc.)
+#### 💰 **Asset Allocation**
+- **Wealth Dashboard**: Manage real estate, cash, stocks, crypto, and more in one place.
+- **Net Worth Prediction**: Future wealth projection based on asset growth rates.
+- **Risk Rebalancing**: AI suggestions to help you navigate economic cycles.
 
-#### 📚 **Knowledge Tree System**
-- **19 Financial Terms**: Covering loans, investments, taxes, risks, and basics
-- **Progressive Unlock**: Unlock next term after reading current one
-- **Markdown Rendering**: Clear formatted content display
-- **Related Terms**: Build complete knowledge network
+#### 🧬 **Life Path Simulator**
+- **Parallel Universes**: Simulate different life strategies like "Buy & Hold", "Trade Up", or "Rent & Invest".
+- **Key Events**: Impact analysis of marriage, children, job loss, or entrepreneurship.
+- **Regret Detector**: Identify irreversible risks before you take the leap.
 
-#### 🤖 **AI Assistant**
-- **Multi-Model Support**:
-  - Google Gemini (gemini-1.5-flash)
-  - Anthropic Claude (claude-3-5-sonnet)
-  - OpenAI GPT (gpt-4o-mini)
-  - DeepSeek (deepseek-chat)
-- **Custom Configuration**: Independent API key for each model
-- **Smart Conversation**: Personalized advice based on your parameters
-- **Unified Interface**: Seamless switching between AI models
+#### 🤖 **AI Advisor "Josephine"**
+- **Multi-Model Support**: Integrates Gemini, Claude, GPT-4, DeepSeek, etc.
+- **Privacy First**: API Keys stored locally; your financial data stays with you.
+- **Tailored Advice**: Deep analysis based on your specific financial parameters.
 
-#### 🎓 **Advanced Features**
-- **Goal Reverse Calculator**: Calculate required investment returns to reach home-buying goal
-- **Rent Hidden Costs**: Quantify moving, renovation, and psychological stress costs
-- **Cash Flow Projection**: Month-by-month cash flow visualization
-- **Tax Calculation**: Detailed deed tax, VAT, and income tax calculations
-- **Early Repayment Analysis**: Compare early repayment vs continued investment
-
-### 🎨 Design Highlights
-
-- **Dark Mode**: Perfect dark/light theme support
-- **Responsive Design**: Optimized for desktop, tablet, and mobile
-- **Smooth Animations**: Carefully designed transitions and interactions
-- **Bilingual**: Complete Chinese/English interface
-- **Modern UI**: Gradients, glassmorphism, and card design
-
-### 🛠️ Tech Stack
-
-- **Frontend**: React 18 + TypeScript
-- **Styling**: Tailwind CSS
-- **Charts**: Recharts
-- **Icons**: Lucide React
-- **Build Tool**: Vite
-- **AI Integration**: Unified multi-model API interface
-
-### 🚀 Quick Start
-
-```bash
-# Clone repository
-git clone https://github.com/hollipembletoncrf40-sudo/smart-mortgage-advisor-enhanced.git
-
-# Enter directory
-cd smart-mortgage-advisor-enhanced
-
-# Install dependencies
-npm install
-
-# Start dev server
-npm run dev
-
-# Build for production
-npm run build
-```
-
-### 📖 User Guide
-
-1. **Input Parameters**: Enter property price, down payment, loan term, etc. in left panel
-2. **Adjust Market Sentiment**: Use slider to quickly adjust market expectations
-3. **View Analysis**: Check wealth curves, risk assessment, and more in right panel
-4. **Learn Knowledge**: Click "Knowledge Tree" tab to learn financial concepts
-5. **AI Consultation**: Configure AI model to get personalized advice
-
-### 🎯 Core Calculation Logic
-
-#### Buying Path
-```
-Net Worth = Current Price - Remaining Loan + Cumulative Rent - Cumulative Payment - Holding Costs
-```
-
-#### Renting + Investing Path
-```
-Net Worth = Initial Capital × (1 + Return Rate)^Years - Cumulative Rent Paid
-```
-
-#### Risk Metrics
-- **DTI (Debt-to-Income)** = Monthly Payment / Monthly Income
-- **DSCR (Debt Service Coverage Ratio)** = Rental Income / Monthly Payment
-
-### 📊 Data Privacy
-
-- All calculations performed locally in browser
-- API keys encrypted in localStorage
-- No personal financial data uploaded to servers
-
-### 🤝 Contributing
-
-Issues and Pull Requests are welcome!
+<br/>
 
 ### 📄 License
 
@@ -267,8 +130,6 @@ MIT License
 
 <div align="center">
 
-**Made with ❤️ for better financial decisions**
-
-[Report Bug](https://github.com/hollipembletoncrf40-sudo/smart-mortgage-advisor-enhanced/issues) · [Request Feature](https://github.com/hollipembletoncrf40-sudo/smart-mortgage-advisor-enhanced/issues)
+**Crafted with ❤️ by Josephine**
 
 </div>

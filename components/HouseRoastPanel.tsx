@@ -50,10 +50,10 @@ const HouseRoastPanel: React.FC<HouseRoastPanelProps> = ({ params, result, t, la
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
-      case 'critical': return 'border-red-500 bg-red-50 dark:bg-red-900/20';
-      case 'serious': return 'border-orange-500 bg-orange-50 dark:bg-orange-900/20';
-      case 'mild': return 'border-yellow-500 bg-yellow-50 dark:bg-yellow-900/20';
-      default: return 'border-slate-300 bg-slate-50 dark:bg-slate-800';
+      case 'critical': return 'border-rose-500/50 bg-rose-500/10';
+      case 'serious': return 'border-amber-500/50 bg-amber-500/10';
+      case 'mild': return 'border-yellow-500/50 bg-yellow-500/10';
+      default: return 'border-slate-600/50 bg-slate-700/30';
     }
   };
 
@@ -67,9 +67,9 @@ const HouseRoastPanel: React.FC<HouseRoastPanelProps> = ({ params, result, t, la
   };
 
   return (
-    <div className="bg-gradient-to-br from-purple-50 via-pink-50 to-indigo-50 dark:from-purple-900/20 dark:via-pink-900/20 dark:to-indigo-900/20 rounded-3xl p-6 shadow-xl border-2 border-purple-200 dark:border-purple-800 relative overflow-hidden">
+    <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-900 rounded-3xl p-6 shadow-2xl border border-slate-700/50 relative overflow-hidden">
       {/* 背景装饰 */}
-      <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-purple-300/20 to-pink-300/20 rounded-full blur-3xl -z-0"></div>
+      <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 rounded-full blur-3xl -z-0"></div>
       
       {/* 关闭按钮 */}
       <button
@@ -83,7 +83,7 @@ const HouseRoastPanel: React.FC<HouseRoastPanelProps> = ({ params, result, t, la
       {/* 标题区域 */}
       <div className="relative z-10 mb-6">
         <div className="flex items-center gap-3 mb-2">
-          <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-lg">
+          <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-cyan-500 rounded-full flex items-center justify-center shadow-lg">
             <Home className="h-6 w-6 text-white" />
           </div>
           <div>
@@ -119,7 +119,7 @@ const HouseRoastPanel: React.FC<HouseRoastPanelProps> = ({ params, result, t, la
       {/* 展开/收起按钮 */}
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full flex items-center justify-between p-4 bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm rounded-xl hover:bg-white dark:hover:bg-slate-800 transition-all mb-4 relative z-10"
+        className="w-full flex items-center justify-between p-4 bg-slate-800/50 backdrop-blur-sm rounded-xl hover:bg-slate-700/50 border border-slate-700/50 transition-all mb-4 relative z-10"
       >
         <span className="font-medium text-slate-700 dark:text-slate-300">
           {isExpanded 

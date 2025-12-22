@@ -3,15 +3,14 @@ import { InvestmentParams } from '../types';
 import { 
   calculateTimelineData, 
   calculateRiskGradient, 
-  calculateCashFlowBreathing,
-  calculateRegretHeatmap 
+  calculateCashFlowBreathing
 } from '../utils/dashboardCalculations';
 import { 
   LineChart, Line, AreaChart, Area, BarChart, Bar, 
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   Cell
 } from 'recharts';
-import { Sliders, TrendingUp, Activity, Flame, LayoutGrid, ShieldAlert } from 'lucide-react';
+import { Sliders, TrendingUp, Activity, LayoutGrid, ShieldAlert } from 'lucide-react';
 
 interface InteractiveDashboardProps {
   initialParams: InvestmentParams;
@@ -33,7 +32,7 @@ const InteractiveDashboard: React.FC<InteractiveDashboardProps> = ({ initialPara
   const [rateHikeAssumption, setRateHikeAssumption] = useState(initialParams.rateHikeAssumption || 1.0);
   const [showAdvanced, setShowAdvanced] = useState(true);
 
-  const [activeChart, setActiveChart] = useState<'timeline' | 'risk' | 'breathing' | 'heatmap' | 'all'>('all');
+  const [activeChart, setActiveChart] = useState<'timeline' | 'risk' | 'breathing' | 'all'>('all');
 
   // Calculate all data
   const timelineData = useMemo(() => 
@@ -59,14 +58,7 @@ const InteractiveDashboard: React.FC<InteractiveDashboardProps> = ({ initialPara
     [totalPrice, downPaymentRatio, interestRate, monthlyIncome, incomeFluctuation, minLivingExpenses, emergencyReserves, maxPaymentRatio, rateHikeAssumption]
   );
 
-  const regretHeatmap = useMemo(() => 
-    calculateRegretHeatmap({
-      ...initialParams,
-      totalPrice, downPaymentRatio, interestRate, familyMonthlyIncome: monthlyIncome,
-      incomeFluctuation, minLivingExpenses, emergencyReserves, maxPaymentRatio, rateHikeAssumption
-    }),
-    [totalPrice, interestRate, downPaymentRatio, monthlyIncome, incomeFluctuation, minLivingExpenses, emergencyReserves, maxPaymentRatio, rateHikeAssumption]
-  );
+
 
   return (
     <div className="bg-gradient-to-br from-slate-50 to-indigo-50 dark:from-slate-900 dark:to-indigo-900/20 rounded-3xl p-8 shadow-2xl border border-slate-200 dark:border-slate-800 mt-8">
@@ -186,8 +178,7 @@ const InteractiveDashboard: React.FC<InteractiveDashboardProps> = ({ initialPara
           { id: 'all', label: t.overviewTab, icon: LayoutGrid },
           { id: 'timeline', label: t.timelineTab, icon: TrendingUp },
           { id: 'risk', label: t.riskTab, icon: Activity },
-          { id: 'breathing', label: t.cashFlowTab, icon: Activity },
-          { id: 'heatmap', label: t.regretTab, icon: Flame }
+          { id: 'breathing', label: t.cashFlowTab, icon: Activity }
         ].map((tab) => (
           <button
             key={tab.id}
@@ -224,21 +215,85 @@ const InteractiveDashboard: React.FC<InteractiveDashboardProps> = ({ initialPara
         )}
 
         {(activeChart === 'all' || activeChart === 'risk') && (
-          <div className="bg-white dark:bg-slate-800 rounded-2xl p-6">
-            <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-4">{t.riskGradientTitle}</h3>
-            <ResponsiveContainer width="100%" height={200}>
-              <BarChart data={riskGradient}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="label" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="value" name={t.riskValue}>
-                  {riskGradient.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
+          <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-900 rounded-2xl p-6 border border-slate-700/50">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                <Activity className="h-5 w-5 text-amber-400" />
+                {t.riskGradientTitle}
+              </h3>
+              {/* Color Legend */}
+              <div className="flex items-center gap-4 text-xs">
+                <div className="flex items-center gap-1.5">
+                  <div className="w-3 h-3 rounded-full bg-gradient-to-r from-emerald-400 to-emerald-500" />
+                  <span className="text-emerald-400">安全</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-3 h-3 rounded-full bg-gradient-to-r from-amber-400 to-orange-500" />
+                  <span className="text-amber-400">警戒</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-3 h-3 rounded-full bg-gradient-to-r from-rose-400 to-red-500" />
+                  <span className="text-rose-400">危险</span>
+                </div>
+              </div>
+            </div>
+            
+            {/* Custom Gradient Bars */}
+            <div className="space-y-4">
+              {riskGradient.map((item, index) => {
+                // Determine gradient based on value
+                const getGradient = (val: number) => {
+                  if (val <= 35) return 'from-emerald-400 via-emerald-500 to-teal-500';
+                  if (val <= 55) return 'from-amber-400 via-orange-500 to-amber-600';
+                  return 'from-rose-400 via-red-500 to-rose-600';
+                };
+                const getRiskLevel = (val: number) => {
+                  if (val <= 35) return { text: '低风险', color: 'text-emerald-400' };
+                  if (val <= 55) return { text: '中风险', color: 'text-amber-400' };
+                  return { text: '高风险', color: 'text-rose-400' };
+                };
+                const risk = getRiskLevel(item.value);
+                
+                return (
+                  <div key={index} className="relative">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-sm font-medium text-slate-300">{item.label}</span>
+                      <div className="flex items-center gap-2">
+                        <span className={`text-xs font-medium ${risk.color}`}>{risk.text}</span>
+                        <span className="text-lg font-bold text-white">{Number(item.value).toFixed(1)}%</span>
+                      </div>
+                    </div>
+                    <div className="h-6 bg-slate-700/50 rounded-xl overflow-hidden relative">
+                      <div 
+                        className={`h-full bg-gradient-to-r ${getGradient(item.value)} rounded-xl transition-all duration-700 relative`}
+                        style={{ width: `${Math.min(item.value, 100)}%` }}
+                      >
+                        {/* Shine effect */}
+                        <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent rounded-xl" />
+                      </div>
+                      {/* Threshold markers */}
+                      <div className="absolute top-0 left-[35%] h-full w-px bg-slate-500/50" />
+                      <div className="absolute top-0 left-[55%] h-full w-px bg-slate-500/50" />
+                    </div>
+                    {/* Threshold labels */}
+                    <div className="flex justify-between mt-1 text-[10px] text-slate-500">
+                      <span>0%</span>
+                      <span style={{ marginLeft: '30%' }}>35%</span>
+                      <span style={{ marginLeft: '15%' }}>55%</span>
+                      <span>100%</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            
+            {/* Risk Summary */}
+            <div className="mt-6 p-4 bg-slate-800/50 rounded-xl border border-slate-700/50">
+              <div className="flex items-center gap-2 text-sm text-slate-400">
+                <ShieldAlert className="h-4 w-4" />
+                <span>风险说明：DTI（债务收入比）超过35%需警惕，超过55%为高风险。压力测试模拟加息后的承压能力。</span>
+              </div>
+            </div>
           </div>
         )}
 
@@ -276,28 +331,7 @@ const InteractiveDashboard: React.FC<InteractiveDashboardProps> = ({ initialPara
           </div>
         )}
 
-        {(activeChart === 'all' || activeChart === 'heatmap') && (
-          <div className="bg-white dark:bg-slate-800 rounded-2xl p-6">
-            <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-4">{t.regretTab}</h3>
-            <div className="grid grid-cols-5 gap-2">
-              {regretHeatmap.map((cell, i) => (
-                <div
-                  key={i}
-                  className="aspect-square rounded-lg flex items-center justify-center text-xs font-bold text-white"
-                  style={{
-                    backgroundColor: `rgba(239, 68, 68, ${cell.regretScore / 100})`
-                  }}
-                  title={`Price: ${cell.price}, Rate: ${cell.rate}%, Regret: ${cell.regretScore}`}
-                >
-                  {cell.regretScore}
-                </div>
-              ))}
-            </div>
-            <div className="mt-4 text-xs text-slate-500 text-center">
-              {t.regretHeatmapTip}
-            </div>
-          </div>
-        )}
+
       </div>
     </div>
   );
