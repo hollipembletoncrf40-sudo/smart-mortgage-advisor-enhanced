@@ -131,7 +131,7 @@ const MarketSentimentSlider: React.FC<MarketSentimentSliderProps> = ({ params, o
               <label className="text-base font-bold text-slate-800 dark:text-white">
                 {t.marketSentiment || '市场情绪调节'}
               </label>
-              <p className="text-xs text-slate-500 dark:text-slate-400">调整参数模拟不同市场环境</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">{t.marketSentimentDesc || '调整参数模拟不同市场环境'}</p>
             </div>
           </div>
           <div className={`flex items-center gap-2 px-4 py-2 rounded-full shadow-md ${

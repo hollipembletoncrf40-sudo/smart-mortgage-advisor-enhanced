@@ -25,6 +25,7 @@ import DecisionDashboard from './components/DecisionDashboard';
 import InteractiveDashboard from './components/InteractiveDashboard';
 import InteractiveTimeline from './components/InteractiveTimeline';
 import DetailedPaymentTable from './components/DetailedPaymentTable';
+import InvestmentWisdomCard from './components/InvestmentWisdomCard';
 import MarketSentimentSlider from './components/MarketSentimentSlider';
 import RentHiddenCostCalculator from './components/RentHiddenCostCalculator';
 import GoalReverseCalculator from './components/GoalReverseCalculator';
@@ -2121,9 +2122,26 @@ function App() {
       {/* Main Container: Expanded width to 1600px */}
       <main id="main-report" className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
+        {/* WealthCompass Branding Header */}
+        <div className="text-center mb-10 mt-2 animate-fade-in-up">
+          <h1 className="text-5xl md:text-7xl font-black bg-clip-text text-transparent bg-gradient-to-r from-amber-300 via-yellow-500 to-amber-600 mb-3 tracking-tight drop-shadow-2xl filter" style={{ textShadow: '0 4px 20px rgba(245, 158, 11, 0.3)' }}>
+            WealthCompass
+          </h1>
+          <div className="flex items-center justify-center gap-3 opacity-90">
+            <div className="h-[2px] w-12 bg-gradient-to-r from-transparent to-indigo-400"></div>
+            <p className="text-lg md:text-2xl font-bold text-indigo-300 tracking-widest uppercase">
+              财富罗盘终极决策系统
+            </p>
+            <div className="h-[2px] w-12 bg-gradient-to-l from-transparent to-indigo-400"></div>
+          </div>
+        </div>
+
         {/* 1. INPUT DASHBOARD */}
         <section id="input-panel" className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-xl border border-slate-100 dark:border-slate-800/50 relative overflow-hidden transition-all duration-300">
-           {/* ... (Existing inputs, logic preserved but now in wider container) ... */}
+           {/* ... (Existing inputs, logic preserved but now in wider container) */}
+            {/* Investment Wisdom Card */}
+            <InvestmentWisdomCard language={language} />
+
            <div className="flex items-center gap-2 mb-6 text-slate-800 dark:text-white font-bold text-lg relative z-10"><List className="h-5 w-5 text-indigo-500" /> {t.inputPanelTitle}</div>
            
            {/* Market Sentiment Slider */}
@@ -2571,7 +2589,7 @@ function App() {
                    <TokenExchangePanel result={result} params={params} t={t} />
                  )}
                  {activeTab === 'car_analysis' && (
-                   <CarPurchasePanel t={t} language={language} />
+                   <CarPurchasePanel t={t} language={language} user={user} onOpenLogin={() => setShowAuthModal(true)} />
                  )}
                  {activeTab === 'asset_allocation' && (
                    <AssetAllocationPanel t={t} language={language} />
@@ -2629,7 +2647,26 @@ function App() {
                )}
 
                {activeTab === 'community_data' && (
-                 <CommunityDataPanel t={t} />
+                 <div className="relative">
+                   {!user && (
+                     <div 
+                       className="absolute inset-0 z-20 bg-black/30 backdrop-blur-[2px] rounded-2xl flex items-center justify-center cursor-pointer"
+                       onClick={() => setShowAuthModal(true)}
+                     >
+                       <div className="bg-slate-900/90 px-8 py-6 rounded-2xl border border-slate-700 text-center shadow-2xl">
+                         <div className="w-12 h-12 mx-auto mb-3 bg-indigo-600 rounded-full flex items-center justify-center">
+                           <LogIn className="h-6 w-6 text-white" />
+                         </div>
+                         <h3 className="text-base font-bold text-white mb-1">解锁小区数据</h3>
+                         <p className="text-slate-400 text-xs mb-4">登录后查看完整小区分析</p>
+                         <span className="text-indigo-400 text-sm font-medium">点击登录 →</span>
+                       </div>
+                     </div>
+                   )}
+                   <div className={!user ? 'pointer-events-none select-none' : ''}>
+                     <CommunityDataPanel t={t} />
+                   </div>
+                 </div>
                )}
 
                {activeTab === 'income_threshold' && (
@@ -2691,20 +2728,28 @@ function App() {
               {/* Detailed Table Section - Login Required */}
               <div className="relative">
                 {!user && (
-                  <div className="absolute inset-0 z-10 bg-slate-900/80 backdrop-blur-md rounded-2xl flex flex-col items-center justify-center">
-                    <div className="bg-slate-800/90 p-8 rounded-2xl border border-slate-700 text-center max-w-sm mx-4 shadow-2xl">
-                      <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center">
-                        <LogIn className="h-8 w-8 text-white" />
+                  <div className="absolute inset-0 z-10 bg-black/90 backdrop-blur-sm rounded-2xl flex flex-col items-center justify-center">
+                    <div className="bg-slate-900 p-8 rounded-2xl border border-slate-800 text-center max-w-sm mx-4 shadow-2xl">
+                      <div className="w-14 h-14 mx-auto mb-4 bg-indigo-600 rounded-full flex items-center justify-center">
+                        <LogIn className="h-7 w-7 text-white" />
                       </div>
-                      <h3 className="text-xl font-bold text-white mb-2">解锁详细还款计划</h3>
-                      <p className="text-slate-400 text-sm mb-6">登录后即可查看完整的逐月还款明细、本金利息分布等专业分析数据</p>
+                      <h3 className="text-lg font-bold text-white mb-2">
+                        {language === 'EN' ? 'Unlock Detailed Schedule' : '解锁详细还款计划'}
+                      </h3>
+                      <p className="text-slate-400 text-sm mb-6">
+                        {language === 'EN' 
+                          ? 'Log in to view complete monthly repayment schedule, principal/interest breakdown, and more professional insights.' 
+                          : '登录后即可查看完整的逐月还款明细、本金利息分布等专业分析数据'}
+                      </p>
                       <button 
                         onClick={() => setShowAuthModal(true)}
-                        className="w-full px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-medium rounded-xl transition-all hover:shadow-lg hover:scale-[1.02]"
+                        className="w-full px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl transition-all"
                       >
-                        立即登录 / 注册
+                        {language === 'EN' ? 'Login / Sign Up Now' : '立即登录 / 注册'}
                       </button>
-                      <p className="text-slate-500 text-xs mt-4">🔒 您的数据安全有保障</p>
+                      <p className="text-slate-600 text-xs mt-4">
+                        {language === 'EN' ? '🔒 Your data is secure' : '🔒 您的数据安全有保障'}
+                      </p>
                     </div>
                   </div>
                 )}
@@ -2993,7 +3038,7 @@ function App() {
 
               {/* Copyright */}
               <div className="text-xs text-slate-500 dark:text-slate-500">
-                © 2025 Smart Mortgage Advisor
+                © 2025 WealthCompass
               </div>
             </div>
           </div>

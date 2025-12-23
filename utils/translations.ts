@@ -765,6 +765,7 @@ export const TRANSLATIONS = {
 
     // Market Sentiment
     marketSentiment: "市场情绪调节",
+    marketSentimentDesc: "调整参数模拟不同市场环境",
     sentimentBearish: "悲观 (熊市)",
     sentimentBullish: "乐观 (牛市)",
     sentimentNeutral: "中性 (震荡)",
@@ -1208,7 +1209,7 @@ export const TRANSLATIONS = {
     liqTraitRare: '特殊需求, 非主流',
   },
   EN: {
-    appTitle: "Smart Mortgage Advisor",
+    appTitle: "WealthCompass",
     pro: "PRO",
     tutorial: "Tutorial",
     buyingProcess: "Process",
@@ -1986,6 +1987,7 @@ export const TRANSLATIONS = {
 
     // Market Sentiment
     marketSentiment: "Market Sentiment",
+    marketSentimentDesc: "Adjust parameters to simulate market environments",
     sentimentBearish: "Bearish (Bear)",
     sentimentBullish: "Bullish (Bull)",
     sentimentNeutral: "Neutral (Chop)",

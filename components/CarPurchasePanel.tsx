@@ -12,7 +12,8 @@ import {
   Info,
   Zap,
   Tag,
-  Smile
+  Smile,
+  LogIn
 } from 'lucide-react';
 import { 
   BarChart, 
@@ -32,12 +33,16 @@ import {
 import { CarParams, CarAnalysisResult, Language, MonthlyPayment } from '../types';
 import DetailedPaymentTable from './DetailedPaymentTable';
 
+import { User as FirebaseUser } from 'firebase/auth';
+
 interface CarPurchasePanelProps {
   t: any;
   language?: Language;
+  user?: FirebaseUser | null;
+  onOpenLogin?: () => void;
 }
 
-const CarPurchasePanel: React.FC<CarPurchasePanelProps> = ({ t, language = 'ZH' }) => {
+const CarPurchasePanel: React.FC<CarPurchasePanelProps> = ({ t, language = 'ZH', user, onOpenLogin }) => {
   const isEn = language === 'EN';
 
   // Initial State
@@ -871,10 +876,38 @@ const CarPurchasePanel: React.FC<CarPurchasePanelProps> = ({ t, language = 'ZH' 
               </table>
             </div>
             
-            {/* Repayment Schedule */}
+            {/* Repayment Schedule - Login Required */}
             {(result.monthlyData && result.monthlyData.length > 0) && (
-              <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-lg">
-                <DetailedPaymentTable monthlyPayments={result.monthlyData} t={t} />
+              <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-lg relative">
+                {!user && (
+                  <div className="absolute inset-0 z-10 bg-black/90 backdrop-blur-sm rounded-3xl flex flex-col items-center justify-center">
+                    <div className="bg-slate-900 p-8 rounded-2xl border border-slate-800 text-center max-w-sm mx-4 shadow-2xl">
+                      <div className="w-14 h-14 mx-auto mb-4 bg-indigo-600 rounded-full flex items-center justify-center">
+                        <LogIn className="h-7 w-7 text-white" />
+                      </div>
+                      <h3 className="text-lg font-bold text-white mb-2">
+                        {isEn ? 'Unlock Car Loan Schedule' : '解锁车贷还款明细'}
+                      </h3>
+                      <p className="text-slate-400 text-sm mb-6">
+                        {isEn 
+                          ? 'Log in to view complete monthly repayment schedule, principal/interest breakdown, and detailed analysis.' 
+                          : '登录后查看完整的逐月还款计划、本金利息分布等详细数据'}
+                      </p>
+                      <button 
+                        onClick={() => onOpenLogin && onOpenLogin()}
+                        className="w-full px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl transition-all"
+                      >
+                        {isEn ? 'Login / Sign Up Now' : '立即登录 / 注册'}
+                      </button>
+                      <p className="text-slate-600 text-xs mt-4">
+                        {isEn ? '🔒 Your data is secure' : '🔒 您的数据安全有保障'}
+                      </p>
+                    </div>
+                  </div>
+                )}
+                <div className={!user ? 'opacity-30 pointer-events-none select-none' : ''}>
+                  <DetailedPaymentTable monthlyPayments={result.monthlyData} t={t} />
+                </div>
               </div>
             )}
 

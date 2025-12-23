@@ -496,18 +496,29 @@ const FloatingAIAdvisor: React.FC<FloatingAIAdvisorProps> = ({ t, contextParams,
           onMouseDown={handleMouseDown}
           onClick={handleFloatingBallClick}
           style={{ left: position.x, top: position.y }}
-          className={`fixed w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white rounded-full shadow-2xl flex items-center justify-center z-50 group overflow-hidden border-3 border-white/40 ${isDragging ? 'cursor-grabbing' : 'cursor-grab hover:scale-110 transition-transform'}`}
+          className={`fixed w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white rounded-full shadow-2xl flex items-center justify-center z-50 group border-3 border-white/40 ${isDragging ? 'cursor-grabbing' : 'cursor-grab hover:scale-110 transition-transform'}`}
         >
-          <img src={AI_ADVISOR_AVATAR} alt="AI Advisor" className="w-full h-full object-cover pointer-events-none" />
+          <img src={AI_ADVISOR_AVATAR} alt="AI Advisor" className="w-full h-full object-cover rounded-full pointer-events-none" />
           {/* Online indicator */}
           <span className={`absolute -top-1 -right-1 w-4 h-4 rounded-full border-2 border-white pointer-events-none ${isLoggedIn ? 'bg-green-500 animate-pulse' : 'bg-slate-400'}`}></span>
           {/* Tooltip */}
           {!isDragging && (
-            <div className="absolute right-full mr-4 bg-white dark:bg-slate-800 text-slate-800 dark:text-white px-4 py-2 rounded-xl shadow-xl opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-sm font-medium pointer-events-none">
+            <div 
+              className={`absolute top-1/2 -translate-y-1/2 px-4 py-3 bg-white dark:bg-slate-800 text-slate-800 dark:text-white rounded-xl shadow-xl opacity-0 group-hover:opacity-100 transition-opacity text-sm pointer-events-none w-max
+                ${position.x < (window.innerWidth / 2) ? 'left-full ml-4' : 'right-full mr-4'}
+              `}
+            >
               {isLoggedIn ? (
-                <span>{t.aiTitle || 'AI 投资顾问'} ✨</span>
+                <div>
+                  <div className="font-bold text-indigo-600 dark:text-indigo-400 mb-1">Hi~ 👋</div>
+                  <div className="text-xs text-slate-600 dark:text-slate-300">我是小慧，您的智能投资助手！点我开始对话~</div>
+                </div>
               ) : (
-                <span className="text-amber-600">🔒 登录后使用 AI 顾问</span>
+                <div>
+                  <div className="font-bold text-indigo-600 dark:text-indigo-400 mb-1">Hi，你好！👋</div>
+                  <div className="text-xs text-slate-600 dark:text-slate-300 mb-2">我是你的智能AI投资助手小慧！</div>
+                  <div className="text-xs text-amber-600 dark:text-amber-400 font-medium">🔒 登录后即可使用</div>
+                </div>
               )}
             </div>
           )}
