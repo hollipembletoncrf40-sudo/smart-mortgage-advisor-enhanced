@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { TrendingUp, TrendingDown, Minus, AlertCircle, Info, Sparkles } from 'lucide-react';
 import { InvestmentParams, CalculationResult } from '../types';
 
@@ -18,31 +18,53 @@ const MarketSentimentSlider: React.FC<MarketSentimentSliderProps> = ({ params, o
     return ((rate + 2) / 10) * 100;
   };
 
+  // Local state for 60fps smooth sliding
+  const [localVal, setLocalVal] = useState(getSliderValue());
+  const debounceTimer = useRef<NodeJS.Timeout | null>(null);
+
+  // Sync local state when params change externally
+  useEffect(() => {
+    const newVal = getSliderValue();
+    // Only sync if significant difference to avoid loop artifacts, or just trust parent authority when not dragging
+    // Ideally we track 'isDragging', but for now simple sync is okay as long as we don't stutter.
+    // To be safe against jitter during debounce:
+    if (Math.abs(newVal - localVal) > 1 && !debounceTimer.current) {
+        setLocalVal(newVal);
+    }
+  }, [params.appreciationRate]);
+
   const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = Number(e.target.value);
-    
-    // Map 0-100 to different parameters based on market sentiment
-    const newAppreciation = -2 + (val / 100) * 10; // -2% to 8%
-    
-    // Investment Return: More dynamic based on sentiment
-    let newReturn = 4;
-    if (val < 50) {
-      newReturn = 2 + (val / 50) * 2; // 2% to 4%
-    } else {
-      newReturn = 4 + ((val - 50) / 50) * 4; // 4% to 8%
-    }
+    setLocalVal(val); // Immediate UI update
 
-    // Interest rate adjustment (inverse relationship with market sentiment)
-    // Bullish market often means higher rates, bearish means lower rates
-    const baseRate = 4.2;
-    const rateAdjustment = ((val - 50) / 50) * 0.5; // ±0.5%
-    const newInterestRate = baseRate + rateAdjustment;
+    // Debounce the expensive calculation/parent update
+    if (debounceTimer.current) clearTimeout(debounceTimer.current);
+    
+    debounceTimer.current = setTimeout(() => {
+        // Map 0-100 to different parameters based on market sentiment
+        const newAppreciation = -2 + (val / 100) * 10; // -2% to 8%
+        
+        // Investment Return: More dynamic based on sentiment
+        let newReturn = 4;
+        if (val < 50) {
+          newReturn = 2 + (val / 50) * 2; // 2% to 4%
+        } else {
+          newReturn = 4 + ((val - 50) / 50) * 4; // 4% to 8%
+        }
 
-    onChange({
-      appreciationRate: Number(newAppreciation.toFixed(1)),
-      alternativeReturnRate: Number(newReturn.toFixed(1)),
-      interestRate: Number(newInterestRate.toFixed(2))
-    });
+        // Interest rate adjustment (inverse relationship with market sentiment)
+        const baseRate = 4.2;
+        const rateAdjustment = ((val - 50) / 50) * 0.5; // ±0.5%
+        const newInterestRate = baseRate + rateAdjustment;
+
+        onChange({
+          appreciationRate: Number(newAppreciation.toFixed(1)),
+          alternativeReturnRate: Number(newReturn.toFixed(1)),
+          interestRate: Number(newInterestRate.toFixed(2))
+        });
+        
+        debounceTimer.current = null;
+    }, 15); // Very short debounce to just coalesce rapid events but feel instant
   };
 
   const getSentimentData = (val: number) => {
@@ -94,7 +116,7 @@ const MarketSentimentSlider: React.FC<MarketSentimentSliderProps> = ({ params, o
     };
   };
 
-  const currentVal = getSliderValue();
+  const currentVal = localVal; // Use local state for UI
   const sentimentData = getSentimentData(currentVal);
   const Icon = sentimentData.icon;
 
@@ -148,23 +170,25 @@ const MarketSentimentSlider: React.FC<MarketSentimentSliderProps> = ({ params, o
       <div className="p-5">
         {/* Premium Slider */}
         <div className="relative mb-6">
-          <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden shadow-inner">
-            <div className="h-full bg-gradient-to-r from-emerald-500 via-amber-400 via-50% to-rose-500 opacity-80" style={{ width: '100%' }} />
-          </div>
           <input
             type="range"
             min="0"
             max="100"
-            step="5"
+            step="1"
             value={currentVal}
             onChange={handleSliderChange}
             className="absolute top-0 w-full h-4 opacity-0 cursor-pointer z-10"
           />
-          <div 
-            className="absolute top-1/2 -translate-y-1/2 h-8 w-8 bg-white dark:bg-slate-800 border-4 border-indigo-500 dark:border-indigo-400 rounded-full shadow-xl pointer-events-none transition-all duration-200 flex items-center justify-center"
-            style={{ left: `calc(${currentVal}% - 16px)` }}
-          >
-            <div className="h-3 w-3 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full shadow-sm" />
+          {/* Track Background (Unfilled) */}
+          <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden shadow-inner">
+            {/* Filled Progress Part - REMOVED TRANSITION for instant feel */}
+            <div 
+              className="h-full bg-gradient-to-r from-emerald-500 via-amber-400 via-50% to-rose-500 relative" 
+              style={{ width: `${currentVal}%` }}
+            >
+              {/* Subtle light glint at the end of progress */}
+              <div className="absolute right-0 top-0 bottom-0 w-px bg-white/50 shadow-[0_0_10px_2px_rgba(255,255,255,0.5)]"></div>
+            </div>
           </div>
           
           {/* Tick marks */}

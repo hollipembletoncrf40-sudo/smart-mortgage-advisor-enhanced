@@ -2123,16 +2123,34 @@ function App() {
       <main id="main-report" className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
         {/* WealthCompass Branding Header */}
-        <div className="text-center mb-10 mt-2 animate-fade-in-up">
-          <h1 className="text-5xl md:text-7xl font-black bg-clip-text text-transparent bg-gradient-to-r from-amber-300 via-yellow-500 to-amber-600 mb-3 tracking-tight drop-shadow-2xl filter" style={{ textShadow: '0 4px 20px rgba(245, 158, 11, 0.3)' }}>
+        {/* WealthCompass Branding Header */}
+        <div className="text-center mb-12 mt-4 relative z-10">
+          <style>
+            {`
+              @keyframes liquid-flow {
+                0% { background-position: 0% 50%; }
+                50% { background-position: 100% 50%; }
+                100% { background-position: 0% 50%; }
+              }
+              .liquid-text {
+                background-size: 300% 300%;
+                animation: liquid-flow 8s ease infinite;
+              }
+            `}
+          </style>
+          <h1 className="liquid-text text-6xl md:text-8xl font-black bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 via-purple-500 via-pink-500 to-amber-500 mb-4 tracking-tighter drop-shadow-2xl" 
+              style={{ 
+                filter: 'drop-shadow(0 0 25px rgba(124, 58, 237, 0.3))',
+                WebkitTextStroke: '1px rgba(255,255,255,0.1)'
+              }}>
             WealthCompass
           </h1>
-          <div className="flex items-center justify-center gap-3 opacity-90">
-            <div className="h-[2px] w-12 bg-gradient-to-r from-transparent to-indigo-400"></div>
-            <p className="text-lg md:text-2xl font-bold text-indigo-300 tracking-widest uppercase">
+          <div className="flex items-center justify-center gap-4 opacity-90">
+            <div className="h-[2px] w-16 bg-gradient-to-r from-transparent via-indigo-400 to-purple-400 rounded-full"></div>
+            <p className="text-lg md:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-400 tracking-[0.2em] uppercase">
               财富罗盘终极决策系统
             </p>
-            <div className="h-[2px] w-12 bg-gradient-to-l from-transparent to-indigo-400"></div>
+            <div className="h-[2px] w-16 bg-gradient-to-l from-transparent via-indigo-400 to-purple-400 rounded-full"></div>
           </div>
         </div>
 
