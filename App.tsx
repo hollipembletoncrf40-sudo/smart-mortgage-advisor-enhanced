@@ -2053,8 +2053,6 @@ function App() {
                   {[
                     { id: 'light' as ThemeMode, icon: '☀️', label: t.themes?.light || '浅色' },
                     { id: 'dark' as ThemeMode, icon: '🌙', label: t.themes?.dark || '深色' },
-                    { id: 'professional' as ThemeMode, icon: '💼', label: t.themes?.professional || '专业版' },
-                    { id: 'gaming' as ThemeMode, icon: '🎮', label: t.themes?.gaming || '游戏版' },
                     { id: 'deepblack' as ThemeMode, icon: '⚫', label: t.themes?.deepblack || '深黑色' }
                   ].map((themeOption) => (
                     <button
@@ -2506,7 +2504,7 @@ function App() {
 
             {/* Wealth Chart */}
             {/* Wealth Chart & Analysis Tabs */}
-            <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-xl border border-slate-100 dark:border-slate-800/50">
+            <div id="tabs-section" className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-xl border border-slate-100 dark:border-slate-800/50">
                <div className="flex flex-wrap gap-2 mb-6">
                    <button onClick={() => setActiveTab('chart')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'chart' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{t.wealthCurve}</button>
                    <button onClick={() => setActiveTab('rentVsBuy')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'rentVsBuy' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{t.rentVsBuyAnalysis}</button>
@@ -2690,11 +2688,33 @@ function App() {
                 <AmortizationMoodBar result={result} params={params} t={t} />
               </div>
               
-              {/* Detailed Table Section */}
-              <DetailedPaymentTable 
-                monthlyPayments={result.monthlyData}
-                t={t}
-              />
+              {/* Detailed Table Section - Login Required */}
+              <div className="relative">
+                {!user && (
+                  <div className="absolute inset-0 z-10 bg-slate-900/80 backdrop-blur-md rounded-2xl flex flex-col items-center justify-center">
+                    <div className="bg-slate-800/90 p-8 rounded-2xl border border-slate-700 text-center max-w-sm mx-4 shadow-2xl">
+                      <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center">
+                        <LogIn className="h-8 w-8 text-white" />
+                      </div>
+                      <h3 className="text-xl font-bold text-white mb-2">解锁详细还款计划</h3>
+                      <p className="text-slate-400 text-sm mb-6">登录后即可查看完整的逐月还款明细、本金利息分布等专业分析数据</p>
+                      <button 
+                        onClick={() => setShowAuthModal(true)}
+                        className="w-full px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-medium rounded-xl transition-all hover:shadow-lg hover:scale-[1.02]"
+                      >
+                        立即登录 / 注册
+                      </button>
+                      <p className="text-slate-500 text-xs mt-4">🔒 您的数据安全有保障</p>
+                    </div>
+                  </div>
+                )}
+                <div className={!user ? 'opacity-30 pointer-events-none select-none' : ''}>
+                  <DetailedPaymentTable 
+                    monthlyPayments={result.monthlyData}
+                    t={t}
+                  />
+                </div>
+              </div>
             </div>
 
           </div>
@@ -2749,15 +2769,19 @@ function App() {
       )}
 
       {/* Floating AI Advisor */}
-      <FloatingAIAdvisor t={t} contextParams={params} result={result} />
+      <FloatingAIAdvisor 
+        t={t} 
+        contextParams={params} 
+        result={result}
+        isLoggedIn={!!user}
+        userPhoto={user?.photoURL}
+        userName={user?.displayName}
+        onOpenLogin={() => setShowAuthModal(true)}
+      />
 
       {/* Footer */}
-      <footer className="relative bg-gradient-to-br from-slate-50 via-white to-indigo-50 dark:from-slate-950 dark:via-slate-900 dark:to-indigo-950 border-t border-slate-200 dark:border-slate-800 py-12 mt-12 overflow-hidden">
-        {/* Background decoration */}
-        <div className="absolute inset-0 opacity-5">
-          <div className="absolute top-0 left-1/4 w-96 h-96 bg-indigo-500 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500 rounded-full blur-3xl"></div>
-        </div>
+      <footer className="relative bg-white dark:bg-[#0a0a0f] border-t border-slate-200 dark:border-slate-800 py-12 mt-12 overflow-hidden">
+        {/* Background decoration - removed for pure black */}
         
         <div className="max-w-[1600px] mx-auto px-4 relative z-10">
           {/* Main Footer Content */}
@@ -2784,37 +2808,37 @@ function App() {
               </h3>
               <ul className="space-y-2 text-xs">
                 <li>
-                  <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors flex items-center gap-1">
+                  <button onClick={() => { setActiveTab('chart'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors flex items-center gap-1">
                     <ChevronRight className="h-3 w-3" />
                     {t.navHome || '首页/对比分析'}
                   </button>
                 </li>
                 <li>
-                  <button onClick={() => { setActiveTab('asset_allocation'); setTimeout(() => document.getElementById('main-report')?.scrollIntoView({ behavior: 'smooth' }), 100); }} className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors flex items-center gap-1">
+                  <button onClick={() => { setActiveTab('asset_allocation'); setTimeout(() => document.getElementById('tabs-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 150); }} className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors flex items-center gap-1">
                     <ChevronRight className="h-3 w-3" />
                     {t.navAsset || '资产配置'}
                   </button>
                 </li>
                 <li>
-                  <button onClick={() => { setActiveTab('lifePath'); setTimeout(() => document.getElementById('main-report')?.scrollIntoView({ behavior: 'smooth' }), 100); }} className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors flex items-center gap-1">
+                  <button onClick={() => { setActiveTab('lifePath'); setTimeout(() => document.getElementById('tabs-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 150); }} className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors flex items-center gap-1">
                     <ChevronRight className="h-3 w-3" />
                     {t.navLifePath || '人生路径'}
                   </button>
                 </li>
                 <li>
-                  <button onClick={() => { setActiveTab('car_analysis'); setTimeout(() => document.getElementById('main-report')?.scrollIntoView({ behavior: 'smooth' }), 100); }} className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors flex items-center gap-1">
+                  <button onClick={() => { setActiveTab('car_analysis'); setTimeout(() => document.getElementById('tabs-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 150); }} className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors flex items-center gap-1">
                     <ChevronRight className="h-3 w-3" />
                     {t.navCar || '购车决策'}
                   </button>
                 </li>
                 <li>
-                  <button onClick={() => { setActiveTab('knowledge'); setTimeout(() => document.getElementById('main-report')?.scrollIntoView({ behavior: 'smooth' }), 100); }} className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors flex items-center gap-1">
+                  <button onClick={() => { setActiveTab('knowledge'); setTimeout(() => document.getElementById('tabs-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 150); }} className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors flex items-center gap-1">
                     <ChevronRight className="h-3 w-3" />
                     {t.navKnowledge || '知识树/词汇百科'}
                   </button>
                 </li>
                 <li>
-                  <button onClick={() => { setActiveTab('stress'); setTimeout(() => document.getElementById('main-report')?.scrollIntoView({ behavior: 'smooth' }), 100); }} className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors flex items-center gap-1">
+                  <button onClick={() => { setActiveTab('stress'); setTimeout(() => document.getElementById('tabs-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 150); }} className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors flex items-center gap-1">
                     <ChevronRight className="h-3 w-3" />
                     {t.navStress || '压力测试/情景模拟'}
                   </button>
@@ -2990,8 +3014,8 @@ function App() {
               {t.contactAuthorDesc || '扫码添加微信，期待与你交流 ✨'}
             </p>
             <div className="bg-gradient-to-r from-green-500 to-emerald-500 p-4 rounded-xl inline-block mb-4 shadow-lg shadow-green-500/30">
-              <div className="bg-white p-2 rounded-lg">
-                <img src="/4e357b455c718f917a05a611ec1efd8f.jpg" alt="WeChat QR" className="w-48 h-48 object-contain"/>
+              <div style={{ backgroundColor: '#ffffff' }} className="p-3 rounded-lg">
+                <img src="/4e357b455c718f917a05a611ec1efd8f.jpg" alt="WeChat QR" className="w-48 h-48 object-contain rounded" style={{ backgroundColor: '#ffffff' }}/>
               </div>
             </div>
             <button onClick={() => setShowWeChat(false)} className="block w-full text-sm text-slate-400 hover:text-slate-600 mt-2">

@@ -9,12 +9,13 @@ interface FutureSelfPanelProps {
   monthlyPayment: number;
   t: any;
   language: Language;
+  embedded?: boolean;
 }
 
-export const FutureSelfPanel: React.FC<FutureSelfPanelProps> = ({ params, monthlyPayment, t, language }) => {
+export const FutureSelfPanel: React.FC<FutureSelfPanelProps> = ({ params, monthlyPayment, t, language, embedded = false }) => {
   const [timeFrame, setTimeFrame] = useState<TimeFrame>(5);
   const [persona, setPersona] = useState<Persona>('conservative');
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(embedded); // Auto-open when embedded
 
   // 1. Calculate Metrics on the fly to get risk status
   const riskMetrics = useMemo(() => {
@@ -46,6 +47,100 @@ export const FutureSelfPanel: React.FC<FutureSelfPanelProps> = ({ params, monthl
   const content = useMemo(() => {
     return generateFutureMessage(params, riskMetrics, timeFrame, persona, language);
   }, [params, riskMetrics, timeFrame, persona, language]);
+
+  // When embedded, show simplified version directly
+  if (embedded) {
+    return (
+      <div className="animate-in fade-in duration-300">
+        {/* Controls */}
+        <div className="mb-4 flex flex-wrap gap-3 p-3 bg-slate-50 dark:bg-slate-900 rounded-xl">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">{t.timeLine || "时间线"}</span>
+            <div className="flex rounded-lg bg-white p-1 shadow-sm dark:bg-slate-800">
+              {[3, 5, 10].map((yr) => (
+                <button
+                  key={yr}
+                  onClick={() => setTimeFrame(yr as TimeFrame)}
+                  className={`rounded-md px-2.5 py-1 text-xs font-medium transition-all ${
+                    timeFrame === yr
+                      ? 'bg-indigo-600 text-white shadow-md'
+                      : 'text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700'
+                  }`}
+                >
+                  {(t.yearsLater || "{n}年后").replace('{n}', yr)}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">{t.persona || "人格偏移"}</span>
+            <div className="flex rounded-lg bg-white p-1 shadow-sm dark:bg-slate-800">
+              <button
+                onClick={() => setPersona('conservative')}
+                className={`flex items-center gap-1 rounded-md px-2.5 py-1 text-xs font-medium transition-all ${
+                  persona === 'conservative'
+                    ? 'bg-emerald-500 text-white shadow-md'
+                    : 'text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700'
+                }`}
+              >
+                <Shield className="h-3 w-3" />
+                {t.personaConservative || "保守慎重"}
+              </button>
+              <button
+                onClick={() => setPersona('aggressive')}
+                className={`flex items-center gap-1 rounded-md px-2.5 py-1 text-xs font-medium transition-all ${
+                  persona === 'aggressive'
+                    ? 'bg-orange-500 text-white shadow-md'
+                    : 'text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700'
+                }`}
+              >
+                <TrendingUp className="h-3 w-3" />
+                {t.personaAggressive || "激进进取"}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Chat Content */}
+        <div className="relative">
+          {/* Avatar */}
+          <div className="absolute -top-2 -left-1 z-10 flex h-10 w-10 items-center justify-center rounded-full border-3 border-white bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg dark:border-slate-800">
+            <span className="text-[10px] font-bold">{2025 + timeFrame}</span>
+          </div>
+
+          {/* Message Bubble */}
+          <div className={`ml-5 rounded-xl rounded-tl-none p-4 shadow-sm border ${
+            content.mood === 'happy' ? 'bg-emerald-50 border-emerald-100 dark:bg-emerald-900/10 dark:border-emerald-900/30' :
+            content.mood === 'sad' ? 'bg-rose-50 border-rose-100 dark:bg-rose-900/10 dark:border-rose-900/30' :
+            'bg-slate-50 border-slate-100 dark:bg-slate-900 dark:border-slate-700'
+          }`}>
+            <h3 className={`mb-2 text-sm font-bold ${
+               content.mood === 'happy' ? 'text-emerald-800 dark:text-emerald-300' :
+               content.mood === 'sad' ? 'text-rose-800 dark:text-rose-300' :
+               'text-slate-800 dark:text-slate-200'
+            }`}>
+              {content.title}
+            </h3>
+            <p className="mb-3 text-xs leading-relaxed text-slate-700 dark:text-slate-300 line-clamp-4">
+              {content.message}
+            </p>
+            
+            {/* Summary Card */}
+            <div className="relative overflow-hidden rounded-lg bg-white p-3 shadow-sm ring-1 ring-black/5 dark:bg-black/20 dark:ring-white/10">
+              <div className="absolute left-0 top-0 bottom-0 w-1 bg-indigo-500"></div>
+              <p className="text-[10px] font-medium text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">
+                {(t.adviceFrom || "来自 {year} 年的忠告").replace('{year}', 2025 + timeFrame)}
+              </p>
+              <p className="text-xs font-bold italic text-indigo-700 dark:text-indigo-300">
+                {content.advice}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!isOpen) {
     return (

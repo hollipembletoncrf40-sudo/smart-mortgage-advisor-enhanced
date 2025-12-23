@@ -61,7 +61,7 @@ const InteractiveDashboard: React.FC<InteractiveDashboardProps> = ({ initialPara
 
 
   return (
-    <div className="bg-gradient-to-br from-slate-50 to-indigo-50 dark:from-slate-900 dark:to-indigo-900/20 rounded-3xl p-8 shadow-2xl border border-slate-200 dark:border-slate-800 mt-8">
+    <div className="bg-white dark:bg-[#0a0a0f] rounded-3xl p-8 shadow-2xl border border-slate-200 dark:border-slate-800 mt-8">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <div className="p-3 bg-indigo-500 rounded-xl">
@@ -82,7 +82,7 @@ const InteractiveDashboard: React.FC<InteractiveDashboardProps> = ({ initialPara
       </div>
 
       {/* Basic Interactive Sliders */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 p-6 bg-white dark:bg-slate-800 rounded-2xl">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 p-6 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-200 dark:border-slate-800">
         {/* Total Price Slider */}
         <div>
           <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
@@ -118,7 +118,7 @@ const InteractiveDashboard: React.FC<InteractiveDashboardProps> = ({ initialPara
       
       {/* Advanced Parameters Section */}
       {showAdvanced && (
-        <div className="mb-8 p-6 bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-800 rounded-2xl">
+        <div className="mb-8 p-6 bg-indigo-50 dark:bg-slate-900/50 border border-indigo-100 dark:border-slate-800 rounded-2xl">
           <h3 className="text-sm font-bold text-indigo-800 dark:text-indigo-300 mb-4 flex items-center gap-2">
             <ShieldAlert className="h-4 w-4" />
             {t.advancedRiskParams}
@@ -215,25 +215,25 @@ const InteractiveDashboard: React.FC<InteractiveDashboardProps> = ({ initialPara
         )}
 
         {(activeChart === 'all' || activeChart === 'risk') && (
-          <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-900 rounded-2xl p-6 border border-slate-700/50">
+          <div className="bg-gradient-to-br from-slate-100 to-indigo-50 dark:from-[#0a0a0f] dark:to-[#0a0a0f] rounded-2xl p-6 border border-slate-200 dark:border-slate-800">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                <Activity className="h-5 w-5 text-amber-400" />
+              <h3 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                <Activity className="h-5 w-5 text-amber-500 dark:text-amber-400" />
                 {t.riskGradientTitle}
               </h3>
               {/* Color Legend */}
               <div className="flex items-center gap-4 text-xs">
                 <div className="flex items-center gap-1.5">
                   <div className="w-3 h-3 rounded-full bg-gradient-to-r from-emerald-400 to-emerald-500" />
-                  <span className="text-emerald-400">安全</span>
+                  <span className="text-emerald-600 dark:text-emerald-400">安全</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <div className="w-3 h-3 rounded-full bg-gradient-to-r from-amber-400 to-orange-500" />
-                  <span className="text-amber-400">警戒</span>
+                  <span className="text-amber-600 dark:text-amber-400">警戒</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <div className="w-3 h-3 rounded-full bg-gradient-to-r from-rose-400 to-red-500" />
-                  <span className="text-rose-400">危险</span>
+                  <span className="text-rose-600 dark:text-rose-400">危险</span>
                 </div>
               </div>
             </div>
@@ -257,13 +257,13 @@ const InteractiveDashboard: React.FC<InteractiveDashboardProps> = ({ initialPara
                 return (
                   <div key={index} className="relative">
                     <div className="flex justify-between items-center mb-2">
-                      <span className="text-sm font-medium text-slate-300">{item.label}</span>
+                      <span className="text-sm font-medium text-slate-600 dark:text-slate-300">{item.label}</span>
                       <div className="flex items-center gap-2">
                         <span className={`text-xs font-medium ${risk.color}`}>{risk.text}</span>
-                        <span className="text-lg font-bold text-white">{Number(item.value).toFixed(1)}%</span>
+                        <span className="text-lg font-bold text-slate-800 dark:text-white">{Number(item.value).toFixed(1)}%</span>
                       </div>
                     </div>
-                    <div className="h-6 bg-slate-700/50 rounded-xl overflow-hidden relative">
+                    <div className="h-6 bg-slate-200 dark:bg-slate-700/50 rounded-xl overflow-hidden relative">
                       <div 
                         className={`h-full bg-gradient-to-r ${getGradient(item.value)} rounded-xl transition-all duration-700 relative`}
                         style={{ width: `${Math.min(item.value, 100)}%` }}
@@ -288,8 +288,8 @@ const InteractiveDashboard: React.FC<InteractiveDashboardProps> = ({ initialPara
             </div>
             
             {/* Risk Summary */}
-            <div className="mt-6 p-4 bg-slate-800/50 rounded-xl border border-slate-700/50">
-              <div className="flex items-center gap-2 text-sm text-slate-400">
+            <div className="mt-6 p-4 bg-white dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700/50">
+              <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
                 <ShieldAlert className="h-4 w-4" />
                 <span>风险说明：DTI（债务收入比）超过35%需警惕，超过55%为高风险。压力测试模拟加息后的承压能力。</span>
               </div>

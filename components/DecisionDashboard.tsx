@@ -10,7 +10,7 @@ import {
   calculateFutureBuyerOverlap,
   calculateFamilyImpact
 } from '../utils/socialPerspective';
-import { CheckCircle2, AlertTriangle, RefreshCw, ShieldAlert, BadgeCheck, Bot, ThumbsUp, ThumbsDown, Users, TrendingUp, UserCheck, Heart, Share2, Download, X } from 'lucide-react';
+import { CheckCircle2, AlertTriangle, RefreshCw, ShieldAlert, BadgeCheck, Bot, ThumbsUp, ThumbsDown, Users, TrendingUp, UserCheck, Heart, Share2, Download, X, Clock } from 'lucide-react';
 import { PieChart, Pie, Cell, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import BattleReportCard from './BattleReportCard';
 import html2canvas from 'html2canvas';
@@ -83,265 +83,192 @@ const DecisionDashboard: React.FC<DecisionDashboardProps> = ({ params, result, t
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Header Actions */}
-      <div className="flex justify-between items-center bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
-        <h2 className="text-xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
-          <Bot className="h-6 w-6 text-indigo-600" />
-          {t.decisionDashboard?.title || 'AI Decision Center'}
-        </h2>
-        <button
-          onClick={() => setShowReport(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white rounded-xl font-bold shadow-lg shadow-indigo-500/30 transition-all transform hover:scale-105 active:scale-95"
-        >
-          <Share2 className="h-4 w-4" />
-          {t.battleReport?.shareBtn}
-        </button>
-      </div>
 
     <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-      {/* Left Column: House Roast + Social Perspective */}
-      <div className="space-y-6">
+      {/* Left Column: House Roast + Social Perspective - Seamlessly Connected */}
+      <div className="flex flex-col">
+         {/* House Roast Panel - Top part */}
          <HouseRoastPanel params={params} result={result} t={t} language={language} />
          
-         {/* Social Perspective - Compact */}
-         <div className="bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 rounded-3xl p-6 shadow-xl border border-purple-200 dark:border-purple-800">
-           <div className="flex items-center gap-3 mb-4">
-             <div className="p-2 bg-purple-500 rounded-xl">
-               <Users className="h-5 w-5 text-white" />
+         {/* Unified Social & Future Self Panel - Bottom part (seamlessly connected) */}
+         <div className="bg-white dark:bg-[#0a0a0f] rounded-b-3xl p-5 shadow-xl border border-t-0 border-slate-200 dark:border-slate-800 flex-1">
+           <div className="flex items-center justify-between mb-4">
+             <div className="flex items-center gap-3">
+               <div className="p-2 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl shadow-lg">
+                 <Users className="h-5 w-5 text-white" />
+               </div>
+               <div>
+                 <h3 className="text-lg font-bold text-slate-800 dark:text-white">{t.socialTitle || '社会视角'}</h3>
+                 <p className="text-xs text-slate-500 dark:text-slate-400">{t.socialAiCheck || 'AI 决策分析'}</p>
+               </div>
              </div>
-              <div>
-                <h3 className="text-lg font-bold text-slate-800 dark:text-white">{t.socialTitle || 'Social Perspective'}</h3>
-                <p className="text-xs text-slate-500">{t.socialAiCheck || 'AI Perspective'}</p>
-              </div>
            </div>
            
-           {/* Compact Tabs */}
-           <div className="flex gap-1 mb-4 bg-white/50 dark:bg-slate-800/50 p-1 rounded-xl">
+           {/* Enhanced Tabs with Future Self */}
+           <div className="flex gap-1 mb-4 bg-slate-50 dark:bg-slate-800/50 p-1 rounded-xl overflow-x-auto border border-slate-100 dark:border-transparent">
              {[
-               { id: 'peer', icon: Users },
-               { id: 'minority', icon: TrendingUp },
-               { id: 'future', icon: UserCheck },
-               { id: 'family', icon: Heart }
+               { id: 'peer', icon: Users, label: t.socialTabPeer || '同龄人' },
+               { id: 'minority', icon: TrendingUp, label: t.socialTabMinority || '逆势分析' },
+               { id: 'future', icon: UserCheck, label: t.socialTabFuture || '接盘侠' },
+               { id: 'family', icon: Heart, label: t.socialTabFamily || '家庭影响' },
+               { id: 'futureSelf', icon: Clock, label: t.socialTabFutureSelf || '跨时空对话' }
              ].map((tab) => (
                <button
                  key={tab.id}
                  onClick={() => setSocialTab(tab.id as any)}
-                 className={`flex-1 flex items-center justify-center gap-1 py-2 rounded-lg font-medium text-xs transition-all ${
+                 className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-lg font-medium text-xs transition-all whitespace-nowrap ${
                    socialTab === tab.id
-                     ? 'bg-purple-500 text-white shadow'
-                     : 'text-slate-600 dark:text-slate-400 hover:bg-purple-100 dark:hover:bg-slate-700'
+                     ? 'bg-gradient-to-r from-purple-500 to-indigo-600 text-white shadow-lg'
+                     : 'text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700/50'
                  }`}
                >
-                 <tab.icon className="h-3 w-3" />
+                 <tab.icon className="h-3.5 w-3.5" />
+                 <span className="hidden sm:inline">{tab.label}</span>
                </button>
              ))}
            </div>
            
-           {/* Content */}
-           <div className="bg-white dark:bg-slate-800 rounded-xl p-4">
-              {socialTab === 'peer' && (
-                <div>
-                  <h4 className="text-sm font-bold text-slate-800 dark:text-white mb-3">{t.socialPeer || 'Peer Choice'}</h4>
-                 <ResponsiveContainer width="100%" height={200}>
-                   <PieChart>
-                     <Pie
-                       data={peerDistribution as any[]}
-                       cx="50%"
-                       cy="50%"
-                       innerRadius={40}
-                       outerRadius={70}
-                       fill="#8884d8"
-                       dataKey="percentage"
-                       label={({ percentage }) => `${percentage}%`}
-                     >
-                       {peerDistribution.map((entry, index) => (
-                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                       ))}
-                     </Pie>
-                     <Tooltip />
-                   </PieChart>
-                 </ResponsiveContainer>
-                 <div className="space-y-1 mt-2">
-                   {peerDistribution.map((choice, i) => (
-                     <div key={i} className="flex items-center justify-between text-xs">
-                       <div className="flex items-center gap-2">
-                         <div className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS[i] }}></div>
-                         <span className="text-slate-600 dark:text-slate-400">{choice.choice}</span>
-                       </div>
-                       <span className="font-bold text-slate-800 dark:text-white">{choice.percentage}%</span>
-                     </div>
-                   ))}
-                 </div>
-               </div>
-             )}
-             
-             {socialTab === 'minority' && (
+           {/* Content Area */}
+           <div className="bg-white dark:bg-slate-800/30 rounded-2xl p-5 min-h-[300px] border border-slate-100 dark:border-transparent">
+             {socialTab === 'peer' && (
                <div>
-                 <h4 className="text-sm font-bold text-slate-800 dark:text-white mb-3">{t.decisionDashboard.minorityReport}</h4>
-                 <div className="text-center">
-                   <div className={`inline-block px-4 py-2 rounded-xl font-bold text-sm mb-3 ${
-                     minorityStatus.trend === 'mainstream' ? 'bg-blue-100 text-blue-700' :
-                     minorityStatus.trend === 'contrarian' ? 'bg-orange-100 text-orange-700' :
-                     'bg-green-100 text-green-700'
-                   }`}>
-                     {minorityStatus.trend === 'mainstream' ? t.decisionDashboard.mainstream :
-                      minorityStatus.trend === 'contrarian' ? t.decisionDashboard.contrarian :
-                      t.decisionDashboard.balanced}
-                   </div>
-                   <div className="text-3xl font-black text-slate-800 dark:text-white mb-2">{minorityStatus.percentile}%</div>
-                   <div className="relative h-3 bg-gradient-to-r from-green-500 via-blue-500 to-orange-500 rounded-full mb-3">
-                     <div 
-                       className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white border-2 border-slate-800 rounded-full shadow"
-                       style={{ left: `${minorityStatus.percentile}%`, transform: 'translate(-50%, -50%)' }}
-                     ></div>
-                   </div>
-                   <p className="text-xs text-slate-600 dark:text-slate-300">{minorityStatus.message}</p>
-                 </div>
-               </div>
-             )}
-             
-             {socialTab === 'future' && (
-               <div>
-                 <h4 className="text-sm font-bold text-slate-800 dark:text-white mb-3">{t.decisionDashboard.futureBuyerOverlap}</h4>
-                 <div className="text-center mb-3">
-                   <div className="text-4xl font-black text-purple-600 dark:text-purple-400">{futureBuyerOverlap.totalOverlap}%</div>
-                   <div className="text-xs text-slate-500">
-                     {futureBuyerOverlap.totalOverlap > 70 ? t.decisionDashboard.easyToSell : futureBuyerOverlap.totalOverlap > 40 ? t.decisionDashboard.mediumToSell : t.decisionDashboard.hardToSell}
-                   </div>
-                 </div>
-                 <ResponsiveContainer width="100%" height={180}>
-                   <RadarChart data={futureBuyerOverlap.profiles}>
-                     <PolarGrid />
-                     <PolarAngleAxis dataKey="dimension" tick={{ fontSize: 10 }} />
-                     <PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fontSize: 8 }} />
-                     <Radar name={t.decisionDashboard.radarYou} dataKey="yourScore" stroke="#8b5cf6" fill="#8b5cf6" fillOpacity={0.6} />
-                     <Radar name={t.decisionDashboard.radarFuture} dataKey="futureAvgScore" stroke="#10b981" fill="#10b981" fillOpacity={0.3} />
-                     <Tooltip />
-                   </RadarChart>
-                 </ResponsiveContainer>
-               </div>
-             )}
-             
-             {socialTab === 'family' && (
-               <div>
-                 <h4 className="text-sm font-bold text-slate-800 dark:text-white mb-3">{t.decisionDashboard.familyImpact}</h4>
-                 <div className="space-y-2">
-                   {familyImpact.map((impact, i) => (
-                     <div key={i} className="p-2 bg-slate-50 dark:bg-slate-900 rounded-lg">
-                       <div className="flex items-center justify-between mb-1">
-                         <div className="flex items-center gap-2">
-                           <span className="text-lg">{impact.icon}</span>
-                           <span className="text-xs font-bold text-slate-700 dark:text-slate-300">{impact.member}</span>
-                         </div>
-                         <span className={`text-sm font-black ${
-                           impact.impactScore > 70 ? 'text-red-500' :
-                           impact.impactScore > 40 ? 'text-orange-500' :
-                           'text-green-500'
-                         }`}>
-                           {Math.round(impact.impactScore)}
-                         </span>
-                       </div>
-                       <div className="h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                         <div 
-                           className={`h-full ${
-                             impact.impactScore > 70 ? 'bg-red-500' :
-                             impact.impactScore > 40 ? 'bg-orange-500' :
-                             'bg-green-500'
-                           }`}
-                           style={{ width: `${impact.impactScore}%` }}
-                         ></div>
-                       </div>
-                       <p className="text-[10px] text-slate-500 mt-1">{impact.primaryConcern}</p>
-                     </div>
-                   ))}
-                 </div>
-               </div>
-             )}
-           </div>
+                 <h4 className="text-sm font-bold text-slate-800 dark:text-white mb-3">{t.socialPeer || '同龄人选择'}</h4>
+                <ResponsiveContainer width="100%" height={200}>
+                  <PieChart>
+                    <Pie
+                      data={peerDistribution as any[]}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={40}
+                      outerRadius={70}
+                      fill="#8884d8"
+                      dataKey="percentage"
+                      label={({ percentage }) => `${percentage}%`}
+                    >
+                      {peerDistribution.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="space-y-1 mt-2">
+                  {peerDistribution.map((choice, i) => (
+                    <div key={i} className="flex items-center justify-between text-xs">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS[i] }}></div>
+                        <span className="text-slate-600 dark:text-slate-300">{choice.choice}</span>
+                      </div>
+                      <span className="font-bold text-slate-800 dark:text-white">{choice.percentage}%</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {socialTab === 'minority' && (
+              <div>
+                <h4 className="text-sm font-bold text-slate-800 dark:text-white mb-3">{t.decisionDashboard.minorityReport}</h4>
+                <div className="text-center">
+                  <div className={`inline-block px-4 py-2 rounded-xl font-bold text-sm mb-3 ${
+                    minorityStatus.trend === 'mainstream' ? 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300' :
+                    minorityStatus.trend === 'contrarian' ? 'bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-300' :
+                    'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300'
+                  }`}>
+                    {minorityStatus.trend === 'mainstream' ? t.decisionDashboard.mainstream :
+                     minorityStatus.trend === 'contrarian' ? t.decisionDashboard.contrarian :
+                     t.decisionDashboard.balanced}
+                  </div>
+                  <div className="text-3xl font-black text-slate-800 dark:text-white mb-2">{minorityStatus.percentile}%</div>
+                  <div className="relative h-3 bg-gradient-to-r from-green-500 via-blue-500 to-orange-500 rounded-full mb-3">
+                    <div 
+                      className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white border-2 border-slate-800 rounded-full shadow"
+                      style={{ left: `${minorityStatus.percentile}%`, transform: 'translate(-50%, -50%)' }}
+                    ></div>
+                  </div>
+                  <p className="text-xs text-slate-600 dark:text-slate-300">{minorityStatus.message}</p>
+                </div>
+              </div>
+            )}
+            
+            {socialTab === 'future' && (
+              <div>
+                <h4 className="text-sm font-bold text-slate-800 dark:text-white mb-3">{t.decisionDashboard.futureBuyerOverlap}</h4>
+                <div className="text-center mb-3">
+                  <div className="text-4xl font-black text-purple-600 dark:text-purple-400">{futureBuyerOverlap.totalOverlap}%</div>
+                  <div className="text-xs text-slate-600 dark:text-slate-400">
+                    {futureBuyerOverlap.totalOverlap > 70 ? t.decisionDashboard.easyToSell : futureBuyerOverlap.totalOverlap > 40 ? t.decisionDashboard.mediumToSell : t.decisionDashboard.hardToSell}
+                  </div>
+                </div>
+                <ResponsiveContainer width="100%" height={180}>
+                  <RadarChart data={futureBuyerOverlap.profiles}>
+                    <PolarGrid />
+                    <PolarAngleAxis dataKey="dimension" tick={{ fontSize: 10 }} />
+                    <PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fontSize: 8 }} />
+                    <Radar name={t.decisionDashboard.radarYou} dataKey="yourScore" stroke="#8b5cf6" fill="#8b5cf6" fillOpacity={0.6} />
+                    <Radar name={t.decisionDashboard.radarFuture} dataKey="futureAvgScore" stroke="#10b981" fill="#10b981" fillOpacity={0.3} />
+                    <Tooltip />
+                  </RadarChart>
+                </ResponsiveContainer>
+              </div>
+            )}
+            
+            {socialTab === 'family' && (
+              <div>
+                <h4 className="text-sm font-bold text-slate-800 dark:text-white mb-3">{t.decisionDashboard.familyImpact}</h4>
+                <div className="space-y-2">
+                  {familyImpact.map((impact, i) => (
+                    <div key={i} className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700/50">
+                      <div className="flex items-center justify-between mb-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg">{impact.icon}</span>
+                          <span className="text-xs font-bold text-slate-700 dark:text-slate-200">{impact.member}</span>
+                        </div>
+                        <span className={`text-sm font-black ${
+                          impact.impactScore > 70 ? 'text-red-500' :
+                          impact.impactScore > 40 ? 'text-orange-500' :
+                          'text-green-500'
+                        }`}>
+                          {Math.round(impact.impactScore)}
+                        </span>
+                      </div>
+                      <div className="h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                        <div 
+                          className={`h-full ${
+                            impact.impactScore > 70 ? 'bg-red-500' :
+                            impact.impactScore > 40 ? 'bg-orange-500' :
+                            'bg-green-500'
+                          }`}
+                          style={{ width: `${impact.impactScore}%` }}
+                        ></div>
+                      </div>
+                      <p className="text-[10px] text-slate-600 dark:text-slate-400 mt-1">{impact.primaryConcern}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {/* Future Self Tab Content - Embedded */}
+            {socialTab === 'futureSelf' && (
+              <FutureSelfPanel params={params} monthlyPayment={result.monthlyPayment} t={t} language={language} embedded={true} />
+            )}
+          </div>
          </div>
-
-      
-      {/* Future Self Panel (Moved to Left Bottom) */}
-      <FutureSelfPanel params={params} monthlyPayment={result.monthlyPayment} t={t} language={language} />
       
       </div>
 
 
-
       {/* Right Column: Decision Tools */}
-      <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-xl border border-slate-200 dark:border-slate-800 flex flex-col h-full">
-        {/* AI Perspective Card */}
-        <div className={`mb-6 p-5 rounded-2xl border-2 ${
-          aiPerspective.grade === 'ready' 
-            ? 'bg-gradient-to-br from-emerald-50 to-green-50 dark:from-emerald-900/20 dark:to-green-900/20 border-emerald-400 dark:border-emerald-600' 
-            : aiPerspective.grade === 'caution'
-            ? 'bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/20 border-amber-400 dark:border-amber-600'
-            : aiPerspective.grade === 'stop'
-            ? 'bg-gradient-to-br from-rose-50 to-red-50 dark:from-rose-900/20 dark:to-red-900/20 border-rose-400 dark:border-rose-600'
-            : 'bg-gradient-to-br from-slate-50 to-gray-50 dark:from-slate-900/20 dark:to-gray-900/20 border-slate-400 dark:border-slate-600'
-        }`}>
-          {/* Decision Grade Badge */}
-          <div className="flex items-center justify-between mb-4">
-            <div className={`flex items-center gap-3 px-4 py-2 rounded-xl font-bold text-sm ${
-              aiPerspective.grade === 'ready' ? 'bg-emerald-500 text-white' :
-              aiPerspective.grade === 'caution' ? 'bg-amber-500 text-white' :
-              aiPerspective.grade === 'stop' ? 'bg-rose-500 text-white' :
-              'bg-slate-500 text-white'
-            }`}>
-              <span className="text-2xl">{aiPerspective.gradeIcon}</span>
-              <span>{aiPerspective.gradeLabel}</span>
-            </div>
-            <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
-              aiPerspective.confidence > 70 ? 'bg-slate-800 text-white' : 'bg-slate-200 text-slate-700'
-            }`}>
-              {aiPerspective.confidence}% {t.decisionDashboard.confidence}
-            </span>
-          </div>
-
-          {/* Grade Reason */}
-          <div className="mb-4 p-3 bg-white/60 dark:bg-slate-800/60 rounded-xl">
-            <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
-              {aiPerspective.gradeReason}
-            </p>
-          </div>
-
-          {/* AI Perspective */}
-          <div className="flex items-start gap-3">
-            <div className="p-2 rounded-xl bg-indigo-500">
-              <Bot className="h-5 w-5 text-white" />
-            </div>
-            <div className="flex-1">
-              <h3 className="text-sm font-bold text-slate-700 dark:text-slate-200 mb-1">
-                {t.ifIWereYou}
-              </h3>
-              <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">
-                {aiPerspective.oneSentence}
-              </p>
-            </div>
-          </div>
-          
-          <div className="flex flex-wrap gap-1.5 mt-3">
-            {aiPerspective.keyFactors.map((factor, i) => (
-              <span key={i} className="text-[10px] px-2 py-1 bg-white/60 dark:bg-slate-800/60 rounded-lg text-slate-600 dark:text-slate-400 font-medium">
-                {factor}
-              </span>
-            ))}
-            </div>
-          </div>
-
-
-
-
-
-
+      <div className="bg-white dark:bg-[#0a0a0f] rounded-3xl p-6 shadow-xl border border-slate-200 dark:border-slate-800 flex flex-col h-full">
         {/* Tabs */}
-        <div className="flex space-x-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl mb-6">
+        <div className="flex space-x-1 bg-slate-100 dark:bg-slate-800/50 p-1 rounded-xl mb-6">
           <button
             onClick={() => setActiveTab('alternatives')}
             className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-bold rounded-lg transition-all ${
               activeTab === 'alternatives'
-                ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm'
-                : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'
+                ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-700/50'
             }`}
           >
             <RefreshCw className="h-4 w-4" />
@@ -351,8 +278,8 @@ const DecisionDashboard: React.FC<DecisionDashboardProps> = ({ params, result, t
             onClick={() => setActiveTab('irreversible')}
             className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-bold rounded-lg transition-all ${
               activeTab === 'irreversible'
-                ? 'bg-white dark:bg-slate-700 text-rose-600 dark:text-rose-400 shadow-sm'
-                : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'
+                ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg'
+                : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
             }`}
           >
             <ShieldAlert className="h-4 w-4" />

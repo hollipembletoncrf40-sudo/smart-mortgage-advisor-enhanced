@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Home, AlertTriangle, Info, Lightbulb, X, ChevronDown, ChevronUp } from 'lucide-react';
+import { Home, AlertTriangle, Info, Lightbulb, ChevronRight, Bot, MessageSquare, Brain } from 'lucide-react';
 import { RoastResult, generateHouseRoasts } from '../utils/houseRoast';
 import { InvestmentParams, CalculationResult, Language } from '../types';
+import { generateAIPerspective } from '../utils/decisionSupport';
 
 interface HouseRoastPanelProps {
   params: InvestmentParams;
@@ -12,194 +13,222 @@ interface HouseRoastPanelProps {
 
 const HouseRoastPanel: React.FC<HouseRoastPanelProps> = ({ params, result, t, language = 'ZH' as Language }) => {
   const [roasts, setRoasts] = useState<RoastResult[]>([]);
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [showPanel, setShowPanel] = useState(true);
-  const [animatedIndex, setAnimatedIndex] = useState(-1);
+  const [activeTab, setActiveTab] = useState<'roast' | 'advice'>('roast');
 
+  // Generate roasts
   useEffect(() => {
     const generatedRoasts = generateHouseRoasts(params, result, language);
     setRoasts(generatedRoasts);
-    
-    // 如果有严重或危险的问题，自动展开
-    const hasCritical = generatedRoasts.some(r => r.severity === 'critical' || r.severity === 'serious');
-    setIsExpanded(hasCritical);
-    setShowPanel(generatedRoasts.length > 0);
-  }, [params, result]);
+  }, [params, result, language]);
 
-  // 打字机动画效果
-  useEffect(() => {
-    if (isExpanded && roasts.length > 0) {
-      setAnimatedIndex(-1);
-      const timer = setTimeout(() => {
-        setAnimatedIndex(0);
-      }, 300);
-      return () => clearTimeout(timer);
-    }
-  }, [isExpanded, roasts]);
-
-  useEffect(() => {
-    if (animatedIndex >= 0 && animatedIndex < roasts.length - 1) {
-      const timer = setTimeout(() => {
-        setAnimatedIndex(animatedIndex + 1);
-      }, 600);
-      return () => clearTimeout(timer);
-    }
-  }, [animatedIndex, roasts.length]);
-
-  if (!showPanel || roasts.length === 0) return null;
+  // Generate AI Perspective
+  const aiPerspective = generateAIPerspective(params, language);
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
-      case 'critical': return 'border-rose-500/50 bg-rose-500/10';
-      case 'serious': return 'border-amber-500/50 bg-amber-500/10';
-      case 'mild': return 'border-yellow-500/50 bg-yellow-500/10';
-      default: return 'border-slate-600/50 bg-slate-700/30';
+      case 'critical': return 'border-l-rose-500 bg-rose-500/5';
+      case 'serious': return 'border-l-amber-500 bg-amber-500/5';
+      case 'mild': return 'border-l-yellow-500 bg-yellow-500/5';
+      default: return 'border-l-slate-500 bg-slate-500/5';
     }
   };
 
-  const getSeverityIcon = (severity: string) => {
+  const getSeverityBadge = (severity: string) => {
     switch (severity) {
-      case 'critical': return <AlertTriangle className="h-5 w-5 text-red-500" />;
-      case 'serious': return <AlertTriangle className="h-5 w-5 text-orange-500" />;
-      case 'mild': return <Info className="h-5 w-5 text-yellow-500" />;
-      default: return <Info className="h-5 w-5 text-slate-500" />;
+      case 'critical': return <span className="px-2 py-0.5 bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300 text-[10px] font-bold uppercase rounded">{language === 'EN' ? 'DANGER' : '危险'}</span>;
+      case 'serious': return <span className="px-2 py-0.5 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 text-[10px] font-bold uppercase rounded">{language === 'EN' ? 'WARNING' : '警告'}</span>;
+      case 'mild': return <span className="px-2 py-0.5 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 text-[10px] font-bold uppercase rounded">{language === 'EN' ? 'TIP' : '提示'}</span>;
+      default: return null;
     }
   };
+
+  // 统计各类问题数量
+  const criticalCount = roasts.filter(r => r.severity === 'critical').length;
+  const seriousCount = roasts.filter(r => r.severity === 'serious').length;
+  const mildCount = roasts.filter(r => r.severity === 'mild').length;
 
   return (
-    <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-900 rounded-3xl p-6 shadow-2xl border border-slate-700/50 relative overflow-hidden">
-      {/* 背景装饰 */}
-      <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 rounded-full blur-3xl -z-0"></div>
-      
-      {/* 关闭按钮 */}
-      <button
-        onClick={() => setShowPanel(false)}
-        className="absolute top-4 right-4 p-2 hover:bg-white/50 dark:hover:bg-slate-800/50 rounded-lg transition-colors z-10"
-        title="关闭"
-      >
-        <X className="h-5 w-5 text-slate-600 dark:text-slate-400" />
-      </button>
-
-      {/* 标题区域 */}
-      <div className="relative z-10 mb-6">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-cyan-500 rounded-full flex items-center justify-center shadow-lg">
-            <Home className="h-6 w-6 text-white" />
+    <div className="bg-white dark:bg-[#0a0a0f] rounded-t-3xl p-5 border border-b-0 border-slate-200 dark:border-slate-800 shadow-xl">
+      {/* Header with Tabs */}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl shadow-lg">
+            <Home className="h-5 w-5 text-white" />
           </div>
           <div>
-            <h3 className="text-xl font-bold text-slate-800 dark:text-white">
-              {t.roastTitle}
-            </h3>
-            <p className="text-sm text-slate-600 dark:text-slate-400">
-              {t.roastSubtitle}
-            </p>
+            <h3 className="text-lg font-bold text-slate-800 dark:text-white">{t.roastTitle || '🏠 房子有话说'}</h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400">{t.roastSubtitle || '清醒一下，让我们面对现实'}</p>
           </div>
         </div>
-
-        {/* 统计信息 */}
-        <div className="flex gap-2 mt-3">
-          {roasts.filter(r => r.severity === 'critical').length > 0 && (
-            <span className="px-3 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-full text-xs font-medium">
-              {(t.roastCritical || '{count} Danger Signals').replace('{count}', roasts.filter(r => r.severity === 'critical').length)}
+        
+        {/* Problem Count Badges */}
+        <div className="flex gap-1.5">
+          {criticalCount > 0 && (
+            <span className="px-2 py-1 bg-rose-100 dark:bg-rose-500/20 text-rose-600 dark:text-rose-400 rounded-lg text-xs font-bold flex items-center gap-1">
+              <AlertTriangle className="h-3 w-3" />
+              {criticalCount}
             </span>
           )}
-          {roasts.filter(r => r.severity === 'serious').length > 0 && (
-            <span className="px-3 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 rounded-full text-xs font-medium">
-              {(t.roastSerious || '{count} Serious Issues').replace('{count}', roasts.filter(r => r.severity === 'serious').length)}
+          {seriousCount > 0 && (
+            <span className="px-2 py-1 bg-amber-100 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 rounded-lg text-xs font-bold flex items-center gap-1">
+              <AlertTriangle className="h-3 w-3" />
+              {seriousCount}
             </span>
           )}
-          {roasts.filter(r => r.severity === 'mild').length > 0 && (
-            <span className="px-3 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 rounded-full text-xs font-medium">
-              {(t.roastMild || '{count} Tips').replace('{count}', roasts.filter(r => r.severity === 'mild').length)}
+          {mildCount > 0 && (
+            <span className="px-2 py-1 bg-yellow-100 dark:bg-yellow-500/20 text-yellow-600 dark:text-yellow-400 rounded-lg text-xs font-bold flex items-center gap-1">
+              <Info className="h-3 w-3" />
+              {mildCount}
             </span>
           )}
         </div>
       </div>
 
-      {/* 展开/收起按钮 */}
-      <button
-        onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full flex items-center justify-between p-4 bg-slate-800/50 backdrop-blur-sm rounded-xl hover:bg-slate-700/50 border border-slate-700/50 transition-all mb-4 relative z-10"
-      >
-        <span className="font-medium text-slate-700 dark:text-slate-300">
-          {isExpanded 
-            ? (t.roastCollapse || 'Hide Roasts') 
-            : (t.roastExpand || 'View {count} Roasts').replace('{count}', roasts.length)}
-        </span>
-        {isExpanded ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
-      </button>
+      {/* Tab Buttons */}
+      <div className="flex gap-2 mb-4 bg-slate-50 dark:bg-slate-800/50 p-1 rounded-xl border border-slate-100 dark:border-transparent">
+        <button
+          onClick={() => setActiveTab('roast')}
+          className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg font-medium text-sm transition-all ${
+            activeTab === 'roast'
+              ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg'
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-700/50'
+          }`}
+        >
+          <MessageSquare className="h-4 w-4" />
+          {t.roastTabRoast || '现实检查'}
+        </button>
+        <button
+          onClick={() => setActiveTab('advice')}
+          className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg font-medium text-sm transition-all ${
+            activeTab === 'advice'
+              ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg'
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-700/50'
+          }`}
+        >
+          <Brain className="h-4 w-4" />
+          {t.roastTabAdvice || 'AI 建议'}
+        </button>
+      </div>
 
-      {/* 吐槽内容 */}
-      {isExpanded && (
-        <div className="space-y-4 relative z-10">
-          {roasts.map((roast, index) => (
-            <div
-              key={index}
-              className={`${getSeverityColor(roast.severity)} border-2 rounded-2xl p-5 transition-all duration-500 ${
-                index <= animatedIndex ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-              }`}
-            >
-              {/* 吐槽标题 */}
-              <div className="flex items-start gap-3 mb-3">
-                <span className="text-3xl">{roast.emoji}</span>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    {getSeverityIcon(roast.severity)}
-                    <span className="text-xs font-bold uppercase text-slate-600 dark:text-slate-400">
-                      {roast.category === 'budget' && (t.roastCatBudget || 'Budget Issue')}
-                      {roast.category === 'location' && (t.roastCatLocation || 'Location Fantasy')}
-                      {roast.category === 'commute' && (t.roastCatCommute || 'Commute Cost')}
-                      {roast.category === 'cost' && (t.roastCatCost || 'Cost Beautification')}
-                      {roast.category === 'return' && (t.roastCatReturn || 'Return Fantasy')}
-                      {roast.category === 'lifestyle' && (t.roastCatLifestyle || 'Lifestyle Mismatch')}
+      {/* Content Area */}
+      <div className="bg-white dark:bg-slate-800/30 rounded-2xl p-4 min-h-[200px] border border-slate-100 dark:border-transparent">
+        {/* Roast Tab Content */}
+        {activeTab === 'roast' && (
+          <div className="space-y-2">
+            {roasts.length === 0 ? (
+              <div className="text-center py-8">
+                <span className="text-4xl">🎉</span>
+                <p className="text-slate-500 dark:text-slate-400 mt-2">{t.roastNoIssues || '恭喜！暂无重大问题'}</p>
+              </div>
+            ) : (
+              <>
+                {roasts.slice(0, 3).map((roast, index) => (
+                  <div
+                    key={index}
+                    className={`${getSeverityColor(roast.severity)} border-l-4 rounded-lg p-3 bg-white/80 dark:bg-slate-800/50`}
+                  >
+                    <div className="flex items-start gap-2">
+                      <span className="text-xl flex-shrink-0">{roast.emoji}</span>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          {getSeverityBadge(roast.severity)}
+                          <span className="text-[10px] font-medium text-slate-500 uppercase">
+                            {roast.category === 'budget' && (t.roastCatBudget || '预算问题')}
+                            {roast.category === 'location' && (t.roastCatLocation || '地段幻想')}
+                            {roast.category === 'commute' && (t.roastCatCommute || '通勤成本')}
+                            {roast.category === 'cost' && (t.roastCatCost || '成本美化')}
+                            {roast.category === 'return' && (t.roastCatReturn || '回报幻想')}
+                            {roast.category === 'lifestyle' && (t.roastCatLifestyle || '生活错配')}
+                          </span>
+                        </div>
+                        <p className="text-sm font-medium text-slate-800 dark:text-white leading-snug mb-2">
+                          {roast.roastMessage}
+                        </p>
+                        
+                        {/* Reality Check & Suggestion */}
+                        <div className="flex flex-col gap-1.5 text-xs">
+                          <div className="flex items-start gap-1.5 text-slate-600 dark:text-slate-400">
+                            <Info className="h-3 w-3 mt-0.5 flex-shrink-0 text-indigo-400" />
+                            <span>{roast.realityCheck}</span>
+                          </div>
+                          <div className="flex items-start gap-1.5 text-slate-600 dark:text-slate-400">
+                            <Lightbulb className="h-3 w-3 mt-0.5 flex-shrink-0 text-amber-400" />
+                            <span>{roast.suggestion}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                
+                {/* More indicator */}
+                {roasts.length > 3 && (
+                  <div className="text-center py-2">
+                    <span className="text-xs text-slate-500 flex items-center justify-center gap-1">
+                      <ChevronRight className="h-3 w-3" />
+                      {t.roastMore || `还有 ${roasts.length - 3} 条提醒`}
                     </span>
                   </div>
-                  <p className="text-base font-medium text-slate-800 dark:text-white leading-relaxed">
-                    {roast.roastMessage}
-                  </p>
-                </div>
-              </div>
+                )}
+              </>
+            )}
+          </div>
+        )}
 
-              {/* 现实检查 */}
-              <div className="bg-white/60 dark:bg-slate-900/60 rounded-xl p-4 mb-3">
-                <div className="flex items-start gap-2">
-                  <Info className="h-4 w-4 text-indigo-500 mt-0.5 flex-shrink-0" />
-                  <div>
-                    <p className="text-xs font-bold text-indigo-600 dark:text-indigo-400 mb-1">
-                      📊 {t.roastReality || 'Reality Check'}
-                    </p>
-                    <p className="text-sm text-slate-700 dark:text-slate-300">
-                      {roast.realityCheck}
-                    </p>
-                  </div>
-                </div>
+        {/* AI Advice Tab Content */}
+        {activeTab === 'advice' && (
+          <div className="space-y-4">
+            {/* Decision Grade Badge */}
+            <div className="flex items-center justify-between">
+              <div className={`flex items-center gap-3 px-4 py-2 rounded-xl font-bold text-sm ${
+                aiPerspective.grade === 'ready' ? 'bg-emerald-500 text-white' :
+                aiPerspective.grade === 'caution' ? 'bg-amber-500 text-white' :
+                aiPerspective.grade === 'stop' ? 'bg-rose-500 text-white' :
+                'bg-slate-500 text-white'
+              }`}>
+                <span className="text-2xl">{aiPerspective.gradeIcon}</span>
+                <span>{aiPerspective.gradeLabel}</span>
               </div>
+              <span className={`text-[10px] px-2 py-1 rounded-full font-bold ${
+                aiPerspective.confidence > 70 ? 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-white' : 'bg-slate-100 dark:bg-slate-600 text-slate-600 dark:text-slate-300'
+              }`}>
+                {aiPerspective.confidence}% {t.decisionDashboard?.confidence || '置信度'}
+              </span>
+            </div>
 
-              {/* 建议 */}
-              <div className="bg-white/60 dark:bg-slate-900/60 rounded-xl p-4">
-                <div className="flex items-start gap-2">
-                  <Lightbulb className="h-4 w-4 text-amber-500 mt-0.5 flex-shrink-0" />
-                  <div>
-                    <p className="text-xs font-bold text-amber-600 dark:text-amber-400 mb-1">
-                      💡 {t.roastSuggestion || 'Advice'}
-                    </p>
-                    <p className="text-sm text-slate-700 dark:text-slate-300">
-                      {roast.suggestion}
-                    </p>
-                  </div>
-                </div>
+            {/* Grade Reason */}
+            <div className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700/50">
+              <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                {aiPerspective.gradeReason}
+              </p>
+            </div>
+
+            {/* AI Perspective */}
+            <div className="flex items-start gap-3 p-3 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/30 dark:to-purple-900/30 rounded-xl border border-indigo-200 dark:border-indigo-700/30">
+              <div className="p-2 rounded-xl bg-indigo-500">
+                <Bot className="h-5 w-5 text-white" />
+              </div>
+              <div className="flex-1">
+                <h4 className="text-sm font-bold text-indigo-700 dark:text-indigo-300 mb-1">
+                  {t.ifIWereYou || '"如果我是你" AI 立场'}
+                </h4>
+                <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+                  {aiPerspective.oneSentence}
+                </p>
               </div>
             </div>
-          ))}
-
-          {/* 底部提示 */}
-          <div className="text-center pt-4 border-t border-purple-200 dark:border-purple-800">
-            <p className="text-sm text-slate-600 dark:text-slate-400">
-              {t.roastFooter || '💜 Roast is tough love. Buy smart, live happy.'}
-            </p>
+            
+            {/* Key Factors */}
+            <div className="flex flex-wrap gap-1.5">
+              {aiPerspective.keyFactors.map((factor, i) => (
+                <span key={i} className="text-[10px] px-2 py-1 bg-slate-100 dark:bg-slate-700/50 rounded-lg text-slate-600 dark:text-slate-400 font-medium border border-slate-200 dark:border-slate-600/50">
+                  {factor}
+                </span>
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };

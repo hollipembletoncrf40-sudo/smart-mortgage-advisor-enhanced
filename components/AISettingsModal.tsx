@@ -14,14 +14,29 @@ const AISettingsModal: React.FC<AISettingsModalProps> = ({ isOpen, onClose, t })
     gemini: '',
     claude: '',
     openai: '',
-    deepseek: ''
+    deepseek: '',
+    qwen: '',
+    moonshot: '',
+    siliconflow: '',
+    zhipu: '',
+    grok: '',
+    xiaomi: '',
+    custom: ''
   });
   const [models, setModels] = useState<Record<AIProvider, string>>({
     gemini: DEFAULT_MODELS.gemini,
     claude: DEFAULT_MODELS.claude,
     openai: DEFAULT_MODELS.openai,
-    deepseek: DEFAULT_MODELS.deepseek
+    deepseek: DEFAULT_MODELS.deepseek,
+    qwen: DEFAULT_MODELS.qwen,
+    moonshot: DEFAULT_MODELS.moonshot,
+    siliconflow: DEFAULT_MODELS.siliconflow,
+    zhipu: DEFAULT_MODELS.zhipu,
+    grok: DEFAULT_MODELS.grok,
+    xiaomi: DEFAULT_MODELS.xiaomi,
+    custom: DEFAULT_MODELS.custom
   });
+  const [customEndpoint, setCustomEndpoint] = useState('');
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
@@ -31,17 +46,18 @@ const AISettingsModal: React.FC<AISettingsModalProps> = ({ isOpen, onClose, t })
       setSelectedProvider(config.provider);
       
       // Load all API keys from localStorage
-      const providers: AIProvider[] = ['gemini', 'claude', 'openai', 'deepseek'];
-      const loadedKeys: Record<AIProvider, string> = {} as any;
-      const loadedModels: Record<AIProvider, string> = {} as any;
+      const providerIds: AIProvider[] = ['gemini', 'claude', 'openai', 'deepseek', 'qwen', 'moonshot', 'siliconflow', 'zhipu', 'grok', 'xiaomi', 'custom'];
+      const loadedKeys: Record<AIProvider, string> = {} as Record<AIProvider, string>;
+      const loadedModels: Record<AIProvider, string> = {} as Record<AIProvider, string>;
       
-      providers.forEach(provider => {
-        loadedKeys[provider] = (localStorage.getItem(`${provider}_api_key`) || '') as string;
-        loadedModels[provider] = (localStorage.getItem(`${provider}_model`) || DEFAULT_MODELS[provider]) as string;
+      providerIds.forEach(provider => {
+        loadedKeys[provider] = localStorage.getItem(`${provider}_api_key`) || '';
+        loadedModels[provider] = localStorage.getItem(`${provider}_model`) || DEFAULT_MODELS[provider];
       });
       
       setApiKeys(loadedKeys);
       setModels(loadedModels);
+      setCustomEndpoint(localStorage.getItem('custom_api_endpoint') || '');
     }
   }, [isOpen]);
 
@@ -65,6 +81,11 @@ const AISettingsModal: React.FC<AISettingsModalProps> = ({ isOpen, onClose, t })
       localStorage.setItem(`${provider}_model`, model);
     });
     
+    // Save custom endpoint if set
+    if (customEndpoint) {
+      localStorage.setItem('custom_api_endpoint', customEndpoint);
+    }
+    
     setSaved(true);
     setTimeout(() => {
       setSaved(false);
@@ -77,30 +98,93 @@ const AISettingsModal: React.FC<AISettingsModalProps> = ({ isOpen, onClose, t })
     localStorage.removeItem(`${provider}_api_key`);
   };
 
-  const providers: { id: AIProvider; name: string; description: string; placeholder: string }[] = [
+  const providers: { id: AIProvider; name: string; description: string; placeholder: string; needsVPN?: boolean; apiLink?: string }[] = [
     {
       id: 'gemini',
       name: 'Google Gemini',
       description: '强大的多模态模型，支持长上下文',
-      placeholder: 'AIza...'
+      placeholder: 'AIza...',
+      needsVPN: true,
+      apiLink: 'https://aistudio.google.com/app/apikey'
     },
     {
       id: 'claude',
       name: 'Anthropic Claude',
       description: '擅长分析和推理的AI助手',
-      placeholder: 'sk-ant-...'
+      placeholder: 'sk-ant-...',
+      needsVPN: true,
+      apiLink: 'https://console.anthropic.com/'
     },
     {
       id: 'openai',
       name: 'OpenAI GPT',
       description: '最流行的对话AI模型',
-      placeholder: 'sk-...'
+      placeholder: 'sk-...',
+      needsVPN: true,
+      apiLink: 'https://platform.openai.com/api-keys'
     },
     {
       id: 'deepseek',
       name: 'DeepSeek',
       description: '高性价比的国产大模型',
-      placeholder: 'sk-...'
+      placeholder: 'sk-...',
+      needsVPN: false,
+      apiLink: 'https://platform.deepseek.com/api_keys'
+    },
+    {
+      id: 'qwen',
+      name: '通义千问',
+      description: '阿里云 AI，国内直连无需VPN',
+      placeholder: 'sk-...',
+      needsVPN: false,
+      apiLink: 'https://dashscope.console.aliyun.com/apiKey'
+    },
+    {
+      id: 'moonshot',
+      name: 'Moonshot (Kimi)',
+      description: '高性能长文本处理，国内直连',
+      placeholder: 'sk-...',
+      needsVPN: false,
+      apiLink: 'https://platform.moonshot.cn/console/api-keys'
+    },
+    {
+      id: 'siliconflow',
+      name: '硅基流动',
+      description: '多模型中转站，免费额度充足',
+      placeholder: 'sk-...',
+      needsVPN: false,
+      apiLink: 'https://cloud.siliconflow.cn/account/ak'
+    },
+    {
+      id: 'zhipu',
+      name: '智谱 GLM',
+      description: '清华系大模型，国内直连',
+      placeholder: 'sk-...',
+      needsVPN: false,
+      apiLink: 'https://open.bigmodel.cn/usercenter/apikeys'
+    },
+    {
+      id: 'grok',
+      name: 'Grok (xAI)',
+      description: '马斯克 xAI 模型，需VPN',
+      placeholder: 'xai-...',
+      needsVPN: true,
+      apiLink: 'https://console.x.ai/'
+    },
+    {
+      id: 'xiaomi',
+      name: '小米 MiMo',
+      description: '小米大模型，国内直连',
+      placeholder: 'sk-...',
+      needsVPN: false,
+      apiLink: 'https://platform.xiaomimimo.com/#/docs/welcome'
+    },
+    {
+      id: 'custom',
+      name: '自定义/中转站',
+      description: '兼容 OpenAI 格式的第三方 API',
+      placeholder: 'sk-...',
+      needsVPN: false
     }
   ];
 
@@ -205,34 +289,46 @@ const AISettingsModal: React.FC<AISettingsModalProps> = ({ isOpen, onClose, t })
                 </div>
 
                 {/* API Key Tips */}
-                <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-900">
+                <div className={`mt-3 p-3 rounded-lg border ${provider.needsVPN ? 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-900' : 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-900'}`}>
                   <div className="flex gap-2">
-                    <AlertCircle className="h-4 w-4 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
-                    <div className="text-xs text-blue-700 dark:text-blue-300">
+                    <AlertCircle className={`h-4 w-4 flex-shrink-0 mt-0.5 ${provider.needsVPN ? 'text-amber-600 dark:text-amber-400' : 'text-blue-600 dark:text-blue-400'}`} />
+                    <div className={`text-xs ${provider.needsVPN ? 'text-amber-700 dark:text-amber-300' : 'text-blue-700 dark:text-blue-300'}`}>
+                      {provider.needsVPN && (
+                        <p className="font-bold text-amber-600 dark:text-amber-400 mb-1">⚠️ 需要 VPN 环境才能访问</p>
+                      )}
+                      {!provider.needsVPN && (
+                        <p className="font-bold text-emerald-600 dark:text-emerald-400 mb-1">✅ 国内直连，无需 VPN</p>
+                      )}
                       <p className="font-medium mb-1">{t.howToGetKey || '如何获取 API Key'}:</p>
-                      {provider.id === 'gemini' && (
-                        <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-800 dark:hover:text-blue-200">
-                          Google AI Studio →
+                      {provider.apiLink ? (
+                        <a href={provider.apiLink} target="_blank" rel="noopener noreferrer" className="underline hover:opacity-80">
+                          {provider.name} 官网获取 →
                         </a>
-                      )}
-                      {provider.id === 'claude' && (
-                        <a href="https://console.anthropic.com/" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-800 dark:hover:text-blue-200">
-                          Anthropic Console →
-                        </a>
-                      )}
-                      {provider.id === 'openai' && (
-                        <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-800 dark:hover:text-blue-200">
-                          OpenAI Platform →
-                        </a>
-                      )}
-                      {provider.id === 'deepseek' && (
-                        <a href="https://platform.deepseek.com/api_keys" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-800 dark:hover:text-blue-200">
-                          DeepSeek Platform →
-                        </a>
+                      ) : (
+                        <p className="text-slate-500">自定义端点需兼容 OpenAI 格式</p>
                       )}
                     </div>
                   </div>
                 </div>
+
+                {/* Custom Endpoint Input (only for custom provider) */}
+                {provider.id === 'custom' && (
+                  <div className="mt-3">
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                      API 端点 (Endpoint)
+                    </label>
+                    <input
+                      type="text"
+                      value={customEndpoint}
+                      onChange={(e) => setCustomEndpoint(e.target.value)}
+                      placeholder="https://your-proxy.com/v1/chat/completions"
+                      className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white"
+                    />
+                    <p className="text-xs text-slate-400 mt-1">
+                      支持 OpenRouter、One-api、New-api 等中转站
+                    </p>
+                  </div>
+                )}
               </div>
             ))}
           </div>

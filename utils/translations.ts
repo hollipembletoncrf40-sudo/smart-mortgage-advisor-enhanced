@@ -196,7 +196,7 @@ export const TRANSLATIONS = {
     tourStep3Title: '3. 资产对比',
     tourStep3Content: '纠结买房还是买股？这里直接对比两种方案在持有期结束后的净资产差距，并提供多维度定性分析。',
     tourStep4Title: '4. AI 顾问',
-    tourStep4Content: '有不懂的随时问 Josephine。她知道您的税费成本和通胀设置，会给出更犀利的建议。',
+    tourStep4Content: '有不懂的随时问 小慧。她知道您的税费成本和通胀设置，会给出更犀利的建议。',
     tourSkip: '跳过',
     tourNext: '下一步',
     tourStart: '开始使用',
@@ -280,11 +280,11 @@ export const TRANSLATIONS = {
     aiPrivateKey: "(私有Key)",
     aiOnline: "在线",
     aiReset: "对话已重置。",
-    aiWelcome: "您好！我是您的 AI 投资顾问 Josephine。\n\n我已经基于您当前的参数（房价 {price}万, 初始投入 {cost}万）完成了计算。\n\n您可以使用顶部的【选筹指南】对目标地段进行打分，我会结合地段潜力为您提供更具体的建议。",
+    aiWelcome: "您好！我是您的 AI 投资顾问 小慧。\n\n我已经基于您当前的参数（房价 {price}万, 初始投入 {cost}万）完成了计算。\n\n您可以使用顶部的【选筹指南】对目标地段进行打分，我会结合地段潜力为您提供更具体的建议。",
     aiActionReport: "生成报告",
     aiActionCompare: "买房 vs 理财",
     aiActionLocation: "地段点评",
-    aiPlaceholderThinking: "Josephine 正在思考...",
+    aiPlaceholderThinking: "小慧正在思考...",
     aiPlaceholderAsk: "问问我对这个投资的看法...",
     aiMsgReport: "请为我生成一份详细的投资分析报告。",
     aiMsgCompare: "买房还是买理财？",
@@ -310,20 +310,211 @@ export const TRANSLATIONS = {
 
     methodologyTitle: "计算原理说明书",
     methodologyContent: `
-        <h4 class="font-bold mb-2">1. 核心回报指标</h4>
-        <ul class="list-disc pl-5 mb-4 space-y-1">
-            <li><strong>现金回报率</strong> = (年净租金 - 年房贷) / 初始投入。</li>
-            <li><strong>综合回报率</strong> = (累计现金流 + 房产净值 - 总投入) / 总投入。</li>
-        </ul>
-        <h4 class="font-bold mb-2">2. 贷款模型</h4>
-        <ul class="list-disc pl-5 mb-4 space-y-1">
-            <li>支持等额本息、等额本金及公积金组合贷款计算。</li>
-        </ul>
-        <h4 class="font-bold mb-2">3. 风险评估</h4>
-        <ul class="list-disc pl-5 mb-4 space-y-1">
-            <li><strong>DTI (偿债比)</strong>: 建议低于 50%。</li>
-            <li><strong>DSCR (覆盖比)</strong>: 租金/月供，低于 1.0 需贴钱。</li>
-        </ul>
+        <div class="space-y-8">
+        <!-- 核心回报指标 -->
+        <section class="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 p-6 rounded-2xl border border-indigo-100 dark:border-indigo-800">
+            <h3 class="text-lg font-bold text-indigo-700 dark:text-indigo-300 mb-4 flex items-center gap-2">📊 1. 核心回报指标</h3>
+            <div class="space-y-4">
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm">
+                    <h4 class="font-bold text-slate-800 dark:text-white mb-2">现金回报率 (Cash Return Rate)</h4>
+                    <div class="bg-slate-100 dark:bg-slate-900 p-3 rounded-lg font-mono text-sm mb-2">
+                        现金回报率 = (年净租金 - 年房贷支出) / 初始投入 × 100%
+                    </div>
+                    <p class="text-sm text-slate-600 dark:text-slate-400">衡量每年现金流入相对于您初始投入的比例。正值表示租金覆盖月供后仍有盈余，负值表示需要每月贴钱。</p>
+                    <div class="mt-2 p-2 bg-emerald-50 dark:bg-emerald-900/20 rounded text-xs text-emerald-700 dark:text-emerald-300">
+                        📍 示例：年租金6万，年月供4万，首付100万 → (6-4)/100 = <strong>2%</strong>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm">
+                    <h4 class="font-bold text-slate-800 dark:text-white mb-2">综合回报率 (Total Return Rate)</h4>
+                    <div class="bg-slate-100 dark:bg-slate-900 p-3 rounded-lg font-mono text-sm mb-2">
+                        综合回报率 = (累计净现金流 + 房产当前净值 - 总投入) / 总投入 × 100%
+                    </div>
+                    <p class="text-sm text-slate-600 dark:text-slate-400">综合考虑现金流、资产增值、已还本金的总体投资回报率。</p>
+                    <ul class="mt-2 text-xs text-slate-500 dark:text-slate-400 space-y-1">
+                        <li>• <strong>累计净现金流</strong>：租金收入 - 月供 - 持有成本</li>
+                        <li>• <strong>房产净值</strong>：当前房价 × (1+增值率)^年数 - 剩余贷款</li>
+                        <li>• <strong>总投入</strong>：首付 + 税费 + 装修 + 中介费等</li>
+                    </ul>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm">
+                    <h4 class="font-bold text-slate-800 dark:text-white mb-2">年化收益率 (Annualized Return)</h4>
+                    <div class="bg-slate-100 dark:bg-slate-900 p-3 rounded-lg font-mono text-sm mb-2">
+                        年化收益率 = [(终值 / 初始投入)^(1/年数) - 1] × 100%
+                    </div>
+                    <p class="text-sm text-slate-600 dark:text-slate-400">将累计回报折算成每年平均回报率，便于与其他投资（如股票、基金）进行横向比较。</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 贷款计算模型 -->
+        <section class="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 p-6 rounded-2xl border border-blue-100 dark:border-blue-800">
+            <h3 class="text-lg font-bold text-blue-700 dark:text-blue-300 mb-4 flex items-center gap-2">🏦 2. 贷款计算模型</h3>
+            <div class="space-y-4">
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm">
+                    <h4 class="font-bold text-slate-800 dark:text-white mb-2">等额本息 (Equal Principal & Interest)</h4>
+                    <div class="bg-slate-100 dark:bg-slate-900 p-3 rounded-lg font-mono text-sm mb-2">
+                        月供 = 贷款本金 × [月利率 × (1+月利率)^还款月数] / [(1+月利率)^还款月数 - 1]
+                    </div>
+                    <div class="grid grid-cols-2 gap-3 text-xs mt-3">
+                        <div class="p-2 bg-blue-50 dark:bg-blue-900/30 rounded">✅ 月供固定，便于规划</div>
+                        <div class="p-2 bg-blue-50 dark:bg-blue-900/30 rounded">⚠️ 总利息较多</div>
+                        <div class="p-2 bg-blue-50 dark:bg-blue-900/30 rounded">📊 前期利息占比高</div>
+                        <div class="p-2 bg-blue-50 dark:bg-blue-900/30 rounded">👤 适合收入稳定者</div>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm">
+                    <h4 class="font-bold text-slate-800 dark:text-white mb-2">等额本金 (Equal Principal)</h4>
+                    <div class="bg-slate-100 dark:bg-slate-900 p-3 rounded-lg font-mono text-sm mb-2">
+                        每月还款 = (贷款本金/还款月数) + (剩余本金 × 月利率)
+                    </div>
+                    <div class="grid grid-cols-2 gap-3 text-xs mt-3">
+                        <div class="p-2 bg-cyan-50 dark:bg-cyan-900/30 rounded">✅ 总利息较少</div>
+                        <div class="p-2 bg-cyan-50 dark:bg-cyan-900/30 rounded">⚠️ 初期还款压力大</div>
+                        <div class="p-2 bg-cyan-50 dark:bg-cyan-900/30 rounded">📉 月供逐月递减</div>
+                        <div class="p-2 bg-cyan-50 dark:bg-cyan-900/30 rounded">👤 适合收入递增者</div>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm">
+                    <h4 class="font-bold text-slate-800 dark:text-white mb-2">组合贷款 (公积金 + 商贷)</h4>
+                    <p class="text-sm text-slate-600 dark:text-slate-400 mb-2">公积金贷款利率约3.1%，商贷约4.2%，组合使用可降低综合成本。</p>
+                    <div class="bg-slate-100 dark:bg-slate-900 p-3 rounded-lg font-mono text-sm">
+                        总月供 = 公积金月供(低利率) + 商业贷款月供(高利率)
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 风险评估指标 -->
+        <section class="bg-gradient-to-r from-rose-50 to-orange-50 dark:from-rose-900/20 dark:to-orange-900/20 p-6 rounded-2xl border border-rose-100 dark:border-rose-800">
+            <h3 class="text-lg font-bold text-rose-700 dark:text-rose-300 mb-4 flex items-center gap-2">⚠️ 3. 风险评估指标</h3>
+            <div class="space-y-4">
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm">
+                    <h4 class="font-bold text-slate-800 dark:text-white mb-2">DTI (Debt-to-Income) 偿债比</h4>
+                    <div class="bg-slate-100 dark:bg-slate-900 p-3 rounded-lg font-mono text-sm mb-2">
+                        DTI = 月供总额 / 家庭月收入 × 100%
+                    </div>
+                    <div class="flex gap-2 text-xs mt-3">
+                        <span class="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full">&lt;30% 低风险</span>
+                        <span class="px-3 py-1 bg-amber-100 text-amber-700 rounded-full">30-50% 中等</span>
+                        <span class="px-3 py-1 bg-rose-100 text-rose-700 rounded-full">&gt;50% 高风险</span>
+                    </div>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">银行通常要求DTI低于55%，超过此值贷款可能受限。</p>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm">
+                    <h4 class="font-bold text-slate-800 dark:text-white mb-2">DSCR (Debt Service Coverage Ratio) 覆盖比</h4>
+                    <div class="bg-slate-100 dark:bg-slate-900 p-3 rounded-lg font-mono text-sm mb-2">
+                        DSCR = 月租金收入 / 月供
+                    </div>
+                    <div class="flex gap-2 text-xs mt-3">
+                        <span class="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full">&gt;1.3 优秀</span>
+                        <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full">1.0-1.3 良好</span>
+                        <span class="px-3 py-1 bg-rose-100 text-rose-700 rounded-full">&lt;1.0 负现金流</span>
+                    </div>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">低于1.0表示租金无法覆盖月供，需要每月贴钱。</p>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm">
+                    <h4 class="font-bold text-slate-800 dark:text-white mb-2">压力测试场景</h4>
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                        <div class="p-2 bg-rose-50 dark:bg-rose-900/30 rounded">📉 房价下跌 20%</div>
+                        <div class="p-2 bg-rose-50 dark:bg-rose-900/30 rounded">📉 租金下降 30%</div>
+                        <div class="p-2 bg-rose-50 dark:bg-rose-900/30 rounded">📈 利率上升 2%</div>
+                        <div class="p-2 bg-rose-50 dark:bg-rose-900/30 rounded">🏠 空置期 6个月</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 投入成本明细 -->
+        <section class="bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/20 p-6 rounded-2xl border border-amber-100 dark:border-amber-800">
+            <h3 class="text-lg font-bold text-amber-700 dark:text-amber-300 mb-4 flex items-center gap-2">💰 4. 投入成本明细</h3>
+            <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm">
+                <table class="w-full text-sm">
+                    <thead class="bg-amber-100 dark:bg-amber-900/30">
+                        <tr><th class="p-2 text-left rounded-tl-lg">费用项目</th><th class="p-2 text-left">计算方式</th><th class="p-2 text-left rounded-tr-lg">典型值</th></tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+                        <tr><td class="p-2 font-medium">首付款</td><td class="p-2">房价 × 首付比例</td><td class="p-2">20%-35%</td></tr>
+                        <tr><td class="p-2 font-medium">契税</td><td class="p-2">房价 × 税率</td><td class="p-2">1%-3%</td></tr>
+                        <tr><td class="p-2 font-medium">中介费</td><td class="p-2">成交价 × 比例</td><td class="p-2">1%-2%</td></tr>
+                        <tr><td class="p-2 font-medium">装修费</td><td class="p-2">固定金额或面积×单价</td><td class="p-2">5-20万</td></tr>
+                        <tr><td class="p-2 font-medium">其他杂费</td><td class="p-2">评估费、抵押费等</td><td class="p-2">0.5-1万</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 持有成本 -->
+        <section class="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 p-6 rounded-2xl border border-purple-100 dark:border-purple-800">
+            <h3 class="text-lg font-bold text-purple-700 dark:text-purple-300 mb-4 flex items-center gap-2">🏠 5. 年度持有成本</h3>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm">
+                    <h4 class="font-bold text-sm mb-2">物业管理费</h4>
+                    <p class="text-xs text-slate-500">面积 × 单价/月 × 12</p>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm">
+                    <h4 class="font-bold text-sm mb-2">维修基金</h4>
+                    <p class="text-xs text-slate-500">房价 × 0.2%/年</p>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm">
+                    <h4 class="font-bold text-sm mb-2">房产保险</h4>
+                    <p class="text-xs text-slate-500">房价 × 0.05%/年</p>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm">
+                    <h4 class="font-bold text-sm mb-2">空置损失</h4>
+                    <p class="text-xs text-slate-500">年租金 × 空置率</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 关键公式 -->
+        <section class="bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 p-6 rounded-2xl border border-emerald-100 dark:border-emerald-800">
+            <h3 class="text-lg font-bold text-emerald-700 dark:text-emerald-300 mb-4 flex items-center gap-2">📐 6. 核心数学公式</h3>
+            <div class="space-y-3">
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm">
+                    <div class="flex justify-between items-center">
+                        <span class="font-medium text-sm">复利终值</span>
+                        <code class="bg-slate-100 dark:bg-slate-900 px-3 py-1 rounded text-sm">FV = PV × (1 + r)^n</code>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm">
+                    <div class="flex justify-between items-center">
+                        <span class="font-medium text-sm">现值折现</span>
+                        <code class="bg-slate-100 dark:bg-slate-900 px-3 py-1 rounded text-sm">PV = FV / (1 + r)^n</code>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm">
+                    <div class="flex justify-between items-center">
+                        <span class="font-medium text-sm">通胀调整</span>
+                        <code class="bg-slate-100 dark:bg-slate-900 px-3 py-1 rounded text-sm">实际价值 = 名义价值 / (1 + 通胀率)^n</code>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm">
+                    <div class="flex justify-between items-center">
+                        <span class="font-medium text-sm">机会成本</span>
+                        <code class="bg-slate-100 dark:bg-slate-900 px-3 py-1 rounded text-sm">= 首付 × (1 + 投资收益率)^n - 首付</code>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 参数说明 -->
+        <section class="bg-gradient-to-r from-slate-50 to-gray-50 dark:from-slate-800 dark:to-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700">
+            <h3 class="text-lg font-bold text-slate-700 dark:text-slate-300 mb-4 flex items-center gap-2">⚙️ 7. 输入参数说明</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                <div class="p-3 bg-white dark:bg-slate-900 rounded-lg"><strong>房屋总价</strong>：购买房产的成交价格</div>
+                <div class="p-3 bg-white dark:bg-slate-900 rounded-lg"><strong>首付比例</strong>：首次支付的现金占房价的比例</div>
+                <div class="p-3 bg-white dark:bg-slate-900 rounded-lg"><strong>商贷利率</strong>：商业贷款的年化利率（LPR+浮动）</div>
+                <div class="p-3 bg-white dark:bg-slate-900 rounded-lg"><strong>公积金利率</strong>：住房公积金贷款利率</div>
+                <div class="p-3 bg-white dark:bg-slate-900 rounded-lg"><strong>贷款年限</strong>：还款总期限，通常10-30年</div>
+                <div class="p-3 bg-white dark:bg-slate-900 rounded-lg"><strong>月租金</strong>：预期可获得的月租金收入</div>
+                <div class="p-3 bg-white dark:bg-slate-900 rounded-lg"><strong>房价年增值</strong>：预期房产每年升值幅度</div>
+                <div class="p-3 bg-white dark:bg-slate-900 rounded-lg"><strong>投资收益率</strong>：如不买房，资金可能获得的回报</div>
+                <div class="p-3 bg-white dark:bg-slate-900 rounded-lg"><strong>通货膨胀率</strong>：货币每年贬值的幅度</div>
+                <div class="p-3 bg-white dark:bg-slate-900 rounded-lg"><strong>空置率</strong>：房屋无租客的时间比例</div>
+            </div>
+        </section>
+        </div>
     `,
 
     // Logic & Advice
@@ -662,6 +853,16 @@ export const TRANSLATIONS = {
         downloadBtn: "保存图片",
         generating: "生成中..."
     },
+
+    // Social Perspective 社会视角
+    socialTitle: "社会视角",
+    socialAiCheck: "AI 决策分析",
+    socialPeer: "同龄人选择",
+    socialTabPeer: "同龄人",
+    socialTabMinority: "逆势分析",
+    socialTabFuture: "接盘侠",
+    socialTabFamily: "家庭影响",
+    socialTabFutureSelf: "跨时空对话",
 
     exportPDF: "导出 PDF 报告",
     aboutTool: "关于工具",
@@ -1333,22 +1534,213 @@ export const TRANSLATIONS = {
     donationDesc: "Your support keeps the updates coming!",
     donationClose: "Close",
 
-    methodologyTitle: "Methodology",
+    methodologyTitle: "Calculation Methodology",
     methodologyContent: `
-        <h4 class="font-bold mb-2">1. Core Metrics</h4>
-        <ul class="list-disc pl-5 mb-4 space-y-1">
-            <li><strong>Cash on Cash</strong> = (Net Rent - Mortgage) / Initial Cash.</li>
-            <li><strong>Comprehensive</strong> = (Total Cash Flow + Equity - Total Invest) / Total Invest.</li>
-        </ul>
-        <h4 class="font-bold mb-2">2. Loan Model</h4>
-        <ul class="list-disc pl-5 mb-4 space-y-1">
-            <li>Supports Equal Payment, Equal Principal, and Combination Loans.</li>
-        </ul>
-        <h4 class="font-bold mb-2">3. Risk Assessment</h4>
-        <ul class="list-disc pl-5 mb-4 space-y-1">
-            <li><strong>DTI</strong>: Recommended below 50%.</li>
-            <li><strong>DSCR</strong>: Rent/Mortgage. Below 1.0 means negative cash flow.</li>
-        </ul>
+        <div class="space-y-8">
+        <!-- Core Return Metrics -->
+        <section class="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 p-6 rounded-2xl border border-indigo-100 dark:border-indigo-800">
+            <h3 class="text-lg font-bold text-indigo-700 dark:text-indigo-300 mb-4 flex items-center gap-2">📊 1. Core Return Metrics</h3>
+            <div class="space-y-4">
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm">
+                    <h4 class="font-bold text-slate-800 dark:text-white mb-2">Cash Return Rate (Cash-on-Cash)</h4>
+                    <div class="bg-slate-100 dark:bg-slate-900 p-3 rounded-lg font-mono text-sm mb-2">
+                        Cash Return = (Annual Net Rent - Annual Mortgage) / Initial Investment × 100%
+                    </div>
+                    <p class="text-sm text-slate-600 dark:text-slate-400">Measures annual cash flow relative to initial investment. Positive = surplus after mortgage; Negative = monthly shortfall.</p>
+                    <div class="mt-2 p-2 bg-emerald-50 dark:bg-emerald-900/20 rounded text-xs text-emerald-700 dark:text-emerald-300">
+                        📍 Example: ¥60K rent, ¥40K mortgage, ¥1M down → (60-40)/100 = <strong>2%</strong>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm">
+                    <h4 class="font-bold text-slate-800 dark:text-white mb-2">Total Return Rate</h4>
+                    <div class="bg-slate-100 dark:bg-slate-900 p-3 rounded-lg font-mono text-sm mb-2">
+                        Total Return = (Cumulative Cash Flow + Net Equity - Total Investment) / Total Investment × 100%
+                    </div>
+                    <p class="text-sm text-slate-600 dark:text-slate-400">Comprehensive ROI combining cash flow, appreciation, and principal paydown.</p>
+                    <ul class="mt-2 text-xs text-slate-500 dark:text-slate-400 space-y-1">
+                        <li>• <strong>Cumulative Cash Flow</strong>: Rent - Mortgage - Holding Costs</li>
+                        <li>• <strong>Net Equity</strong>: Current Value × (1+Appreciation)^Years - Remaining Loan</li>
+                        <li>• <strong>Total Investment</strong>: Down Payment + Taxes + Renovation + Fees</li>
+                    </ul>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm">
+                    <h4 class="font-bold text-slate-800 dark:text-white mb-2">Annualized Return</h4>
+                    <div class="bg-slate-100 dark:bg-slate-900 p-3 rounded-lg font-mono text-sm mb-2">
+                        Annualized Return = [(Final Value / Initial Investment)^(1/Years) - 1] × 100%
+                    </div>
+                    <p class="text-sm text-slate-600 dark:text-slate-400">Converts cumulative return to average yearly rate for comparison with stocks/bonds.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Loan Calculation Models -->
+        <section class="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 p-6 rounded-2xl border border-blue-100 dark:border-blue-800">
+            <h3 class="text-lg font-bold text-blue-700 dark:text-blue-300 mb-4 flex items-center gap-2">🏦 2. Loan Calculation Models</h3>
+            <div class="space-y-4">
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm">
+                    <h4 class="font-bold text-slate-800 dark:text-white mb-2">Equal Principal & Interest (Amortizing)</h4>
+                    <div class="bg-slate-100 dark:bg-slate-900 p-3 rounded-lg font-mono text-sm mb-2">
+                        Payment = Principal × [r × (1+r)^n] / [(1+r)^n - 1]
+                    </div>
+                    <div class="grid grid-cols-2 gap-3 text-xs mt-3">
+                        <div class="p-2 bg-blue-50 dark:bg-blue-900/30 rounded">✅ Fixed monthly payment</div>
+                        <div class="p-2 bg-blue-50 dark:bg-blue-900/30 rounded">⚠️ Higher total interest</div>
+                        <div class="p-2 bg-blue-50 dark:bg-blue-900/30 rounded">📊 Interest-heavy early</div>
+                        <div class="p-2 bg-blue-50 dark:bg-blue-900/30 rounded">👤 Ideal for stable income</div>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm">
+                    <h4 class="font-bold text-slate-800 dark:text-white mb-2">Equal Principal (Declining)</h4>
+                    <div class="bg-slate-100 dark:bg-slate-900 p-3 rounded-lg font-mono text-sm mb-2">
+                        Monthly Payment = (Principal / Months) + (Remaining Balance × Monthly Rate)
+                    </div>
+                    <div class="grid grid-cols-2 gap-3 text-xs mt-3">
+                        <div class="p-2 bg-cyan-50 dark:bg-cyan-900/30 rounded">✅ Lower total interest</div>
+                        <div class="p-2 bg-cyan-50 dark:bg-cyan-900/30 rounded">⚠️ High initial payments</div>
+                        <div class="p-2 bg-cyan-50 dark:bg-cyan-900/30 rounded">📉 Payments decrease</div>
+                        <div class="p-2 bg-cyan-50 dark:bg-cyan-900/30 rounded">👤 For rising income</div>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm">
+                    <h4 class="font-bold text-slate-800 dark:text-white mb-2">Combination Loan (HPF + Commercial)</h4>
+                    <p class="text-sm text-slate-600 dark:text-slate-400 mb-2">HPF rate ~3.1%, Commercial ~4.2%. Blending reduces overall cost.</p>
+                    <div class="bg-slate-100 dark:bg-slate-900 p-3 rounded-lg font-mono text-sm">
+                        Total Payment = HPF Payment (low rate) + Commercial Payment (high rate)
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Risk Assessment -->
+        <section class="bg-gradient-to-r from-rose-50 to-orange-50 dark:from-rose-900/20 dark:to-orange-900/20 p-6 rounded-2xl border border-rose-100 dark:border-rose-800">
+            <h3 class="text-lg font-bold text-rose-700 dark:text-rose-300 mb-4 flex items-center gap-2">⚠️ 3. Risk Assessment Metrics</h3>
+            <div class="space-y-4">
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm">
+                    <h4 class="font-bold text-slate-800 dark:text-white mb-2">DTI (Debt-to-Income Ratio)</h4>
+                    <div class="bg-slate-100 dark:bg-slate-900 p-3 rounded-lg font-mono text-sm mb-2">
+                        DTI = Total Monthly Debt Payments / Gross Monthly Income × 100%
+                    </div>
+                    <div class="flex gap-2 text-xs mt-3">
+                        <span class="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full">&lt;30% Low Risk</span>
+                        <span class="px-3 py-1 bg-amber-100 text-amber-700 rounded-full">30-50% Moderate</span>
+                        <span class="px-3 py-1 bg-rose-100 text-rose-700 rounded-full">&gt;50% High Risk</span>
+                    </div>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">Banks typically require DTI below 55% for loan approval.</p>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm">
+                    <h4 class="font-bold text-slate-800 dark:text-white mb-2">DSCR (Debt Service Coverage Ratio)</h4>
+                    <div class="bg-slate-100 dark:bg-slate-900 p-3 rounded-lg font-mono text-sm mb-2">
+                        DSCR = Monthly Rental Income / Monthly Mortgage Payment
+                    </div>
+                    <div class="flex gap-2 text-xs mt-3">
+                        <span class="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full">&gt;1.3 Excellent</span>
+                        <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full">1.0-1.3 Good</span>
+                        <span class="px-3 py-1 bg-rose-100 text-rose-700 rounded-full">&lt;1.0 Negative CF</span>
+                    </div>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">Below 1.0 means rent doesn't cover mortgage - you pay monthly.</p>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm">
+                    <h4 class="font-bold text-slate-800 dark:text-white mb-2">Stress Test Scenarios</h4>
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                        <div class="p-2 bg-rose-50 dark:bg-rose-900/30 rounded">📉 Price Drop 20%</div>
+                        <div class="p-2 bg-rose-50 dark:bg-rose-900/30 rounded">📉 Rent Drop 30%</div>
+                        <div class="p-2 bg-rose-50 dark:bg-rose-900/30 rounded">📈 Rate Increase 2%</div>
+                        <div class="p-2 bg-rose-50 dark:bg-rose-900/30 rounded">🏠 6-Month Vacancy</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Investment Costs -->
+        <section class="bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/20 p-6 rounded-2xl border border-amber-100 dark:border-amber-800">
+            <h3 class="text-lg font-bold text-amber-700 dark:text-amber-300 mb-4 flex items-center gap-2">💰 4. Investment Cost Breakdown</h3>
+            <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm">
+                <table class="w-full text-sm">
+                    <thead class="bg-amber-100 dark:bg-amber-900/30">
+                        <tr><th class="p-2 text-left rounded-tl-lg">Cost Item</th><th class="p-2 text-left">Calculation</th><th class="p-2 text-left rounded-tr-lg">Typical Range</th></tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+                        <tr><td class="p-2 font-medium">Down Payment</td><td class="p-2">Price × Down %</td><td class="p-2">20%-35%</td></tr>
+                        <tr><td class="p-2 font-medium">Deed Tax</td><td class="p-2">Price × Tax Rate</td><td class="p-2">1%-3%</td></tr>
+                        <tr><td class="p-2 font-medium">Agent Fee</td><td class="p-2">Price × %</td><td class="p-2">1%-2%</td></tr>
+                        <tr><td class="p-2 font-medium">Renovation</td><td class="p-2">Fixed or Area × Rate</td><td class="p-2">¥50K-200K</td></tr>
+                        <tr><td class="p-2 font-medium">Other Fees</td><td class="p-2">Appraisal, mortgage</td><td class="p-2">¥5K-10K</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Holding Costs -->
+        <section class="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 p-6 rounded-2xl border border-purple-100 dark:border-purple-800">
+            <h3 class="text-lg font-bold text-purple-700 dark:text-purple-300 mb-4 flex items-center gap-2">🏠 5. Annual Holding Costs</h3>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm">
+                    <h4 class="font-bold text-sm mb-2">Property Management</h4>
+                    <p class="text-xs text-slate-500">Area × Rate/mo × 12</p>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm">
+                    <h4 class="font-bold text-sm mb-2">Maintenance Fund</h4>
+                    <p class="text-xs text-slate-500">Price × 0.2%/year</p>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm">
+                    <h4 class="font-bold text-sm mb-2">Insurance</h4>
+                    <p class="text-xs text-slate-500">Price × 0.05%/year</p>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm">
+                    <h4 class="font-bold text-sm mb-2">Vacancy Loss</h4>
+                    <p class="text-xs text-slate-500">Annual Rent × Vacancy %</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Key Formulas -->
+        <section class="bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 p-6 rounded-2xl border border-emerald-100 dark:border-emerald-800">
+            <h3 class="text-lg font-bold text-emerald-700 dark:text-emerald-300 mb-4 flex items-center gap-2">📐 6. Core Mathematical Formulas</h3>
+            <div class="space-y-3">
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm">
+                    <div class="flex justify-between items-center">
+                        <span class="font-medium text-sm">Compound Interest</span>
+                        <code class="bg-slate-100 dark:bg-slate-900 px-3 py-1 rounded text-sm">FV = PV × (1 + r)^n</code>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm">
+                    <div class="flex justify-between items-center">
+                        <span class="font-medium text-sm">Present Value</span>
+                        <code class="bg-slate-100 dark:bg-slate-900 px-3 py-1 rounded text-sm">PV = FV / (1 + r)^n</code>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm">
+                    <div class="flex justify-between items-center">
+                        <span class="font-medium text-sm">Inflation Adjustment</span>
+                        <code class="bg-slate-100 dark:bg-slate-900 px-3 py-1 rounded text-sm">Real Value = Nominal / (1 + Inflation)^n</code>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm">
+                    <div class="flex justify-between items-center">
+                        <span class="font-medium text-sm">Opportunity Cost</span>
+                        <code class="bg-slate-100 dark:bg-slate-900 px-3 py-1 rounded text-sm">= Down Payment × (1 + Return Rate)^n - Down Payment</code>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Parameter Guide -->
+        <section class="bg-gradient-to-r from-slate-50 to-gray-50 dark:from-slate-800 dark:to-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700">
+            <h3 class="text-lg font-bold text-slate-700 dark:text-slate-300 mb-4 flex items-center gap-2">⚙️ 7. Input Parameter Guide</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                <div class="p-3 bg-white dark:bg-slate-900 rounded-lg"><strong>Property Price</strong>: Purchase price of the property</div>
+                <div class="p-3 bg-white dark:bg-slate-900 rounded-lg"><strong>Down Payment %</strong>: Initial cash payment as % of price</div>
+                <div class="p-3 bg-white dark:bg-slate-900 rounded-lg"><strong>Commercial Rate</strong>: Annual rate for commercial loan</div>
+                <div class="p-3 bg-white dark:bg-slate-900 rounded-lg"><strong>HPF Rate</strong>: Housing Provident Fund loan rate</div>
+                <div class="p-3 bg-white dark:bg-slate-900 rounded-lg"><strong>Loan Term</strong>: Repayment period, typically 10-30 years</div>
+                <div class="p-3 bg-white dark:bg-slate-900 rounded-lg"><strong>Monthly Rent</strong>: Expected rental income</div>
+                <div class="p-3 bg-white dark:bg-slate-900 rounded-lg"><strong>Appreciation Rate</strong>: Expected annual price growth</div>
+                <div class="p-3 bg-white dark:bg-slate-900 rounded-lg"><strong>Alt. Return Rate</strong>: Return if investing instead</div>
+                <div class="p-3 bg-white dark:bg-slate-900 rounded-lg"><strong>Inflation Rate</strong>: Annual currency devaluation</div>
+                <div class="p-3 bg-white dark:bg-slate-900 rounded-lg"><strong>Vacancy Rate</strong>: % of time property is empty</div>
+            </div>
+        </section>
+        </div>
     `,
 
     // Logic & Advice
@@ -1487,6 +1879,9 @@ export const TRANSLATIONS = {
     disclaimer: "For reference only, not financial advice.",
     quickNav: "Quick Nav",
     navHome: "Home/Comparison",
+    navAsset: "Asset Allocation",
+    navLifePath: "Life Path Sim",
+    navCar: "Car Purchase",
     navKnowledge: "Knowledge/Glossary",
     navStress: "Stress Test/Scenario",
     navLogic: "Calculation Logic",
@@ -1877,6 +2272,11 @@ export const TRANSLATIONS = {
     socialMinority: "Minority Report",
     socialFuture: "Future Buyer Overlap",
     socialFamily: "Family Impact",
+    socialTabPeer: "Peers",
+    socialTabMinority: "Contrarian",
+    socialTabFuture: "Buyers",
+    socialTabFamily: "Family",
+    socialTabFutureSelf: "Future Self",
     
     // Peer Choices
     peerFullPay: "Full Payment",

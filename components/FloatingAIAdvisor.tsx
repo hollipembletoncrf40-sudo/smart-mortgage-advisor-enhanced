@@ -25,6 +25,10 @@ interface FloatingAIAdvisorProps {
   t: any;
   contextParams: any; // InvestmentParams
   result?: CalculationResult; // Added result prop
+  userPhoto?: string | null; // User's photo URL for logged-in avatar
+  userName?: string | null; // User's display name
+  isLoggedIn?: boolean; // Whether user is logged in (required for AI advisor)
+  onOpenLogin?: () => void; // Callback to open login modal
 }
 
 // Parse and extract follow-up questions from AI response
@@ -73,7 +77,10 @@ const parseFollowUpQuestions = (content: string): { mainContent: string; questio
   return { mainContent, questions: [] };
 };
 
-const FloatingAIAdvisor: React.FC<FloatingAIAdvisorProps> = ({ t, contextParams, result }) => {
+// Professional AI advisor avatar (realistic female advisor)
+const AI_ADVISOR_AVATAR = '/ai-advisor-avatar.png';
+
+const FloatingAIAdvisor: React.FC<FloatingAIAdvisorProps> = ({ t, contextParams, result, userPhoto, userName, isLoggedIn = false, onOpenLogin }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([
@@ -82,6 +89,8 @@ const FloatingAIAdvisor: React.FC<FloatingAIAdvisorProps> = ({ t, contextParams,
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [chatSession, setChatSession] = useState<Chat | null>(null);
+  const [apiStatus, setApiStatus] = useState<'online' | 'error' | 'needs-vpn'>('online');
+  const [showConfigTips, setShowConfigTips] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
   // History feature
@@ -217,6 +226,7 @@ const FloatingAIAdvisor: React.FC<FloatingAIAdvisorProps> = ({ t, contextParams,
   const [position, setPosition] = useState({ x: window.innerWidth - 80, y: window.innerHeight - 80 });
   const [isDragging, setIsDragging] = useState(false);
   const dragStartRef = useRef({ x: 0, y: 0, posX: 0, posY: 0 });
+  const hadDraggedRef = useRef(false); // Track if user actually dragged (vs just clicked)
   const containerRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -249,6 +259,7 @@ const FloatingAIAdvisor: React.FC<FloatingAIAdvisorProps> = ({ t, contextParams,
       posX: position.x,
       posY: position.y
     };
+    hadDraggedRef.current = false; // Reset on new drag start
     setIsDragging(true);
   };
 
@@ -258,6 +269,12 @@ const FloatingAIAdvisor: React.FC<FloatingAIAdvisorProps> = ({ t, contextParams,
       
       const deltaX = e.clientX - dragStartRef.current.x;
       const deltaY = e.clientY - dragStartRef.current.y;
+      
+      // Track if user actually dragged (moved more than 5px)
+      const dragDistance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+      if (dragDistance > 5) {
+        hadDraggedRef.current = true;
+      }
       
       const newX = dragStartRef.current.posX + deltaX;
       const newY = dragStartRef.current.posY + deltaY;
@@ -289,8 +306,8 @@ const FloatingAIAdvisor: React.FC<FloatingAIAdvisorProps> = ({ t, contextParams,
     };
   }, [isDragging]);
 
-  // Resize state
-  const [size, setSize] = useState({ width: 384, height: 500 }); // default w-96 h-[500px]
+  // Resize state - larger default for better UX
+  const [size, setSize] = useState({ width: 440, height: 600 }); // Wider and taller for more content
   const [isResizing, setIsResizing] = useState(false);
   const [resizeDirection, setResizeDirection] = useState('');
   const resizeStartRef = useRef({ x: 0, y: 0, width: 0, height: 0, posX: 0, posY: 0 });
@@ -378,19 +395,52 @@ const FloatingAIAdvisor: React.FC<FloatingAIAdvisorProps> = ({ t, contextParams,
       if (chatSession) {
         responseText = await sendMessageToAI(chatSession, input);
       } else {
-        // Fallback if chat session init failed or not ready
-        responseText = "AI 服务正在初始化，请稍后再试。";
+        // Fallback if chat session init failed or not ready - this is an error state
+        responseText = "⚠️ AI 服务未能初始化\n\n💡 解决方案：\n1. 点击右上角 ⚙️ 设置配置 API Key\n2. Gemini/OpenAI/Claude 需要 VPN\n3. 推荐使用国内 AI（通义/DeepSeek/硅基流动）";
+        setApiStatus('error');
+        setShowConfigTips(true);
         // Try to re-init
         if (result) {
            const chat = await createInvestmentChat(contextParams, result);
-           if (chat) setChatSession(chat);
+           if (chat) {
+             setChatSession(chat);
+             setApiStatus('online');
+           }
         }
       }
       
       const aiMessage: ChatMessage = { id: (Date.now() + 1).toString(), role: 'model', content: responseText, timestamp: Date.now() };
       setMessages(prev => [...prev, aiMessage]);
-    } catch (error) {
-      setMessages(prev => [...prev, { id: (Date.now() + 1).toString(), role: 'model', content: t.aiError, timestamp: Date.now() }]);
+      setApiStatus('online');
+    } catch (error: any) {
+      // Enhanced error handling with helpful tips
+      const errorMessage = error?.message?.toLowerCase() || '';
+      let userFriendlyMessage = t.aiError || 'AI 服务暂时不可用';
+      
+      // Check for API key related errors
+      if (errorMessage.includes('api key') || errorMessage.includes('api_key') || 
+          errorMessage.includes('401') || errorMessage.includes('403') || 
+          errorMessage.includes('invalid') || errorMessage.includes('unauthorized')) {
+        userFriendlyMessage = '❌ API Key 无效或未配置\n\n💡 解决方案：\n1. 点击右上角 ⚙️ 设置配置您的 API Key\n2. Gemini/OpenAI/Claude 需要 VPN 环境\n3. 推荐使用国内 AI：通义千问、DeepSeek、硅基流动（无需VPN）';
+        setApiStatus('error');
+        setShowConfigTips(true);
+      } 
+      // Check for network related errors
+      else if (errorMessage.includes('network') || errorMessage.includes('fetch') || 
+               errorMessage.includes('econnrefused') || errorMessage.includes('timeout') ||
+               errorMessage.includes('failed to fetch') || errorMessage.includes('cors')) {
+        userFriendlyMessage = '🌐 网络连接失败\n\n💡 可能原因：\n1. Gemini/OpenAI/Claude 需要 VPN 环境\n2. 请检查网络连接\n3. 推荐切换至国内 AI（通义/DeepSeek/硅基流动）';
+        setApiStatus('needs-vpn');
+        setShowConfigTips(true);
+      }
+      // Generic error fallback - also update status
+      else {
+        userFriendlyMessage = `⚠️ AI 服务连接失败\n\n💡 可能原因：\n1. 当前地区不支持该服务，请使用 VPN\n2. API Key 未配置或无效\n3. 推荐切换至国内 AI（通义/DeepSeek/硅基流动）\n\n点击右上角 ⚙️ 设置进行配置`;
+        setApiStatus('error');
+        setShowConfigTips(true);
+      }
+      
+      setMessages(prev => [...prev, { id: (Date.now() + 1).toString(), role: 'model', content: userFriendlyMessage, timestamp: Date.now() }]);
     } finally {
       setIsLoading(false);
     }
@@ -403,21 +453,62 @@ const FloatingAIAdvisor: React.FC<FloatingAIAdvisorProps> = ({ t, contextParams,
     }
   };
 
+  // Handle floating ball click - require login
+  const handleFloatingBallClick = () => {
+    if (hadDraggedRef.current) return;
+    
+    if (!isLoggedIn) {
+      // Show login required message and open login modal
+      if (onOpenLogin) {
+        onOpenLogin();
+      }
+      return;
+    }
+    
+    // Adjust position to ensure chat panel is visible (expand towards upper-left)
+    const panelWidth = size.width;
+    const panelHeight = size.height;
+    const margin = 20;
+    
+    // Calculate new position so panel doesn't go off screen
+    let newX = position.x;
+    let newY = position.y;
+    
+    // If panel would extend past right edge, move it left
+    if (position.x + panelWidth > window.innerWidth - margin) {
+      newX = Math.max(margin, window.innerWidth - panelWidth - margin);
+    }
+    
+    // If panel would extend past bottom edge, move it up
+    if (position.y + panelHeight > window.innerHeight - margin) {
+      newY = Math.max(margin, window.innerHeight - panelHeight - margin);
+    }
+    
+    setPosition({ x: newX, y: newY });
+    setIsOpen(true);
+  };
+
   if (!isOpen) {
     return (
       <>
         <div
           ref={containerRef}
           onMouseDown={handleMouseDown}
-          onClick={() => !isDragging && setIsOpen(true)}
+          onClick={handleFloatingBallClick}
           style={{ left: position.x, top: position.y }}
-          className={`fixed w-14 h-14 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full shadow-2xl flex items-center justify-center z-50 group ${isDragging ? 'cursor-grabbing' : 'cursor-grab hover:scale-110 transition-transform'}`}
+          className={`fixed w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white rounded-full shadow-2xl flex items-center justify-center z-50 group overflow-hidden border-3 border-white/40 ${isDragging ? 'cursor-grabbing' : 'cursor-grab hover:scale-110 transition-transform'}`}
         >
-          <Bot className="h-8 w-8 pointer-events-none" />
-          <span className="absolute -top-2 -right-2 w-4 h-4 bg-red-500 rounded-full animate-pulse pointer-events-none"></span>
+          <img src={AI_ADVISOR_AVATAR} alt="AI Advisor" className="w-full h-full object-cover pointer-events-none" />
+          {/* Online indicator */}
+          <span className={`absolute -top-1 -right-1 w-4 h-4 rounded-full border-2 border-white pointer-events-none ${isLoggedIn ? 'bg-green-500 animate-pulse' : 'bg-slate-400'}`}></span>
+          {/* Tooltip */}
           {!isDragging && (
             <div className="absolute right-full mr-4 bg-white dark:bg-slate-800 text-slate-800 dark:text-white px-4 py-2 rounded-xl shadow-xl opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-sm font-medium pointer-events-none">
-              {t.aiTitle || 'AI 顾问在线'} (可拖动)
+              {isLoggedIn ? (
+                <span>{t.aiTitle || 'AI 投资顾问'} ✨</span>
+              ) : (
+                <span className="text-amber-600">🔒 登录后使用 AI 顾问</span>
+              )}
             </div>
           )}
         </div>
@@ -486,9 +577,15 @@ const FloatingAIAdvisor: React.FC<FloatingAIAdvisorProps> = ({ t, contextParams,
           <Bot className={`${isMinimized ? 'h-4 w-4' : 'h-5 w-5'} shrink-0`} />
           <span className={`font-bold ${isMinimized ? 'text-sm truncate' : ''}`}>{isMinimized ? 'AI 顾问' : t.aiTitle}</span>
           {!isMinimized && (
-            <span className="text-xs bg-indigo-500 px-2 py-0.5 rounded-full flex items-center gap-1">
-              <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></span>
-              {t.aiOnline}
+            <span className={`text-xs px-2 py-0.5 rounded-full flex items-center gap-1 ${
+              apiStatus === 'online' ? 'bg-indigo-500' : 
+              apiStatus === 'needs-vpn' ? 'bg-amber-500' : 'bg-rose-500'
+            }`}>
+              <span className={`w-1.5 h-1.5 rounded-full ${
+                apiStatus === 'online' ? 'bg-green-400 animate-pulse' : 
+                apiStatus === 'needs-vpn' ? 'bg-amber-200' : 'bg-rose-200'
+              }`}></span>
+              {apiStatus === 'online' ? t.aiOnline : apiStatus === 'needs-vpn' ? '需VPN' : '需配置'}
             </span>
           )}
         </div>
@@ -569,16 +666,56 @@ const FloatingAIAdvisor: React.FC<FloatingAIAdvisorProps> = ({ t, contextParams,
           ) : (
           /* Messages */
           <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50 dark:bg-slate-900/50">
-            {messages.map((msg, idx) => (
-              <div key={idx} className={`flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${msg.role === 'user' ? 'bg-slate-200 dark:bg-slate-700' : 'bg-indigo-100 dark:bg-indigo-900/50'}`}>
-                  {msg.role === 'user' ? <User className="h-4 w-4 text-slate-600 dark:text-slate-300" /> : <Bot className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />}
+            {/* Configuration Tips Panel */}
+            {showConfigTips && (
+              <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-3 mb-2">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex-1">
+                    <p className="text-xs font-bold text-amber-800 dark:text-amber-300 mb-1.5">💡 AI 顾问配置提示</p>
+                    <div className="text-xs text-amber-700 dark:text-amber-400 space-y-1">
+                      <p>• <strong>Gemini/OpenAI/Claude</strong>：需要 VPN 环境才能访问</p>
+                      <p>• <strong>通义千问/文心一言</strong>：国内 AI，无需 VPN</p>
+                      <p>• 请在 <strong>设置 → API Key</strong> 中配置您的密钥</p>
+                    </div>
+                  </div>
+                  <button 
+                    onClick={() => setShowConfigTips(false)}
+                    className="text-amber-600 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-200 p-1"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
                 </div>
-                <div className={`max-w-[80%] p-3 rounded-2xl text-sm ${
+              </div>
+            )}
+            {messages.map((msg, idx) => (
+              <div key={idx} className={`flex items-end gap-2 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
+                {/* Avatar - Messenger style (smaller, at bottom of bubble) */}
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 overflow-hidden shadow-sm ${
                   msg.role === 'user' 
-                    ? 'bg-indigo-600 text-white rounded-tr-none' 
-                    : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 shadow-sm border border-slate-100 dark:border-slate-700 rounded-tl-none'
+                    ? 'bg-gradient-to-br from-blue-500 to-indigo-600' 
+                    : ''
                 }`}>
+                  {msg.role === 'user' ? (
+                    userPhoto ? (
+                      <img src={userPhoto} alt={userName || '我'} className="w-full h-full object-cover" />
+                    ) : (
+                      <User className="h-4 w-4 text-white" />
+                    )
+                  ) : (
+                    <img src={AI_ADVISOR_AVATAR} alt="小慧" className="w-full h-full object-cover rounded-full" />
+                  )}
+                </div>
+                {/* Message bubble - Messenger style */}
+                <div className="flex flex-col gap-1 max-w-[75%]">
+                  {/* Sender name for AI */}
+                  {msg.role === 'model' && idx === 0 && (
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400 ml-1">小慧 · AI 投资顾问</span>
+                  )}
+                  <div className={`px-4 py-2.5 text-sm leading-relaxed ${
+                    msg.role === 'user' 
+                      ? 'bg-gradient-to-br from-indigo-500 to-indigo-600 text-white rounded-2xl rounded-br-md shadow-sm' 
+                      : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-2xl rounded-bl-md shadow-sm border border-slate-100 dark:border-slate-700'
+                  }`}>
                   {msg.role === 'model' ? (() => {
                     const { mainContent, questions } = parseFollowUpQuestions(msg.content);
                     return (
@@ -616,8 +753,9 @@ const FloatingAIAdvisor: React.FC<FloatingAIAdvisorProps> = ({ t, contextParams,
                       </>
                     );
                   })() : (
-                    msg.content
+                    <span>{msg.content}</span>
                   )}
+                  </div>
                 </div>
               </div>
             ))}
