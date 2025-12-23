@@ -12,8 +12,6 @@ import {
 } from '../utils/socialPerspective';
 import { CheckCircle2, AlertTriangle, RefreshCw, ShieldAlert, BadgeCheck, Bot, ThumbsUp, ThumbsDown, Users, TrendingUp, UserCheck, Heart, Share2, Download, X, Clock } from 'lucide-react';
 import { PieChart, Pie, Cell, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import BattleReportCard from './BattleReportCard';
-import html2canvas from 'html2canvas';
 
 interface DecisionDashboardProps {
   params: InvestmentParams;
@@ -25,46 +23,8 @@ interface DecisionDashboardProps {
 const DecisionDashboard: React.FC<DecisionDashboardProps> = ({ params, result, t, language }) => {
   const [activeTab, setActiveTab] = useState<'alternatives' | 'irreversible'>('alternatives');
   const [socialTab, setSocialTab] = useState<'peer' | 'minority' | 'future' | 'family'>('peer'); 
-  const [showReport, setShowReport] = useState(false);
-  const [isGenerating, setIsGenerating] = useState(false);
-  const reportRef = React.useRef<HTMLDivElement>(null);
-
-  const handleDownloadReport = async () => {
-    if (!reportRef.current) return;
-    setIsGenerating(true);
-    try {
-      // Wait a bit for any animations to settle
-      await new Promise(resolve => setTimeout(resolve, 200));
-      
-      const canvas = await html2canvas(reportRef.current, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: '#0f172a',
-        logging: false,
-        width: 375,
-        height: 667,
-        imageTimeout: 0,
-        removeContainer: true
-      });
-      
-      // Use dataURL for better compatibility
-      const dataUrl = canvas.toDataURL('image/png', 1.0);
-      const link = document.createElement('a');
-      link.download = `WealthCompass_战报_${new Date().getTime()}.png`;
-      link.href = dataUrl;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      
-      setIsGenerating(false);
-    } catch (err) {
-      console.error('Failed to generate report', err);
-      alert('图片生成失败，请重试');
-      setIsGenerating(false);
-    }
-  }; 
-
+  
+  // Derive language from translation object detection (since prop isn't passed yet)
   // Derive language from translation object detection (since prop isn't passed yet)
   
 
@@ -361,55 +321,7 @@ const DecisionDashboard: React.FC<DecisionDashboardProps> = ({ params, result, t
         </div>
       </div>
 
-      {/* Battle Report Modal */}
-      {showReport && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" onClick={() => setShowReport(false)}>
-          <div className="bg-slate-900 rounded-3xl max-w-sm w-full relative shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300" onClick={e => e.stopPropagation()}>
-             {/* Close Button */}
-             <button 
-               onClick={() => setShowReport(false)}
-               className="absolute top-4 right-4 z-20 bg-black/20 hover:bg-black/40 text-white p-2 rounded-full transition-colors backdrop-blur-md"
-             >
-               <X className="h-5 w-5" />
-             </button>
 
-             {/* Preview Area */}
-             <div className="flex justify-center bg-slate-950 p-0">
-               <BattleReportCard 
-                 ref={reportRef}
-                 params={params} 
-                 result={result} 
-                 roast={(() => {
-                   // Get a better roast from House Roast if available
-                   const dti = result.monthlyPayment / (params.familyMonthlyIncome || 30000);
-                   if (dti > 0.5) return t.decisionDashboard?.highDtiRoast || "月供压力山大，建议三思！";
-                   if (params.totalPrice && params.totalPrice > 1000) return t.decisionDashboard?.highPriceRoast || "大手笔！确保现金流充足。";
-                   if (result.rentalYield && result.rentalYield < 1.5) return t.decisionDashboard?.lowYieldRoast || "租售比偏低，投资需谨慎。";
-                   return t.decisionDashboard?.commonRoast || "稳健之选，继续加油！";
-                 })()}
-                 t={t}
-                 riskScore={(() => {
-                   const dti = (result.monthlyPayment / (params.familyMonthlyIncome || 30000)) * 100;
-                   const leverage = ((params.totalPrice || 300) * (1 - (params.downPaymentRatio || 30) / 100)) / (params.totalPrice || 300) * 100;
-                   return Math.round(Math.min(100, (dti * 0.6 + leverage * 0.4)));
-                 })()}
-                 beatPercent={(() => {
-                   // Calculate based on multiple factors
-                   const roi = result.rentalYield || 0;
-                   const dti = result.monthlyPayment / (params.familyMonthlyIncome || 30000);
-                   let score = 50; // Base score
-                   if (roi > 2.5) score += 30;
-                   else if (roi > 1.5) score += 15;
-                   if (dti < 0.3) score += 20;
-                   else if (dti < 0.5) score += 10;
-                   else score -= 10;
-                   return Math.min(99, Math.max(10, Math.round(score)));
-                 })()}
-               />
-             </div>
-          </div>
-        </div>
-      )}
     </div>
     </div>
   );

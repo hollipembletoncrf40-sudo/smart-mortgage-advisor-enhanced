@@ -194,7 +194,7 @@ const DetailedPaymentTable: React.FC<DetailedPaymentTableProps> = ({ monthlyPaym
       </div>
 
       {/* 表格内容 */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto overflow-x-auto">
         {/* 按年视图 */}
         {viewMode === 'year' && (
           <div className="divide-y divide-slate-100 dark:divide-slate-800">

@@ -2162,7 +2162,7 @@ function App() {
               }
             `}
           </style>
-          <h1 className="liquid-block-text text-6xl md:text-8xl font-black mb-4 tracking-tighter relative z-10 select-none drop-shadow-2xl" 
+          <h1 className="liquid-block-text text-4xl md:text-8xl font-black mb-4 tracking-tighter relative z-10 select-none drop-shadow-2xl" 
               style={{ 
                 WebkitTextStroke: '1px rgba(255,255,255,0.2)',
                 filter: 'drop-shadow(0 0 15px rgba(99, 102, 241, 0.4))'
