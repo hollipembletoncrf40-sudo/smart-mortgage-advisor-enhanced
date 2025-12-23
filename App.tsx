@@ -1783,10 +1783,28 @@ function App() {
     localStorage.setItem('theme', theme);
   }, [theme]);
   
-  // Listen for authentication state changes
+  // Listen for authentication state changes and auto-prompt login
+  const isAuthInitialized = useRef(false);
+
   useEffect(() => {
     const unsubscribe = onAuthChange((user) => {
       setUser(user);
+      
+      // Auto-prompt login on first load if not authenticated
+      if (!isAuthInitialized.current) {
+        if (!user) {
+          setShowAuthModal(true);
+        }
+        isAuthInitialized.current = true;
+      }
+
+      // Cache username for "Welcome back" message
+      if (user) {
+        const nameToCache = user.displayName || user.email?.split('@')[0];
+        if (nameToCache) {
+          localStorage.setItem('last_username', nameToCache);
+        }
+      }
     });
     return () => unsubscribe();
   }, []);
@@ -2132,25 +2150,35 @@ function App() {
                 50% { background-position: 100% 50%; }
                 100% { background-position: 0% 50%; }
               }
-              .liquid-text {
-                background-size: 300% 300%;
-                animation: liquid-flow 8s ease infinite;
+              .liquid-block-text {
+                background-image: 
+                  repeating-linear-gradient(45deg, rgba(255,255,255,0.1) 0px, rgba(255,255,255,0.1) 2px, transparent 2px, transparent 6px),
+                  linear-gradient(90deg, #4f46e5, #9333ea, #db2777, #f59e0b, #4f46e5);
+                background-size: 200% auto;
+                background-clip: text;
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                animation: liquid-flow 6s linear infinite;
               }
             `}
           </style>
-          <h1 className="liquid-text text-6xl md:text-8xl font-black bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 via-purple-500 via-pink-500 to-amber-500 mb-4 tracking-tighter drop-shadow-2xl" 
+          <h1 className="liquid-block-text text-6xl md:text-8xl font-black mb-4 tracking-tighter relative z-10 select-none drop-shadow-2xl" 
               style={{ 
-                filter: 'drop-shadow(0 0 25px rgba(124, 58, 237, 0.3))',
-                WebkitTextStroke: '1px rgba(255,255,255,0.1)'
+                WebkitTextStroke: '1px rgba(255,255,255,0.2)',
+                filter: 'drop-shadow(0 0 15px rgba(99, 102, 241, 0.4))'
               }}>
             WealthCompass
           </h1>
           <div className="flex items-center justify-center gap-4 opacity-90">
-            <div className="h-[2px] w-16 bg-gradient-to-r from-transparent via-indigo-400 to-purple-400 rounded-full"></div>
-            <p className="text-lg md:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-400 tracking-[0.2em] uppercase">
+            <div className="h-[2px] w-16 bg-gradient-to-r from-transparent via-indigo-500 to-purple-500 rounded-full opacity-50"></div>
+            <p className="liquid-block-text text-lg md:text-2xl font-bold tracking-[0.2em] uppercase" 
+               style={{ 
+                 WebkitTextStroke: '0.5px rgba(255,255,255,0.15)',
+                 filter: 'drop-shadow(0 0 8px rgba(99, 102, 241, 0.3))'
+               }}>
               财富罗盘终极决策系统
             </p>
-            <div className="h-[2px] w-16 bg-gradient-to-l from-transparent via-indigo-400 to-purple-400 rounded-full"></div>
+            <div className="h-[2px] w-16 bg-gradient-to-l from-transparent via-indigo-500 to-purple-500 rounded-full opacity-50"></div>
           </div>
         </div>
 

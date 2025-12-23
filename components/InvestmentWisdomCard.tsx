@@ -65,7 +65,7 @@ const InvestmentWisdomCard: React.FC<InvestmentWisdomCardProps> = ({ language = 
 
         {/* Content Container */}
         <div className={`transition-all duration-500 transform ${isAnimating ? 'opacity-0 scale-95 blur-sm' : 'opacity-100 scale-100 blur-0'}`}>
-          <h3 className="text-2xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-slate-700 via-indigo-700 to-slate-700 dark:from-white dark:via-indigo-100 dark:to-white mb-6 drop-shadow-sm dark:drop-shadow-md tracking-wide leading-relaxed" style={{ fontFamily: 'serif' }}>
+          <h3 className="text-2xl md:text-4xl font-black text-slate-800 dark:text-slate-100 mb-6 drop-shadow-sm dark:drop-shadow-md tracking-wide leading-relaxed" style={{ fontFamily: 'serif' }}>
             {language === 'EN' ? currentQuote.textEn : currentQuote.text}
           </h3>
           
