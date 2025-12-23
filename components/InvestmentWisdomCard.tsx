@@ -56,35 +56,35 @@ const InvestmentWisdomCard: React.FC<InvestmentWisdomCardProps> = ({ language = 
       <div className="relative p-8 md:p-10 flex flex-col items-center justify-center text-center min-h-[220px]">
         
         {/* Decorative Quote Icon */}
-        <div className="absolute top-6 left-6 text-white/20">
+        <div className="absolute top-6 left-6 text-indigo-900/10 dark:text-white/20">
           <Quote size={48} className="rotate-180" />
         </div>
-        <div className="absolute bottom-6 right-6 text-white/20">
+        <div className="absolute bottom-6 right-6 text-indigo-900/10 dark:text-white/20">
           <Quote size={48} />
         </div>
 
         {/* Content Container */}
         <div className={`transition-all duration-500 transform ${isAnimating ? 'opacity-0 scale-95 blur-sm' : 'opacity-100 scale-100 blur-0'}`}>
-          <h3 className="text-2xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-indigo-100 to-white mb-6 drop-shadow-md tracking-wide leading-relaxed" style={{ fontFamily: 'serif' }}>
+          <h3 className="text-2xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-slate-700 via-indigo-700 to-slate-700 dark:from-white dark:via-indigo-100 dark:to-white mb-6 drop-shadow-sm dark:drop-shadow-md tracking-wide leading-relaxed" style={{ fontFamily: 'serif' }}>
             {language === 'EN' ? currentQuote.textEn : currentQuote.text}
           </h3>
           
           <div className="flex items-center justify-center gap-3">
-            <div className="h-[1px] w-12 bg-indigo-300/50"></div>
-            <p className="text-sm md:text-base font-medium text-indigo-100/90 tracking-widest uppercase">
+            <div className="h-[1px] w-12 bg-indigo-500/30 dark:bg-indigo-300/50"></div>
+            <p className="text-sm md:text-base font-medium text-indigo-800/80 dark:text-indigo-100/90 tracking-widest uppercase">
               {language === 'EN' ? currentQuote.authorEn : currentQuote.author}
             </p>
-            <div className="h-[1px] w-12 bg-indigo-300/50"></div>
+            <div className="h-[1px] w-12 bg-indigo-500/30 dark:bg-indigo-300/50"></div>
           </div>
         </div>
 
         {/* Footer Hint */}
         <div className="absolute bottom-4 left-0 right-0 flex justify-center items-center gap-2 opacity-0 group-hover:opacity-60 transition-opacity duration-300">
-          <Sparkles size={12} className="text-indigo-200" />
-          <span className="text-[10px] text-indigo-200 tracking-wider">
+          <Sparkles size={12} className="text-indigo-500 dark:text-indigo-200" />
+          <span className="text-[10px] text-indigo-600 dark:text-indigo-200 tracking-wider">
             {language === 'EN' ? 'Click to change' : '点击切换一首'}
           </span>
-          <Sparkles size={12} className="text-indigo-200" />
+          <Sparkles size={12} className="text-indigo-500 dark:text-indigo-200" />
         </div>
       </div>
     </div>

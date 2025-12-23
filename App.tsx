@@ -2649,17 +2649,29 @@ function App() {
                {activeTab === 'community_data' && (
                  <div className="relative">
                    {!user && (
-                     <div 
-                       className="absolute inset-0 z-20 bg-black/30 backdrop-blur-[2px] rounded-2xl flex items-center justify-center cursor-pointer"
-                       onClick={() => setShowAuthModal(true)}
-                     >
-                       <div className="bg-slate-900/90 px-8 py-6 rounded-2xl border border-slate-700 text-center shadow-2xl">
-                         <div className="w-12 h-12 mx-auto mb-3 bg-indigo-600 rounded-full flex items-center justify-center">
-                           <LogIn className="h-6 w-6 text-white" />
+                     <div className="absolute inset-0 z-20 bg-white/80 dark:bg-black/90 backdrop-blur-sm rounded-2xl flex flex-col items-center justify-center transition-colors">
+                       <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 text-center max-w-sm mx-4 shadow-2xl">
+                         <div className="w-14 h-14 mx-auto mb-4 bg-indigo-600 rounded-full flex items-center justify-center shadow-lg shadow-indigo-200 dark:shadow-none">
+                           <LogIn className="h-7 w-7 text-white" />
                          </div>
-                         <h3 className="text-base font-bold text-white mb-1">解锁小区数据</h3>
-                         <p className="text-slate-400 text-xs mb-4">登录后查看完整小区分析</p>
-                         <span className="text-indigo-400 text-sm font-medium">点击登录 →</span>
+                         <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-2">
+                           {language === 'EN' ? 'Unlock Community Data' : '解锁小区深度分析'}
+                         </h3>
+                         <p className="text-slate-500 dark:text-slate-400 text-sm mb-6">
+                           {language === 'EN' 
+                             ? 'Log in to view historical transactions, price trends, and neighborhood analysis.' 
+                             : '登录后查看小区历史成交记录、价格走势及周边配套深度评测'}
+                         </p>
+                         <button 
+                           onClick={() => setShowAuthModal(true)}
+                           className="w-full px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl transition-all shadow-md hover:shadow-xl hover:-translate-y-0.5"
+                         >
+                           {language === 'EN' ? 'Login / Sign Up Now' : '立即登录 / 解锁数据'}
+                         </button>
+                         <p className="text-slate-400 dark:text-slate-600 text-xs mt-4 flex items-center justify-center gap-1">
+                           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                           {language === 'EN' ? 'Verified real estate data' : '真实房产数据保障'}
+                         </p>
                        </div>
                      </div>
                    )}
@@ -2728,27 +2740,28 @@ function App() {
               {/* Detailed Table Section - Login Required */}
               <div className="relative">
                 {!user && (
-                  <div className="absolute inset-0 z-10 bg-black/90 backdrop-blur-sm rounded-2xl flex flex-col items-center justify-center">
-                    <div className="bg-slate-900 p-8 rounded-2xl border border-slate-800 text-center max-w-sm mx-4 shadow-2xl">
-                      <div className="w-14 h-14 mx-auto mb-4 bg-indigo-600 rounded-full flex items-center justify-center">
+                  <div className="absolute inset-0 z-10 bg-white/80 dark:bg-black/90 backdrop-blur-sm rounded-2xl flex flex-col items-center justify-center transition-colors">
+                    <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 text-center max-w-sm mx-4 shadow-2xl">
+                      <div className="w-14 h-14 mx-auto mb-4 bg-indigo-600 rounded-full flex items-center justify-center shadow-lg shadow-indigo-200 dark:shadow-none">
                         <LogIn className="h-7 w-7 text-white" />
                       </div>
-                      <h3 className="text-lg font-bold text-white mb-2">
+                      <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-2">
                         {language === 'EN' ? 'Unlock Detailed Schedule' : '解锁详细还款计划'}
                       </h3>
-                      <p className="text-slate-400 text-sm mb-6">
+                      <p className="text-slate-500 dark:text-slate-400 text-sm mb-6">
                         {language === 'EN' 
                           ? 'Log in to view complete monthly repayment schedule, principal/interest breakdown, and more professional insights.' 
                           : '登录后即可查看完整的逐月还款明细、本金利息分布等专业分析数据'}
                       </p>
                       <button 
                         onClick={() => setShowAuthModal(true)}
-                        className="w-full px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl transition-all"
+                        className="w-full px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl transition-all shadow-md hover:shadow-xl hover:-translate-y-0.5"
                       >
                         {language === 'EN' ? 'Login / Sign Up Now' : '立即登录 / 注册'}
                       </button>
-                      <p className="text-slate-600 text-xs mt-4">
-                        {language === 'EN' ? '🔒 Your data is secure' : '🔒 您的数据安全有保障'}
+                      <p className="text-slate-400 dark:text-slate-600 text-xs mt-4 flex items-center justify-center gap-1">
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                        {language === 'EN' ? 'Your data is secure' : '您的数据安全有保障'}
                       </p>
                     </div>
                   </div>
