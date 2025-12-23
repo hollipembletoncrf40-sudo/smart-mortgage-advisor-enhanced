@@ -158,7 +158,7 @@ const GoalReverseCalculator: React.FC<GoalReverseCalculatorProps> = ({ t, curren
                             onChange={(e) => setTargetYears(Number(e.target.value))}
                             className="w-full pl-4 pr-12 py-2.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-pink-500 outline-none font-bold text-slate-700 dark:text-white transition-all"
                         />
-                        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">Years</span>
+                        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">{t.yearsUnit || '年'}</span>
                         </div>
                     </div>
                     <div>
@@ -210,7 +210,7 @@ const GoalReverseCalculator: React.FC<GoalReverseCalculatorProps> = ({ t, curren
                         />
                     </div>
                     <div>
-                        <label className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 block">Other Inv. Income</label>
+                        <label className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 block">{t.otherInvIncome || '其他投资收入'}</label>
                         <input 
                             type="number" 
                             value={otherMonthlyIncome} 
@@ -219,7 +219,7 @@ const GoalReverseCalculator: React.FC<GoalReverseCalculatorProps> = ({ t, curren
                         />
                     </div>
                     <div>
-                        <label className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 block">Monthly Exp.</label>
+                        <label className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 block">{t.monthlyExpenses || '月支出'}</label>
                         <input 
                             type="number" 
                             value={monthlyExpenses} 
@@ -228,7 +228,7 @@ const GoalReverseCalculator: React.FC<GoalReverseCalculatorProps> = ({ t, curren
                         />
                     </div>
                     <div>
-                        <label className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 block">Yearly Big Exp.</label>
+                        <label className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 block">{t.yearlyBigExpenses || '年度大额支出'}</label>
                         <input 
                             type="number" 
                             value={yearlyExpenses} 

@@ -453,6 +453,28 @@ const CarPurchasePanel: React.FC<CarPurchasePanelProps> = ({ t, language = 'ZH' 
               </div>
             </div>
 
+            {/* Loan Term Selector */}
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
+                {isEn ? 'Loan Term (Years)' : '贷款期限 (年)'}
+              </label>
+              <div className="flex bg-slate-100 dark:bg-slate-800 rounded-xl p-1">
+                {[1, 2, 3, 4, 5].map((year) => (
+                  <button
+                    key={year}
+                    onClick={() => setParams({...params, loanTerm: year})}
+                    className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${
+                      params.loanTerm === year 
+                        ? 'bg-white dark:bg-slate-700 shadow text-indigo-600' 
+                        : 'text-slate-500 hover:text-slate-700'
+                    }`}
+                  >
+                    {year}{isEn ? 'Y' : '年'}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             {/* Family Support */}
             <div>
               <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 flex items-center gap-1">
