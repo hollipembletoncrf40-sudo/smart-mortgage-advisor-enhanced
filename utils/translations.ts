@@ -921,6 +921,7 @@ export const TRANSLATIONS = {
     navInteractive: "实时仪表",
     navTimeline: "时间轴",
     navGameMode: "游戏模式",
+    navSellDecision: "卖房决策",
     navAIPanel: "AI顾问",
 
     // Interactive Dashboard
@@ -1941,6 +1942,7 @@ export const TRANSLATIONS = {
     navInteractive: "Live Dashboard",
     navTimeline: "Timeline",
     navGameMode: "Game Mode",
+    navSellDecision: "Sell Decision",
     navAIPanel: "AI Advisor",
 
     // Interactive Dashboard

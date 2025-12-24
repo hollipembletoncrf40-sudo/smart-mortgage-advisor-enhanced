@@ -46,6 +46,7 @@ import MarketPositionRadar from './components/MarketPositionRadar';
 import LifeDragIndexPanel from './components/LifeDragIndexPanel';
 import CommunityDataPanel from './components/CommunityDataPanel';
 import IncomeRequirementPanel from './components/IncomeRequirementPanel';
+import SellDecisionDashboard from './components/SellDecisionDashboard';
 import SectionNav from './components/SectionNav';
 import { loadAIConfig, sendAIMessage, AIMessage, getProviderName } from './utils/aiProvider';
 import { InvestmentParams, RepaymentMethod, CalculationResult, PrepaymentStrategy, StressTestResult, LoanType, PurchaseScenario, LocationFactors, LocationScore, AssetComparisonItem, KnowledgeCardData, Language, Currency, TaxParams, TaxResult, AppreciationPredictorParams, AppreciationPrediction, MonthlyCashFlow, CustomStressTestParams, DecisionSnapshot } from './types';
@@ -2589,6 +2590,8 @@ function App() {
                    <button onClick={() => setActiveTab('income_threshold')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'income_threshold' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{language === 'EN' ? 'Income Threshold' : '收入门槛'}</button>
                    <button onClick={() => setActiveTab('car_analysis')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'car_analysis' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{language === 'EN' ? 'Car Analysis' : '买车分析'}</button>
                    <button onClick={() => setActiveTab('asset_allocation')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'asset_allocation' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{language === 'EN' ? 'Asset Alloc.' : '资产配置'}</button>
+
+                   <button onClick={() => setActiveTab('sell_decision')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'sell_decision' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{language === 'EN' ? 'Sell Decision' : '卖房决策'}</button>
                 </div>
 
                {activeTab === 'chart' && (
@@ -2641,7 +2644,9 @@ function App() {
                  {activeTab === 'asset_allocation' && (
                    <AssetAllocationPanel t={t} language={language} />
                  )}
-
+                 {activeTab === 'sell_decision' && (
+                    <SellDecisionDashboard t={t} language={language} />
+                 )}
                  {activeTab === 'knowledge' && (
                    <div className="py-4">
                      <KnowledgeTree
@@ -2845,6 +2850,8 @@ function App() {
         <div id="game-panel">
           <GameModePanel params={params} t={t} language={language} />
         </div>
+
+
 
       </main>
 

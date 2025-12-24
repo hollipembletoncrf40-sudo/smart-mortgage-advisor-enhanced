@@ -567,6 +567,81 @@ export interface PortfolioAnalysisResult {
   
   charts: {
     allocation: { name: string; value: number; type: string }[];
-    riskDistribution: { name: string; value: number }[];
+    analysis: { name: string; value: number }[];
+  };
+}
+
+// ----------------------------------------
+// Sell Decision Dashboard Types
+// ----------------------------------------
+
+export interface SellParams {
+  // Current Status
+  currentPrice: number; // 万 (Estimated selling price)
+  originalPrice: number; // 万 (Buying price)
+  remainingMortgage: number; // 万
+  monthlyIncome: number; // 元 (Current income)
+  
+  // Costs
+  interestRate: number; // % (Current loan rate)
+  holdingCostPerYear: number; // 万 (Property tax, maintenance, heating, etc.)
+  
+  // Future Assumptions
+  appreciationRate: number; // % (Expected yearly growth)
+  rentalYield: number; // % (If rented out)
+  investmentReturnRate: number; // % (Return on cash if sold)
+  
+  // Emotional / Soft Factors
+  careerStability: number; // 0-100
+  cityLockScore: number; // 0-100 (Difficulty to move city if holding)
+  regretFearScore: number; // 0-100 (Fear of missing out future gains)
+}
+
+export interface MultiversePoint {
+  year: number;
+  holdNetWorth: number; // 万
+  sellNowNetWorth: number; // 万 (Invested cash)
+  sellLaterNetWorth: number; // 万 (Hold n years then sell)
+  
+  holdCashFlow: number; // 元/月
+  sellNowCashFlow: number; // 元/月
+}
+
+export interface SellResult {
+  // Module 1: Dilemma Scan
+  dtiRatio: number; // Current DTI
+  cashFlowPressure: number; // 0-100
+  freedomScore: number; // 0-100 (Based on liquid assets vs debt)
+  
+  // Module 2: Multiverse
+  multiversePath: MultiversePoint[];
+  optimalPath: 'HOLD' | 'SELL_NOW' | 'SELL_LATER';
+  
+  // Module 3: Price Illusion
+  illusionBreakdown: {
+    buyPrice: number;
+    interestPaid: number;
+    holdingCosts: number;
+    inflationLoss: number;
+    totalCost: number;
+    sellPrice: number;
+    realProfit: number;
+  };
+  
+  // Module 4: Real World Money Flow
+  cashAfterSale: number; // Cash in hand after debt & taxes
+  nextStepPotential: { zh: string; en: string }; // e.g. "Can buy 500w property"
+  
+  // Module 5: Time Evasion (Wait 1 year)
+  waitOneYearOutcome: {
+    gainOrLoss: number; // 万
+    riskExposure: number; // 0-100
+    recommendation: 'WAIT' | 'SELL_NOW';
+  };
+  
+  // Module 6: Regret Model
+  regretProb: {
+    regretSell: number; // % chance you regret selling
+    regretHold: number; // % chance you regret holding
   };
 }
