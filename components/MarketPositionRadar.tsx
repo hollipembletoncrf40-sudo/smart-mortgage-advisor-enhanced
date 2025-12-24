@@ -1,29 +1,41 @@
 import React from 'react';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Legend } from 'recharts';
-import { MarketRadarData } from '../types';
+import { MarketRadarData, Language } from '../types';
 import { ShieldCheck, AlertTriangle, Siren } from 'lucide-react';
 
 interface MarketPositionRadarProps {
   data: MarketRadarData;
+  language?: Language;
 }
 
-const MarketPositionRadar: React.FC<MarketPositionRadarProps> = ({ data }) => {
-  const chartData = [
-    { subject: '杠杆安全', value: data.leverage, fullMark: 100 },
-    { subject: '风险承受', value: data.riskTolerance, fullMark: 100 },
-    { subject: '流动性', value: data.liquidity || 50, fullMark: 100 }, // Fallback if 0/undefined
-    { subject: '职业稳定', value: data.careerStability, fullMark: 100 },
-    { subject: '家庭负担', value: data.familyBurden, fullMark: 100 },
-    { subject: '市场估值', value: data.marketValuation, fullMark: 100 },
-  ];
+const MarketPositionRadar: React.FC<MarketPositionRadarProps> = ({ data, language = 'ZH' }) => {
+  const isEn = language === 'EN';
 
-  // Zones data for background
-  const zoneData = chartData.map(d => ({
-    subject: d.subject,
-    safe: 100,
-    warning: 60, 
-    danger: 30
-  }));
+  const labels = {
+    leverage: isEn ? 'Leverage Safety' : '杠杆安全',
+    riskTolerance: isEn ? 'Risk Tolerance' : '风险承受',
+    liquidity: isEn ? 'Liquidity' : '流动性',
+    careerStability: isEn ? 'Career Stability' : '职业稳定',
+    familyBurden: isEn ? 'Family Burden' : '家庭负担',
+    marketValuation: isEn ? 'Market Value' : '市场估值',
+    title: isEn ? 'Your Market Position' : '你在市场里的位置',
+    subtitle: isEn ? '6D Core Competitiveness (Outer = Safe)' : '六维核心竞争力评估 (外圈为优/安全区)',
+    safeZone: isEn ? 'Safe Zone' : '安全区',
+    warningZone: isEn ? 'Warning Zone' : '警戒区',
+    dangerZone: isEn ? 'Danger Zone' : '危险区',
+    dangerLine: isEn ? 'Danger Line' : '危险线',
+    myPosition: isEn ? 'My Position' : '我的位置',
+    warningLine: isEn ? 'Warning Line' : '警戒线',
+  };
+
+  const chartData = [
+    { subject: labels.leverage, value: data.leverage, fullMark: 100 },
+    { subject: labels.riskTolerance, value: data.riskTolerance, fullMark: 100 },
+    { subject: labels.liquidity, value: data.liquidity || 50, fullMark: 100 },
+    { subject: labels.careerStability, value: data.careerStability, fullMark: 100 },
+    { subject: labels.familyBurden, value: data.familyBurden, fullMark: 100 },
+    { subject: labels.marketValuation, value: data.marketValuation, fullMark: 100 },
+  ];
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-lg border border-slate-200 dark:border-slate-800/50">
@@ -31,16 +43,16 @@ const MarketPositionRadar: React.FC<MarketPositionRadarProps> = ({ data }) => {
         <div>
           <h3 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
             <ShieldCheck className="h-5 w-5 text-indigo-500" />
-            你在市场里的位置
+            {labels.title}
           </h3>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-            六维核心竞争力评估 (外圈为优/安全区)
+            {labels.subtitle}
           </p>
         </div>
         <div className="flex flex-col gap-1 text-xs">
-          <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-emerald-500/20 border border-emerald-500"></div><span className="text-slate-600 dark:text-slate-400">安全区</span></div>
-          <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-amber-500/20 border border-amber-500"></div><span className="text-slate-600 dark:text-slate-400">警戒区</span></div>
-          <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-rose-500/20 border border-rose-500"></div><span className="text-slate-600 dark:text-slate-400">危险区</span></div>
+          <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-emerald-500/20 border border-emerald-500"></div><span className="text-slate-600 dark:text-slate-400">{labels.safeZone}</span></div>
+          <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-amber-500/20 border border-amber-500"></div><span className="text-slate-600 dark:text-slate-400">{labels.warningZone}</span></div>
+          <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-rose-500/20 border border-rose-500"></div><span className="text-slate-600 dark:text-slate-400">{labels.dangerZone}</span></div>
         </div>
       </div>
 
@@ -51,42 +63,19 @@ const MarketPositionRadar: React.FC<MarketPositionRadarProps> = ({ data }) => {
             <PolarAngleAxis dataKey="subject" tick={{ fill: '#64748b', fontSize: 12 }} />
             <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
             
-            {/* Safe Zone Background (Whole Area) - Visual trick, usually handled by custom background, but Radar works if layered */}
-            {/* Actually, Recharts Radar doesn't support 'stacking' nicely for backgrounds without custom shapes. 
-                Simpler approach: 3 Polygons. 
-            */}
-            
             <Radar
-              name="安全区"
+              name={labels.safeZone}
               dataKey="fullMark"
               stroke="transparent"
               fill="#10b981"
               fillOpacity={0.1}
             />
-             {/* We can't easily do concentric rings with dataKey like this without hacking the data structure.
-                 Let's stick to just the user data and maybe a reference line or rely on the grid lines.
-                 Or user wants Safe/Warning/Danger ZONES. 
-                 Try rendering 3 Radars with static values?
-                 Yes.
-            */}
             
-            {/* Danger Zone (Inner) */}
-            {/* Warning Zone (Middle) */}
-            {/* Safe Zone (Outer) - handled by the grid naturally? No, let's add coloured fills */}
-            
-            {/* Danger Zone - 0-30 */}
-            {/* Warning Zone - 30-60 */}
-            {/* Safe - 60-100 */}
-            
-            {/* Let's try gradient fill for the user data instead, and colored grid background? 
-                Actually, simpler: Just show the user polygon vividly. 
-                And maybe 2 background polygons for reference: 30 mark and 60 mark.
-            */}
-            <Radar name="危险线" dataKey={() => 30} stroke="#f43f5e" strokeWidth={1} strokeDasharray="3 3" fill="#f43f5e" fillOpacity={0.05} />
-            <Radar name="警戒线" dataKey={() => 60} stroke="#f59e0b" strokeWidth={1} strokeDasharray="3 3" fill="transparent" />
+            <Radar name={labels.dangerLine} dataKey={() => 30} stroke="#f43f5e" strokeWidth={1} strokeDasharray="3 3" fill="#f43f5e" fillOpacity={0.05} />
+            <Radar name={labels.warningLine} dataKey={() => 60} stroke="#f59e0b" strokeWidth={1} strokeDasharray="3 3" fill="transparent" />
             
             <Radar
-              name="我的位置"
+              name={labels.myPosition}
               dataKey="value"
               stroke="#6366f1"
               strokeWidth={3}
@@ -96,8 +85,6 @@ const MarketPositionRadar: React.FC<MarketPositionRadarProps> = ({ data }) => {
             <Legend />
           </RadarChart>
         </ResponsiveContainer>
-        
-        {/* Center label or overlay if needed */}
       </div>
       
       <div className="grid grid-cols-2 gap-2 mt-4">

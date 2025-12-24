@@ -1405,17 +1405,50 @@ const StressTestPanel = ({ results, t, onAddCustom, onDeleteCustom }: { results:
   );
 };
 
-const RiskAssessmentPanel = ({ result, params, t }: { result: CalculationResult, params: InvestmentParams, t: any }) => {
+const RiskAssessmentPanel = ({ result, params, t, language = 'ZH' }: { result: CalculationResult, params: InvestmentParams, t: any, language?: 'ZH' | 'EN' }) => {
+  const isEn = language === 'EN';
   const comprehensiveRisk = calculateComprehensiveRisk(params, result, t);
   
-  // Prepare radar chart data
+  const labels = {
+    title: isEn ? 'Comprehensive Risk Assessment' : '综合风险评估',
+    lowRisk: isEn ? 'Low Risk' : '低风险',
+    mediumRisk: isEn ? 'Medium Risk' : '中风险',
+    highRisk: isEn ? 'High Risk' : '高风险',
+    riskDimensionAnalysis: isEn ? 'Risk Dimension Analysis' : '风险维度分析',
+    riskScore: isEn ? 'Risk Score' : '风险评分',
+    cashFlow: isEn ? 'Cash Flow' : '现金流',
+    leverage: isEn ? 'Leverage' : '杠杆',
+    liquidity: isEn ? 'Liquidity' : '流动性',
+    market: isEn ? 'Market' : '市场',
+    policy: isEn ? 'Policy' : '政策',
+    holdingCost: isEn ? 'Holding Cost' : '持有成本',
+    points: isEn ? 'pts' : '分',
+    low: isEn ? 'Low' : '低',
+    medium: isEn ? 'Med' : '中',
+    high: isEn ? 'High' : '高',
+    suggestions: isEn ? 'Suggestions:' : '改善建议:',
+    keyMetrics: isEn ? 'Key Metrics' : '关键指标',
+    dtiRatio: isEn ? 'DTI Ratio' : '月供收入比',
+    ltvRatio: isEn ? 'LTV Ratio' : '贷款比例',
+    monthlyPayment: isEn ? 'Monthly Payment' : '月供金额',
+    totalDebt: isEn ? 'Total Debt' : '总债务',
+    // Dimension names for getRiskIcon
+    cashFlowPressure: isEn ? 'Cash Flow Pressure' : '现金流压力',
+    leverageRisk: isEn ? 'Leverage Risk' : '杠杆风险',
+    liquidityRisk: isEn ? 'Liquidity Risk' : '流动性风险',
+    marketRisk: isEn ? 'Market Risk' : '市场风险',
+    policyRisk: isEn ? 'Policy Risk' : '政策风险',
+    holdingCostRisk: isEn ? 'Holding Cost Risk' : '持有成本风险',
+  };
+
+  // Prepare radar chart data with i18n labels
   const radarData = [
-    { dimension: '现金流', value: comprehensiveRisk.dimensions.cashFlow.score, fullMark: 100 },
-    { dimension: '杠杆', value: comprehensiveRisk.dimensions.leverage.score, fullMark: 100 },
-    { dimension: '流动性', value: comprehensiveRisk.dimensions.liquidity.score, fullMark: 100 },
-    { dimension: '市场', value: comprehensiveRisk.dimensions.market.score, fullMark: 100 },
-    { dimension: '政策', value: comprehensiveRisk.dimensions.policy.score, fullMark: 100 },
-    { dimension: '持有成本', value: comprehensiveRisk.dimensions.holdingCost.score, fullMark: 100 }
+    { dimension: labels.cashFlow, value: comprehensiveRisk.dimensions.cashFlow.score, fullMark: 100 },
+    { dimension: labels.leverage, value: comprehensiveRisk.dimensions.leverage.score, fullMark: 100 },
+    { dimension: labels.liquidity, value: comprehensiveRisk.dimensions.liquidity.score, fullMark: 100 },
+    { dimension: labels.market, value: comprehensiveRisk.dimensions.market.score, fullMark: 100 },
+    { dimension: labels.policy, value: comprehensiveRisk.dimensions.policy.score, fullMark: 100 },
+    { dimension: labels.holdingCost, value: comprehensiveRisk.dimensions.holdingCost.score, fullMark: 100 }
   ];
 
   const getRiskColor = (level: string) => {
@@ -1429,9 +1462,108 @@ const RiskAssessmentPanel = ({ result, params, t }: { result: CalculationResult,
       '流动性风险': Droplets,
       '市场风险': BarChart3,
       '政策风险': FileText,
-      '持有成本风险': Home
+      '持有成本风险': Home,
+      'Cash Flow Pressure': DollarSign,
+      'Leverage Risk': TrendingUp,
+      'Liquidity Risk': Droplets,
+      'Market Risk': BarChart3,
+      'Policy Risk': FileText,
+      'Holding Cost Risk': Home
     };
     return icons[name] || AlertTriangle;
+  };
+
+  const getRiskLevelLabel = (level: string) => {
+    return level === 'low' ? labels.lowRisk : level === 'medium' ? labels.mediumRisk : labels.highRisk;
+  };
+
+  const getShortLevelLabel = (level: string) => {
+    return level === 'low' ? labels.low : level === 'medium' ? labels.medium : labels.high;
+  };
+
+  // Translate dimension names from calculateComprehensiveRisk (which returns Chinese)
+  const translateDimensionName = (name: string) => {
+    if (!isEn) return name;
+    const translations: Record<string, string> = {
+      '现金流压力': 'Cash Flow Pressure',
+      '杠杆风险': 'Leverage Risk',
+      '流动性风险': 'Liquidity Risk',
+      '市场风险': 'Market Risk',
+      '政策风险': 'Policy Risk',
+      '持有成本风险': 'Holding Cost Risk'
+    };
+    return translations[name] || name;
+  };
+
+  // Generate English explanations based on data
+  const getExplanation = (dimension: any, key: string) => {
+    if (!isEn) return dimension.explanation;
+    const dtiRatio = (result.monthlyPayment / (params.familyMonthlyIncome || 30000)) * 100;
+    const ltvRatio = 100 - params.downPaymentRatio;
+    const appreciationRate = params.appreciationRate || 3;
+    const interestRate = params.interestRate;
+    const holdingCostRatio = params.holdingCostRatio || 0.5;
+    const vacancyRate = params.vacancyRate || 5;
+
+    switch(key) {
+      case 'cashFlow':
+        return dtiRatio < 30 
+          ? `DTI ratio ${dtiRatio.toFixed(1)}%, low pressure, healthy finances.`
+          : dtiRatio < 50
+          ? `DTI ratio ${dtiRatio.toFixed(1)}%, moderate pressure, maintain stable income.`
+          : `DTI ratio ${dtiRatio.toFixed(1)}%, high pressure, may affect quality of life.`;
+      case 'leverage':
+        return ltvRatio < 60
+          ? `LTV ${ltvRatio.toFixed(1)}%, moderate leverage, strong risk resistance.`
+          : ltvRatio < 80
+          ? `LTV ${ltvRatio.toFixed(1)}%, high leverage, monitor price fluctuations.`
+          : `LTV ${ltvRatio.toFixed(1)}%, very high leverage, significant risk if prices drop.`;
+      case 'liquidity':
+        return dimension.level === 'low'
+          ? `Emergency reserves adequate, low liquidity risk.`
+          : dimension.level === 'medium'
+          ? `Emergency reserves moderate, recommend increasing cash reserves.`
+          : `Emergency reserves insufficient, high liquidity risk, may need to sell assets in emergency.`;
+      case 'market':
+        return appreciationRate < 0
+          ? `Expected price decline of ${Math.abs(appreciationRate)}%/year, extremely high market risk.`
+          : appreciationRate < 3
+          ? `Expected appreciation ${appreciationRate}%/year, below inflation, higher market risk.`
+          : appreciationRate < 5
+          ? `Expected appreciation ${appreciationRate}%/year, stable market performance.`
+          : `Expected appreciation ${appreciationRate}%/year, good market outlook.`;
+      case 'policy':
+        return interestRate > 5
+          ? `Current rate ${interestRate}%, on the high side, policy adjustment risk.`
+          : interestRate > 4
+          ? `Current rate ${interestRate}%, moderate level, monitor policy changes.`
+          : `Current rate ${interestRate}%, low rate, favorable policy environment.`;
+      case 'holdingCost':
+        return `Holding cost ${holdingCostRatio}%, vacancy ${vacancyRate}%, ${dimension.level === 'low' ? 'good cost control' : dimension.level === 'medium' ? 'watch costs' : 'high cost pressure'}.`;
+      default:
+        return dimension.explanation;
+    }
+  };
+
+  // Simple English suggestions based on level
+  const getSuggestions = (dimension: any, key: string) => {
+    if (!isEn) return dimension.suggestions;
+    if (dimension.level === 'low') return ['Current situation is healthy', 'Consider long-term investment strategies'];
+    if (dimension.level === 'medium') return ['Monitor closely', 'Build emergency reserves', 'Maintain flexibility'];
+    return ['Reduce leverage', 'Increase stable assets', 'Consider refinancing options', 'Avoid aggressive assumptions'];
+  };
+
+  // Helper to get dimension key from name
+  const getDimensionKey = (name: string): string => {
+    const keyMap: Record<string, string> = {
+      '现金流压力': 'cashFlow',
+      '杠杆风险': 'leverage',
+      '流动性风险': 'liquidity',
+      '市场风险': 'market',
+      '政策风险': 'policy',
+      '持有成本风险': 'holdingCost'
+    };
+    return keyMap[name] || 'cashFlow';
   };
 
   return (
@@ -1441,7 +1573,7 @@ const RiskAssessmentPanel = ({ result, params, t }: { result: CalculationResult,
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-bold text-slate-800 dark:text-white flex items-center gap-2">
             <ShieldAlert className="h-5 w-5 text-indigo-500"/>
-            综合风险评估
+            {labels.title}
           </h2>
           <div className={`px-4 py-2 rounded-full text-sm font-bold ${
             comprehensiveRisk.overallLevel === 'low' 
@@ -1450,7 +1582,7 @@ const RiskAssessmentPanel = ({ result, params, t }: { result: CalculationResult,
               ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
               : 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400'
           }`}>
-            {comprehensiveRisk.overallLevel === 'low' ? '低风险' : comprehensiveRisk.overallLevel === 'medium' ? '中风险' : '高风险'}
+            {getRiskLevelLabel(comprehensiveRisk.overallLevel)}
           </div>
         </div>
         
@@ -1477,7 +1609,7 @@ const RiskAssessmentPanel = ({ result, params, t }: { result: CalculationResult,
       <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-xl border border-slate-100 dark:border-slate-800">
         <h3 className="font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
           <Target className="h-4 w-4 text-indigo-500"/>
-          风险维度分析
+          {labels.riskDimensionAnalysis}
         </h3>
         <div className="h-[300px]">
           <ResponsiveContainer width="100%" height="100%">
@@ -1485,7 +1617,7 @@ const RiskAssessmentPanel = ({ result, params, t }: { result: CalculationResult,
               <PolarGrid stroke="#e2e8f0" />
               <PolarAngleAxis dataKey="dimension" tick={{ fontSize: 12, fill: '#64748b' }} />
               <PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fontSize: 10, fill: '#94a3b8' }} />
-              <Radar name="风险评分" dataKey="value" stroke="#6366f1" fill="#6366f1" fillOpacity={0.6} />
+              <Radar name={labels.riskScore} dataKey="value" stroke="#6366f1" fill="#6366f1" fillOpacity={0.6} />
               <Tooltip 
                 contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
               />
@@ -1499,6 +1631,10 @@ const RiskAssessmentPanel = ({ result, params, t }: { result: CalculationResult,
         {Object.values(comprehensiveRisk.dimensions).map((dimension: any, idx) => {
           const Icon = getRiskIcon(dimension.name);
           const color = getRiskColor(dimension.level);
+          const dimKey = getDimensionKey(dimension.name);
+          const translatedName = translateDimensionName(dimension.name);
+          const translatedExplanation = getExplanation(dimension, dimKey);
+          const translatedSuggestions = getSuggestions(dimension, dimKey);
           
           return (
             <div key={idx} className="bg-white dark:bg-slate-900 rounded-2xl p-5 shadow-lg border border-slate-100 dark:border-slate-800 hover:shadow-xl transition-shadow">
@@ -1508,29 +1644,29 @@ const RiskAssessmentPanel = ({ result, params, t }: { result: CalculationResult,
                     <Icon className={`h-4 w-4 text-${color}-600 dark:text-${color}-400`} />
                   </div>
                   <div>
-                    <h4 className="font-bold text-slate-800 dark:text-white text-sm">{dimension.name}</h4>
+                    <h4 className="font-bold text-slate-800 dark:text-white text-sm">{translatedName}</h4>
                     <span className={`text-xs font-medium text-${color}-600 dark:text-${color}-400`}>
-                      {dimension.score.toFixed(0)}分
+                      {dimension.score.toFixed(0)}{labels.points}
                     </span>
                   </div>
                 </div>
                 <span className={`px-2 py-1 rounded-full text-xs font-bold bg-${color}-100 text-${color}-700 dark:bg-${color}-900/30 dark:text-${color}-400`}>
-                  {dimension.level === 'low' ? '低' : dimension.level === 'medium' ? '中' : '高'}
+                  {getShortLevelLabel(dimension.level)}
                 </span>
               </div>
               
               <p className="text-xs text-slate-600 dark:text-slate-400 mb-3 leading-relaxed">
-                {dimension.explanation}
+                {translatedExplanation}
               </p>
               
-              {dimension.suggestions.length > 0 && (
+              {translatedSuggestions.length > 0 && (
                 <div className="space-y-1">
                   <div className="text-xs font-medium text-slate-500 dark:text-slate-400 flex items-center gap-1">
                     <Lightbulb className="h-3 w-3" />
-                    改善建议:
+                    {labels.suggestions}
                   </div>
                   <ul className="space-y-1">
-                    {dimension.suggestions.slice(0, 2).map((suggestion: string, i: number) => (
+                    {translatedSuggestions.slice(0, 2).map((suggestion: string, i: number) => (
                       <li key={i} className="text-xs text-slate-600 dark:text-slate-400 flex items-start gap-1.5">
                         <span className="text-indigo-500 mt-0.5">•</span>
                         <span>{suggestion}</span>
@@ -1548,29 +1684,29 @@ const RiskAssessmentPanel = ({ result, params, t }: { result: CalculationResult,
       <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-4 border border-slate-200 dark:border-slate-700">
         <h4 className="font-bold text-slate-700 dark:text-slate-300 text-sm mb-3 flex items-center gap-2">
           <Info className="h-4 w-4 text-indigo-500"/>
-          关键指标
+          {labels.keyMetrics}
         </h4>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <div className="text-center">
-            <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">月供收入比</div>
+            <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">{labels.dtiRatio}</div>
             <div className={`text-lg font-bold ${result.dtiRatio > 0.5 ? 'text-rose-500' : result.dtiRatio > 0.3 ? 'text-amber-500' : 'text-emerald-500'}`}>
               {(result.dtiRatio * 100).toFixed(1)}%
             </div>
           </div>
           <div className="text-center">
-            <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">贷款比例</div>
+            <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">{labels.ltvRatio}</div>
             <div className="text-lg font-bold text-slate-700 dark:text-slate-300">
               {(100 - params.downPaymentRatio).toFixed(0)}%
             </div>
           </div>
           <div className="text-center">
-            <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">月供金额</div>
+            <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">{labels.monthlyPayment}</div>
             <div className="text-lg font-bold text-slate-700 dark:text-slate-300">
               ¥{result.monthlyPayment.toFixed(0)}
             </div>
           </div>
           <div className="text-center">
-            <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">总债务</div>
+            <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">{labels.totalDebt}</div>
             <div className="text-lg font-bold text-slate-700 dark:text-slate-300">
               ¥{result.totalMonthlyDebt.toFixed(0)}
             </div>
@@ -1685,6 +1821,7 @@ function App() {
     providentQuota: 100,
     deedTaxRate: 1.5, 
     agencyFeeRatio: 2.0, 
+    educationBudget: 0, // 教育预算（万元）
     renovationCost: 20, 
     enablePrepayment: false,
     prepaymentYear: 3,
@@ -1694,6 +1831,7 @@ function App() {
     holdingCostRatio: 1.0, 
     propertyMaintenanceCost: 0.2,
     appreciationRate: 4,
+    rentAppreciationRate: 3, // 租金年涨幅（%）
     vacancyRate: 5, 
     emergencyFund: 20,
     familyMonthlyIncome: 30000,
@@ -1709,7 +1847,7 @@ function App() {
   });
 
 
-  const [activeTab, setActiveTab] = useState<'chart' | 'table' | 'stress' | 'risk' | 'affordability' | 'lifePath' | 'goal' | 'token' | 'knowledge' | 'opportunity' | 'journal' | 'negotiation' | 'liquidity' | 'life_drag'>('chart');
+  const [activeTab, setActiveTab] = useState<'chart' | 'table' | 'rentVsBuy' | 'stress' | 'risk' | 'affordability' | 'lifePath' | 'goal' | 'token' | 'knowledge' | 'opportunity' | 'journal' | 'negotiation' | 'liquidity' | 'life_drag' | 'community_data' | 'income_threshold' | 'car_analysis' | 'asset_allocation' | 'sell_decision' | 'autopsy' | 'freedom' | 'leverage'>('chart');
   const [rentMentalCost, setRentMentalCost] = useState(0);
   const [showKnowledgeTree, setShowKnowledgeTree] = useState(false);
   const [selectedKnowledgeTerm, setSelectedKnowledgeTerm] = useState<string | undefined>();
@@ -2228,7 +2366,7 @@ function App() {
                             onClick={() => setIsBasicInfoExpanded(!isBasicInfoExpanded)}
                             className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1"
                         >
-                            {isBasicInfoExpanded ? '收起' : '展开'}
+                            {isBasicInfoExpanded ? (language === 'EN' ? 'Collapse' : '收起') : (language === 'EN' ? 'Expand' : '展开')}
                             <ChevronDown className={`h-3 w-3 transition-transform ${isBasicInfoExpanded ? 'rotate-180' : ''}`} />
                         </button>
                     </div>
@@ -2243,7 +2381,7 @@ function App() {
                                         type="text"
                                         value={params.communityName}
                                         onChange={(e) => handleInputChange('communityName', e.target.value)}
-                                        placeholder="请输入小区名称"
+                                        placeholder={language === 'EN' ? 'Enter community name' : '请输入小区名称'}
                                         className="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white transition-all"
                                     />
                                 </div>
@@ -2253,7 +2391,7 @@ function App() {
                                         type="text"
                                         value={params.district}
                                         onChange={(e) => handleInputChange('district', e.target.value)}
-                                        placeholder="请输入所在区域"
+                                        placeholder={language === 'EN' ? 'Enter district' : '请输入所在区域'}
                                         className="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white transition-all"
                                     />
                                 </div>
@@ -2289,11 +2427,11 @@ function App() {
                                         onChange={(e) => handleInputChange('propertyType', e.target.value)}
                                         className="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white transition-all"
                                     >
-                                        <option value="普通住宅">普通住宅</option>
-                                        <option value="公寓">公寓</option>
-                                        <option value="别墅">别墅</option>
+                                        <option value="普通住宅">{language === 'EN' ? 'Residential' : '普通住宅'}</option>
+                                        <option value="公寓">{language === 'EN' ? 'Apartment' : '公寓'}</option>
+                                        <option value="别墅">{language === 'EN' ? 'Villa' : '别墅'}</option>
                                         <option value="loft">loft</option>
-                                        <option value="其他">其他</option>
+                                        <option value="其他">{language === 'EN' ? 'Other' : '其他'}</option>
                                     </select>
                                 </div>
                                 <div className="flex flex-col gap-1.5">
@@ -2306,9 +2444,9 @@ function App() {
                                         onChange={(e) => handleInputChange('floorLevel', e.target.value)}
                                         className="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white transition-all"
                                     >
-                                        <option value="低楼层">低楼层 (1-5层)</option>
-                                        <option value="中楼层">中楼层 (6-15层)</option>
-                                        <option value="高楼层">高楼层 (16层以上)</option>
+                                        <option value="低楼层">{language === 'EN' ? 'Low (1-5F)' : '低楼层 (1-5层)'}</option>
+                                        <option value="中楼层">{language === 'EN' ? 'Mid (6-15F)' : '中楼层 (6-15层)'}</option>
+                                        <option value="高楼层">{language === 'EN' ? 'High (16F+)' : '高楼层 (16层以上)'}</option>
                                     </select>
                                 </div>
                                 <InputGroup label={t.buildingAge} value={params.buildingAge} onChange={v => handleInputChange('buildingAge', v)} tooltip={t.tipBuildingAge} />
@@ -2326,10 +2464,10 @@ function App() {
                                         onChange={(e) => handleInputChange('decorationStatus', e.target.value)}
                                         className="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white transition-all"
                                     >
-                                        <option value="毛坯">毛坯</option>
-                                        <option value="简装">简装</option>
-                                        <option value="精装">精装</option>
-                                        <option value="豪装">豪装</option>
+                                        <option value="毛坯">{language === 'EN' ? 'Bare' : '毛坯'}</option>
+                                        <option value="简装">{language === 'EN' ? 'Basic' : '简装'}</option>
+                                        <option value="精装">{language === 'EN' ? 'Furnished' : '精装'}</option>
+                                        <option value="豪装">{language === 'EN' ? 'Luxury' : '豪装'}</option>
                                     </select>
                                 </div>
                                 <InputGroup label={t.propertyRightYears} value={params.propertyRightYears} onChange={v => handleInputChange('propertyRightYears', v)} tooltip={t.tipPropertyRightYears} />
@@ -2460,7 +2598,7 @@ function App() {
                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">{t.revenueAndRisk}</h3>
                    <div className="space-y-4">
                        <div className="grid grid-cols-2 gap-2"><InputGroup label={t.holdingYears} value={params.holdingYears} onChange={v => handleInputChange('holdingYears', v)} tooltip={t.tipHoldingYears} /><InputGroup label={t.monthlyRent} value={params.monthlyRent} onChange={v => handleInputChange('monthlyRent', v)} tooltip={t.tipMonthlyRent} /></div>
-                       <div className="grid grid-cols-2 gap-2"><InputGroup label={t.inputRentAppreciation || "租金年涨幅(%)"} value={params.rentAppreciationRate || 0} onChange={v => handleInputChange('rentAppreciationRate', v)} tooltip="预计每年租金上涨的百分比" /></div>
+                       <div className="grid grid-cols-2 gap-2"><InputGroup label={language === 'EN' ? 'Rent Appreciation (%)' : '租金年涨幅(%)'} value={params.rentAppreciationRate || 0} onChange={v => handleInputChange('rentAppreciationRate', v)} tooltip={language === 'EN' ? 'Expected annual rent increase percentage' : '预计每年租金上涨的百分比'} /></div>
                        <div className="grid grid-cols-2 gap-2"><InputGroup label={t.annualAppreciation} value={params.appreciationRate} onChange={v => handleInputChange('appreciationRate', v)} step={0.1} tooltip={t.tipAppreciation} /><InputGroup label={t.vacancyRate} value={params.vacancyRate} onChange={v => handleInputChange('vacancyRate', v)} tooltip={t.tipVacancy} /></div>
                        <div className="grid grid-cols-2 gap-2"><InputGroup label={t.holdingCostRatio} value={params.holdingCostRatio} onChange={v => handleInputChange('holdingCostRatio', v)} step={0.1} tooltip={t.tipHoldingCost} /><InputGroup label={t.maintenanceCost} value={params.propertyMaintenanceCost} onChange={v => handleInputChange('propertyMaintenanceCost', v)} step={0.1} tooltip={t.tipMaintenance} /></div>
                        <div className="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-lg border border-slate-100 dark:border-slate-800">
@@ -2553,7 +2691,7 @@ function App() {
                           <span className="w-2.5 h-2.5 rounded-full" style={{background: item.color}} />
                           {item.name}
                         </span>
-                        <span className="text-sm font-bold text-slate-800 dark:text-white">{item.value.toFixed(1)}<span className="text-xs text-slate-500 dark:text-slate-400">万</span></span>
+                        <span className="text-sm font-bold text-slate-800 dark:text-white">{item.value.toFixed(1)}<span className="text-xs text-slate-500 dark:text-slate-400">{language === 'EN' ? 'W' : '万'}</span></span>
                       </div>
                     ))}
                   </div>
@@ -2609,7 +2747,7 @@ function App() {
                    <button onClick={() => setActiveTab('negotiation')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'negotiation' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{t.navNegotiation || '谈判助手'}</button>
                    <button onClick={() => setActiveTab('liquidity')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'liquidity' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{t.navLiquidity || '流动性分析'}</button>
                    <button onClick={() => setActiveTab('life_drag')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'life_drag' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{t.lifeDragIndex || '房子拖累指数'}</button>
-                   <button onClick={() => setActiveTab('community_data')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'community_data' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>小区数据</button>
+                   <button onClick={() => setActiveTab('community_data')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'community_data' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{language === 'EN' ? 'Community Data' : '小区数据'}</button>
                    <button onClick={() => setActiveTab('income_threshold')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'income_threshold' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{language === 'EN' ? 'Income Threshold' : '收入门槛'}</button>
                    <button onClick={() => setActiveTab('car_analysis')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'car_analysis' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{language === 'EN' ? 'Car Analysis' : '买车分析'}</button>
                    <button onClick={() => setActiveTab('asset_allocation')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'asset_allocation' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{language === 'EN' ? 'Asset Alloc.' : '资产配置'}</button>
@@ -2643,9 +2781,9 @@ function App() {
                )}
                {activeTab === 'risk' && (
                  <div className="space-y-6">
-                   <MarketPositionRadar data={calculateMarketRadarData(params)} />
+                   <MarketPositionRadar data={calculateMarketRadarData(params)} language={language} />
                    <RiskHeartbeatChart result={result} params={params} t={t} />
-                   <RiskAssessmentPanel result={result} params={params} t={t} />
+                   <RiskAssessmentPanel result={result} params={params} t={t} language={language} />
                  </div>
                )}
                 {activeTab === 'affordability' && (
@@ -2659,7 +2797,7 @@ function App() {
                 )}
                 {activeTab === 'lifePath' && <LifePathSimulator params={params} t={t} />}
                  {activeTab === 'goal' && (
-                   <BuyDecisionDashboard t={t} language={language} />
+                   <BuyDecisionDashboard t={t} language={language} params={buyTargetParams} onParamChange={handleBuyParamChange} />
                  )}
                  {activeTab === 'token' && (
                    <TokenExchangePanel result={result} params={params} t={t} />

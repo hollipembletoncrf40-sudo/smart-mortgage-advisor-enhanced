@@ -45,8 +45,8 @@ const InteractiveDashboard: React.FC<InteractiveDashboardProps> = ({ initialPara
       ...initialParams,
       totalPrice, downPaymentRatio, interestRate, familyMonthlyIncome: monthlyIncome,
       incomeFluctuation, minLivingExpenses, emergencyReserves, maxPaymentRatio, rateHikeAssumption
-    }),
-    [totalPrice, downPaymentRatio, interestRate, monthlyIncome, incomeFluctuation, minLivingExpenses, emergencyReserves, maxPaymentRatio, rateHikeAssumption]
+    }, t),
+    [totalPrice, downPaymentRatio, interestRate, monthlyIncome, incomeFluctuation, minLivingExpenses, emergencyReserves, maxPaymentRatio, rateHikeAssumption, t]
   );
 
   const cashFlowBreathing = useMemo(() => 
@@ -225,15 +225,15 @@ const InteractiveDashboard: React.FC<InteractiveDashboardProps> = ({ initialPara
               <div className="flex items-center gap-4 text-xs">
                 <div className="flex items-center gap-1.5">
                   <div className="w-3 h-3 rounded-full bg-gradient-to-r from-emerald-400 to-emerald-500" />
-                  <span className="text-emerald-600 dark:text-emerald-400">安全</span>
+                  <span className="text-emerald-600 dark:text-emerald-400">{t.safe || '安全'}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <div className="w-3 h-3 rounded-full bg-gradient-to-r from-amber-400 to-orange-500" />
-                  <span className="text-amber-600 dark:text-amber-400">警戒</span>
+                  <span className="text-amber-600 dark:text-amber-400">{t.warning || '警戒'}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <div className="w-3 h-3 rounded-full bg-gradient-to-r from-rose-400 to-red-500" />
-                  <span className="text-rose-600 dark:text-rose-400">危险</span>
+                  <span className="text-rose-600 dark:text-rose-400">{t.danger || '危险'}</span>
                 </div>
               </div>
             </div>
@@ -248,16 +248,19 @@ const InteractiveDashboard: React.FC<InteractiveDashboardProps> = ({ initialPara
                   return 'from-rose-400 via-red-500 to-rose-600';
                 };
                 const getRiskLevel = (val: number) => {
-                  if (val <= 35) return { text: '低风险', color: 'text-emerald-400' };
-                  if (val <= 55) return { text: '中风险', color: 'text-amber-400' };
-                  return { text: '高风险', color: 'text-rose-400' };
+                  if (val <= 35) return { text: t.lowRisk || '低风险', color: 'text-emerald-400' };
+                  if (val <= 55) return { text: t.mediumRisk || '中风险', color: 'text-amber-400' };
+                  return { text: t.highRisk || '高风险', color: 'text-rose-400' };
                 };
                 const risk = getRiskLevel(item.value);
                 
                 return (
                   <div key={index} className="relative">
                     <div className="flex justify-between items-center mb-2">
-                      <span className="text-sm font-medium text-slate-600 dark:text-slate-300">{item.label}</span>
+                      <div className="flex flex-col">
+                        <span className="text-sm font-bold text-slate-700 dark:text-slate-200">{item.category}</span>
+                        <span className="text-xs text-slate-500 dark:text-slate-400">{item.label}</span>
+                      </div>
                       <div className="flex items-center gap-2">
                         <span className={`text-xs font-medium ${risk.color}`}>{risk.text}</span>
                         <span className="text-lg font-bold text-slate-800 dark:text-white">{Number(item.value).toFixed(1)}%</span>
@@ -291,7 +294,7 @@ const InteractiveDashboard: React.FC<InteractiveDashboardProps> = ({ initialPara
             <div className="mt-6 p-4 bg-white dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700/50">
               <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
                 <ShieldAlert className="h-4 w-4" />
-                <span>风险说明：DTI（债务收入比）超过35%需警惕，超过55%为高风险。压力测试模拟加息后的承压能力。</span>
+                <span>{t.riskExplanation || '风险说明：DTI（债务收入比）超过35%需警惕，超过55%为高风险。压力测试模拟加息后的承压能力。'}</span>
               </div>
             </div>
           </div>

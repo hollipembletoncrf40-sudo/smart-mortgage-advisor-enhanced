@@ -79,11 +79,11 @@ const OpportunityCostPanel: React.FC<Props> = ({ result, params, darkMode, t }) 
                   {winningScenario === 'House' ? (t.oppWinHouse || '房产投资胜出') : (t.oppWinStock || '指数基金胜出')}
                </h3>
                <p className="text-sm text-slate-600 dark:text-slate-300">
-                  在 <span className="font-semibold">{params.holdingYears}</span> 年持有的情况下，
-                  {winningScenario === 'House' ? (t.oppHouseName || '房产净值') : (t.oppStockName || '基金净值')} 
-                  预计比另一种选择的净资产高出
+                  {t.oppWinDescPrefix || 'After'} <span className="font-semibold">{params.holdingYears}</span> {t.oppWinDescYears || 'years of holding,'}
+                  {' '}{winningScenario === 'House' ? (t.oppHouseName || 'Property Net Worth') : (t.oppStockName || 'Fund Net Worth')} 
+                  {' '}{t.oppWinDescMiddle || 'is expected to outperform the alternative by'}
                   <span className="font-bold text-lg mx-1">{netWorthDiff}</span>
-                  万。
+                  {t.oppWinDescSuffix || '万.'}
                </p>
                <div className="mt-4 flex gap-4 text-xs">
                   <div>

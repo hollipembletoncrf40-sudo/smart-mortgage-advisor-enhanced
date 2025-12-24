@@ -87,7 +87,7 @@ export interface RiskGradientStart {
 }
 
 // Calculate Risk Gradient Data
-export const calculateRiskGradient = (params: InvestmentParams): RiskGradientStart[] => {
+export const calculateRiskGradient = (params: InvestmentParams, t?: any): RiskGradientStart[] => {
   const annualIncome = (params.familyMonthlyIncome || 30000) * 12;
   const loanAmount = (params.totalPrice || 200) * 0.7 * 10000;
   const monthlyPayment = loanAmount * 0.035 / 12; // Simplified
@@ -114,9 +114,15 @@ export const calculateRiskGradient = (params: InvestmentParams): RiskGradientSta
   const stressStatus = stressedDti > 0.6 ? 'high' : stressedDti > 0.45 ? 'medium' : 'low';
   const reserveStatus = emergencyMonths < 3 ? 'high' : emergencyMonths < 6 ? 'medium' : 'low';
 
+  // i18n labels with fallbacks
+  const dtiLabel = t?.dtiCategory || 'DTI (月供收入比)';
+  const stressLabel = t?.stressTestCategory || 'Stress Test (加息压力)';
+  const antifragileLabel = t?.antifragileCategory || 'Anti-Fragility (反脆弱)';
+  const monthReserveLabel = t?.monthsReserve || '个月储备';
+
   const risks: RiskGradientStart[] = [
     {
-      category: 'DTI (月供收入比)',
+      category: dtiLabel,
       value: Math.min(100, dti * 100),
       threshold: maxDti * 100, // User defined threshold
       status: dtiStatus,
@@ -124,7 +130,7 @@ export const calculateRiskGradient = (params: InvestmentParams): RiskGradientSta
       color: getStatusColor(dtiStatus)
     },
     {
-      category: 'Stress Test (加息压力)',
+      category: stressLabel,
       value: Math.min(100, stressedDti * 100),
       threshold: 50,
       status: stressStatus,
@@ -132,11 +138,11 @@ export const calculateRiskGradient = (params: InvestmentParams): RiskGradientSta
       color: getStatusColor(stressStatus)
     },
     {
-      category: 'Anti-Fragility (反脆弱)',
+      category: antifragileLabel,
       value: Math.min(100, (1 - emergencyMonths / 24) * 100), // Lower reserve = higher risk
       threshold: 75, // 6 months reserve corresponds to 25% risk score
       status: reserveStatus,
-      label: `${emergencyMonths}个月储备`,
+      label: `${emergencyMonths}${monthReserveLabel}`,
       color: getStatusColor(reserveStatus)
     }
   ];
