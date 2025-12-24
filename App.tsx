@@ -46,6 +46,7 @@ import MarketPositionRadar from './components/MarketPositionRadar';
 import LifeDragIndexPanel from './components/LifeDragIndexPanel';
 import CommunityDataPanel from './components/CommunityDataPanel';
 import IncomeRequirementPanel from './components/IncomeRequirementPanel';
+import SectionNav from './components/SectionNav';
 import { loadAIConfig, sendAIMessage, AIMessage, getProviderName } from './utils/aiProvider';
 import { InvestmentParams, RepaymentMethod, CalculationResult, PrepaymentStrategy, StressTestResult, LoanType, PurchaseScenario, LocationFactors, LocationScore, AssetComparisonItem, KnowledgeCardData, Language, Currency, TaxParams, TaxResult, AppreciationPredictorParams, AppreciationPrediction, MonthlyCashFlow, CustomStressTestParams, DecisionSnapshot } from './types';
 import { TRANSLATIONS } from './utils/translations';
@@ -2825,19 +2826,25 @@ function App() {
         </div>
 
         {/* 房子评价你 - House Roast Section */}
-        <DecisionDashboard params={params} result={result} t={t} language={language} />
+        <div id="roast-panel">
+          <DecisionDashboard params={params} result={result} t={t} language={language} />
+        </div>
         
 
         {/* Interactive Visualization Dashboard */}
-        <InteractiveDashboard initialParams={params} t={t} />
+        <div id="interactive-dashboard">
+          <InteractiveDashboard initialParams={params} t={t} />
+        </div>
         
         {/* Interactive Timeline */}
-        <div className="animate-fade-in-up animate-delay-200">
+        <div id="timeline-panel" className="animate-fade-in-up animate-delay-200">
           <InteractiveTimeline result={result} language={language} t={t} />
         </div>
 
         {/* 游戏化买房模式 - Game Mode Section */}
-        <GameModePanel params={params} t={t} language={language} />
+        <div id="game-panel">
+          <GameModePanel params={params} t={t} language={language} />
+        </div>
 
       </main>
 
@@ -2871,6 +2878,9 @@ function App() {
           </div>
         </div>
       )}
+
+      {/* Section Navigation */}
+      <SectionNav t={t} />
 
       {/* Floating AI Advisor */}
       <FloatingAIAdvisor 

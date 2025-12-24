@@ -75,6 +75,7 @@ export const TRANSLATIONS = {
     existingProperties: "现有房产 (套)",
     existingMonthlyDebt: "现有月供 (元)",
     familyIncome: "家庭月收入 (元)",
+    monthlyIncome: "家庭月收入",
     cashReturn: "现金回报率",
     comprehensiveReturn: "综合回报率",
     firstMonthPayment: "首月月供",
@@ -912,6 +913,13 @@ export const TRANSLATIONS = {
     riskWarning: "本工具提供的所有分析和结果均基于用户输入和假设的宏观数据，仅供参考，不构成任何投资建议。房地产市场受多种因素影响，实际情况可能与预测存在差异。市场有风险，决策需谨慎。请在做出重大财务决策前咨询专业的财务顾问或房产专家。",
     quote: "\"明智的决策源于充分的信息\"",
 
+    // Section Navigation
+    navInputPanel: "参数输入",
+    navRoastPanel: "房子评你",
+    navInteractive: "实时仪表",
+    navTimeline: "时间轴",
+    navGameMode: "游戏模式",
+
     // Interactive Dashboard
     realTimeViz: "实时决策可视化",
     dragParams: "拖动参数，实时查看财务影响",
@@ -1029,9 +1037,9 @@ export const TRANSLATIONS = {
     lpChartTitle: "资产积累对比",
     lpRecTitle: "智能推荐",
     lpRecAsset: "资产最优解",
-    lpRecAssetDesc: "交易成本越低，复利效应越强。如果房价涨幅不高，频繁换房会损耗大量财富。",
+    lpRecAssetDesc: "起步买更小房、快速积累首套房净值，再通过适时升级'捕捉'更大房产的增值红利。在高房价涨幅时期，多次折腾反而能跑赢长持单套。",
     lpRecExp: "体验最优解",
-    lpRecExpDesc: "通过阶梯式置换，可以在不同人生阶段匹配最适合的居住环境，生活质量更高。",
+    lpRecExpDesc: "通过阶梯式置换，可以在不同人生阶段匹配最适合的居住环境，生活质量更高。但需权衡交易成本。",
 
     // Goal Calculator
     goalCalculatorTitle: "买房倒计时 (目标倒推)",
@@ -1290,6 +1298,7 @@ export const TRANSLATIONS = {
     existingProperties: "Existing Props",
     existingMonthlyDebt: "Existing Debt ($)",
     familyIncome: "Family Income ($)",
+    monthlyIncome: "Monthly Income",
     cashReturn: "Cash on Cash",
     comprehensiveReturn: "Comp. Return",
     firstMonthPayment: "1st Mo. Payment",
@@ -1920,6 +1929,13 @@ export const TRANSLATIONS = {
     riskTitle: "⚠️ Risk Warning & Disclaimer",
     riskWarning: "All analysis results are based on user inputs and hypothetical macro data. They are for reference only and do not constitute investment advice. The real estate market is subject to various factors. Market involves risks, please decide carefully. Consult professional advisors before making major financial decisions.",
     quote: "\"Wise decisions come from sufficient information\"",
+
+    // Section Navigation
+    navInputPanel: "Parameters",
+    navRoastPanel: "House Roast",
+    navInteractive: "Live Dashboard",
+    navTimeline: "Timeline",
+    navGameMode: "Game Mode",
 
     // Interactive Dashboard
     realTimeViz: "Real-time Decision Viz",
