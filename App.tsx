@@ -2998,7 +2998,7 @@ function App() {
                     </div>
                   </div>
                 )}
-                <div className={!user ? 'opacity-30 pointer-events-none select-none' : ''}>
+                <div id="payment-schedule" className={!user ? 'opacity-30 pointer-events-none select-none' : ''}>
                   <DetailedPaymentTable 
                     monthlyPayments={result.monthlyData}
                     t={t}
@@ -3086,75 +3086,152 @@ function App() {
         {/* Background decoration - removed for pure black */}
         
         <div className="max-w-[1600px] mx-auto px-4 relative z-10">
-          {/* FAQ Section */}
-          <div className="mb-12">
-            <div className="max-w-3xl">
+          <div id="faq-section" className="mb-12">
+            <div className="max-w-full">
               <p className="text-red-500 font-medium text-sm mb-2">FAQ</p>
               <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-2" style={{ fontFamily: 'serif' }}>
-                常见问题解答
+                {language === 'EN' ? 'Frequently Asked Questions' : '常见问题解答'}
               </h2>
-              <p className="text-slate-500 dark:text-slate-400 text-sm mb-8">
-                有疑问？我们来解答。
+              <p className="text-slate-500 dark:text-slate-400 text-sm mb-2">
+                {language === 'EN' ? 'Got questions? We have answers.' : '有疑问？我们来解答。'}
+              </p>
+              <p className="text-slate-400 dark:text-slate-500 text-xs mb-8 flex items-center gap-1">
+                <span>👆</span>
+                <span>{language === 'EN' ? 'Click a question to expand the answer' : '点击问题展开查看答案'}</span>
               </p>
               
-              <div className="space-y-0">
-                {[
-                  {
-                    q: "WealthCompass 是什么？",
-                    a: "WealthCompass 是一款专业的房产投资决策分析工具，帮助您全面分析购房成本、长期财务规划、租买对比、以及多种压力测试场景。通过可视化图表和智能分析，让您的购房决策更加明智。"
-                  },
-                  {
-                    q: "如何使用房贷计算器？",
-                    a: "只需在左侧输入面板填写您的房产基本信息（房价、面积、贷款比例等），系统会自动计算月供、总利息、还款明细等关键数据，并生成可视化图表帮助您理解长期财务影响。"
-                  },
-                  {
-                    q: "租房vs买房分析是如何计算的？",
-                    a: "我们的租买对比分析综合考虑了房贷成本、租金增长、房产增值、投资机会成本、税费等多种因素，通过NPV（净现值）方法计算出各种情况下的财务收益对比。"
-                  },
-                  {
-                    q: "压力测试功能有什么用？",
-                    a: "压力测试功能模拟各种极端经济场景（如利率上涨、房价下跌、收入减少等），帮助您评估在不利情况下的还款能力和财务韧性，确保您的购房决策经得起考验。"
-                  },
-                  {
-                    q: "我的数据安全吗？",
-                    a: "您的数据完全安全。所有计算都在本地浏览器中完成，不会上传到任何服务器。您可以放心使用本工具进行财务规划和分析。"
-                  }
-                ].map((faq, i) => (
-                  <div key={i} className="border-l-2 transition-colors duration-200" style={{ borderColor: expandedFAQ === i ? '#ef4444' : 'transparent' }}>
-                    <button
-                      onClick={() => setExpandedFAQ(expandedFAQ === i ? null : i)}
-                      className="w-full text-left px-4 py-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
-                    >
-                      <h3 className={`font-medium transition-colors ${expandedFAQ === i ? 'text-slate-900 dark:text-white' : 'text-slate-700 dark:text-slate-300'}`}>
-                        {faq.q}
-                      </h3>
-                    </button>
-                    <div className={`overflow-hidden transition-all duration-300 ${expandedFAQ === i ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
-                      <p className="px-4 pb-4 text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-                        {faq.a}
-                      </p>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-0">
+                {/* Left Column */}
+                <div className="space-y-0">
+                  {(language === 'EN' ? [
+                    {
+                      q: "What is WealthCompass?",
+                      a: "WealthCompass is a professional real estate investment analysis tool that helps you comprehensively analyze home purchase costs, long-term financial planning, rent vs. buy comparisons, and various stress test scenarios. Through visualizations and smart analysis, it makes your home buying decisions more informed."
+                    },
+                    {
+                      q: "How do I use the mortgage calculator?",
+                      a: "Simply fill in your property information in the left input panel (price, area, loan ratio, etc.), and the system will automatically calculate monthly payments, total interest, payment details, and generate charts to help you understand the long-term financial impact."
+                    },
+                    {
+                      q: "How is the rent vs. buy analysis calculated?",
+                      a: "Our rent vs. buy comparison considers mortgage costs, rent growth, property appreciation, investment opportunity costs, taxes, and more. We use NPV (Net Present Value) method to calculate financial returns under various scenarios."
+                    },
+                    {
+                      q: "What is the stress test feature for?",
+                      a: "The stress test simulates extreme economic scenarios (rising interest rates, falling home prices, income reduction, etc.) to help you assess your repayment ability and financial resilience under adverse conditions."
+                    },
+                    {
+                      q: "Is my data secure?",
+                      a: "Your data is completely secure. All calculations are performed locally in your browser and are never uploaded to any server. You can confidently use this tool for financial planning and analysis."
+                    }
+                  ] : [
+                    {
+                      q: "WealthCompass 是什么？",
+                      a: "WealthCompass 是一款专业的房产投资决策分析工具，帮助您全面分析购房成本、长期财务规划、租买对比、以及多种压力测试场景。通过可视化图表和智能分析，让您的购房决策更加明智。"
+                    },
+                    {
+                      q: "如何使用房贷计算器？",
+                      a: "只需在左侧输入面板填写您的房产基本信息（房价、面积、贷款比例等），系统会自动计算月供、总利息、还款明细等关键数据，并生成可视化图表帮助您理解长期财务影响。"
+                    },
+                    {
+                      q: "租房vs买房分析是如何计算的？",
+                      a: "我们的租买对比分析综合考虑了房贷成本、租金增长、房产增值、投资机会成本、税费等多种因素，通过NPV（净现值）方法计算出各种情况下的财务收益对比。"
+                    },
+                    {
+                      q: "压力测试功能有什么用？",
+                      a: "压力测试功能模拟各种极端经济场景（如利率上涨、房价下跌、收入减少等），帮助您评估在不利情况下的还款能力和财务韧性，确保您的购房决策经得起考验。"
+                    },
+                    {
+                      q: "我的数据安全吗？",
+                      a: "您的数据完全安全。所有计算都在本地浏览器中完成，不会上传到任何服务器。您可以放心使用本工具进行财务规划和分析。"
+                    }
+                  ]).map((faq, i) => (
+                    <div key={i} className={`border-l-2 transition-all duration-200 mb-2 ${expandedFAQ === i ? 'bg-slate-50 dark:bg-slate-800/50 rounded-r-lg' : ''}`} style={{ borderColor: expandedFAQ === i ? '#ef4444' : 'transparent' }}>
+                      <button
+                        onClick={() => setExpandedFAQ(expandedFAQ === i ? null : i)}
+                        className="w-full text-left px-4 py-3 transition-colors"
+                      >
+                        <h3 className={`font-medium transition-colors ${expandedFAQ === i ? 'text-slate-900 dark:text-white' : 'text-slate-700 dark:text-slate-300'}`}>
+                          {faq.q}
+                        </h3>
+                      </button>
+                      <div className={`overflow-hidden transition-all duration-300 ${expandedFAQ === i ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
+                        <p className="px-4 pb-4 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                          {faq.a}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
+
+                {/* Right Column */}
+                <div className="space-y-0">
+                  {(language === 'EN' ? [
+                    {
+                      q: "Is WealthCompass free to use?",
+                      a: "🎉 Currently completely free! We're committed to providing professional home-buying decision support to every user. If you find the tool helpful, you can support our development through the donation feature. Thank you for your support!"
+                    },
+                    {
+                      q: "How can I support WealthCompass?",
+                      a: "You can donate through the 'Support Us' button at the bottom of the page to help us continuously improve and develop more useful features. Every bit of support drives us forward!"
+                    },
+                    {
+                      q: "Which browsers are supported?",
+                      a: "WealthCompass supports all modern browsers including Chrome, Firefox, Safari, and Edge. For the best experience, we recommend using the latest browser version."
+                    },
+                    {
+                      q: "How do I switch between dark/light mode?",
+                      a: "You can use the theme toggle button in the top right corner to freely switch between dark and light modes for your most comfortable viewing experience."
+                    },
+                    {
+                      q: "How do I provide feedback?",
+                      a: "You can submit feedback through the 'Submit Feedback' button at the bottom of the page. You can also contact us directly via email at hollipembletoncrf40@gmail.com."
+                    }
+                  ] : [
+                    {
+                      q: "WealthCompass 收费吗？",
+                      a: "🎉 现阶段完全免费使用！我们致力于为每一位用户提供最专业的购房决策支持。如果您觉得工具对您有帮助，欢迎通过赞赏功能支持我们的开发工作。感谢大家的支持！"
+                    },
+                    {
+                      q: "如何支持 WealthCompass？",
+                      a: "您可以通过页面底部的「赞赏支持」按钮进行打赏，帮助我们持续优化和开发更多实用功能。您的每一份支持都是我们前进的动力！"
+                    },
+                    {
+                      q: "支持哪些浏览器？",
+                      a: "WealthCompass 支持所有现代浏览器，包括 Chrome、Firefox、Safari、Edge 等。为了获得最佳体验，建议使用最新版本的浏览器。"
+                    },
+                    {
+                      q: "如何切换深色/浅色模式？",
+                      a: "您可以通过页面右上角的主题切换按钮，在深色模式和浅色模式之间自由切换，选择最舒适的视觉体验。"
+                    },
+                    {
+                      q: "有问题如何反馈？",
+                      a: "欢迎通过页面底部的「提交反馈」按钮向我们反馈问题或建议。您也可以通过邮箱 hollipembletoncrf40@gmail.com 直接联系我们。"
+                    }
+                  ]).map((faq, i) => (
+                    <div key={i + 10} className={`border-l-2 transition-all duration-200 mb-2 ${expandedFAQ === i + 10 ? 'bg-slate-50 dark:bg-slate-800/50 rounded-r-lg' : ''}`} style={{ borderColor: expandedFAQ === i + 10 ? '#ef4444' : 'transparent' }}>
+                      <button
+                        onClick={() => setExpandedFAQ(expandedFAQ === i + 10 ? null : i + 10)}
+                        className="w-full text-left px-4 py-3 transition-colors"
+                      >
+                        <h3 className={`font-medium transition-colors ${expandedFAQ === i + 10 ? 'text-slate-900 dark:text-white' : 'text-slate-700 dark:text-slate-300'}`}>
+                          {faq.q}
+                        </h3>
+                      </button>
+                      <div className={`overflow-hidden transition-all duration-300 ${expandedFAQ === i + 10 ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
+                        <p className="px-4 pb-4 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                          {faq.a}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
 
           {/* Main Footer Content */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-8 border-t border-slate-200 dark:border-slate-800 pt-8">
-            {/* About Section */}
-            <div>
-              <h3 className="text-sm font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
-                <Home className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
-                {t.aboutTool || '关于工具'}
-              </h3>
-              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed mb-3">
-                {t.aboutDesc || '智能房贷顾问是一个专业的房产投资决策工具，通过数据分析和可视化帮助您做出明智的购房选择。'}
-              </p>
-              <p className="text-xs text-slate-500 dark:text-slate-500 italic">
-                {t.disclaimer || '本工具仅供参考，不构成投资建议。'}
-              </p>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-10 mb-8 border-t border-slate-200 dark:border-slate-800 pt-8">
 
             {/* Quick Links */}
             <div>
