@@ -1855,6 +1855,7 @@ function App() {
   // Decision Journal State
   const [decisionSnapshots, setDecisionSnapshots] = useState<DecisionSnapshot[]>([]);
   const [isAnalyzingSnapshot, setIsAnalyzingSnapshot] = useState(false);
+  const [expandedFAQ, setExpandedFAQ] = useState<number | null>(null);
 
   // Buy Decision State (Lifted Up)
   const [buyTargetParams, setBuyTargetParams] = useState<BuyTargetParams>({
@@ -3085,8 +3086,62 @@ function App() {
         {/* Background decoration - removed for pure black */}
         
         <div className="max-w-[1600px] mx-auto px-4 relative z-10">
+          {/* FAQ Section */}
+          <div className="mb-12">
+            <div className="max-w-3xl">
+              <p className="text-red-500 font-medium text-sm mb-2">FAQ</p>
+              <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-2" style={{ fontFamily: 'serif' }}>
+                常见问题解答
+              </h2>
+              <p className="text-slate-500 dark:text-slate-400 text-sm mb-8">
+                有疑问？我们来解答。
+              </p>
+              
+              <div className="space-y-0">
+                {[
+                  {
+                    q: "WealthCompass 是什么？",
+                    a: "WealthCompass 是一款专业的房产投资决策分析工具，帮助您全面分析购房成本、长期财务规划、租买对比、以及多种压力测试场景。通过可视化图表和智能分析，让您的购房决策更加明智。"
+                  },
+                  {
+                    q: "如何使用房贷计算器？",
+                    a: "只需在左侧输入面板填写您的房产基本信息（房价、面积、贷款比例等），系统会自动计算月供、总利息、还款明细等关键数据，并生成可视化图表帮助您理解长期财务影响。"
+                  },
+                  {
+                    q: "租房vs买房分析是如何计算的？",
+                    a: "我们的租买对比分析综合考虑了房贷成本、租金增长、房产增值、投资机会成本、税费等多种因素，通过NPV（净现值）方法计算出各种情况下的财务收益对比。"
+                  },
+                  {
+                    q: "压力测试功能有什么用？",
+                    a: "压力测试功能模拟各种极端经济场景（如利率上涨、房价下跌、收入减少等），帮助您评估在不利情况下的还款能力和财务韧性，确保您的购房决策经得起考验。"
+                  },
+                  {
+                    q: "我的数据安全吗？",
+                    a: "您的数据完全安全。所有计算都在本地浏览器中完成，不会上传到任何服务器。您可以放心使用本工具进行财务规划和分析。"
+                  }
+                ].map((faq, i) => (
+                  <div key={i} className="border-l-2 transition-colors duration-200" style={{ borderColor: expandedFAQ === i ? '#ef4444' : 'transparent' }}>
+                    <button
+                      onClick={() => setExpandedFAQ(expandedFAQ === i ? null : i)}
+                      className="w-full text-left px-4 py-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+                    >
+                      <h3 className={`font-medium transition-colors ${expandedFAQ === i ? 'text-slate-900 dark:text-white' : 'text-slate-700 dark:text-slate-300'}`}>
+                        {faq.q}
+                      </h3>
+                    </button>
+                    <div className={`overflow-hidden transition-all duration-300 ${expandedFAQ === i ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
+                      <p className="px-4 pb-4 text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+                        {faq.a}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
           {/* Main Footer Content */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-8 border-t border-slate-200 dark:border-slate-800 pt-8">
             {/* About Section */}
             <div>
               <h3 className="text-sm font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
