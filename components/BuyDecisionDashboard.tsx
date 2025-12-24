@@ -13,23 +13,17 @@ import { calculateBuyDeduction } from '../utils/buyCalculations';
 interface BuyDecisionDashboardProps {
   t: any;
   language: 'ZH' | 'EN';
+  params: BuyTargetParams;
+  onParamChange: (params: BuyTargetParams) => void;
 }
 
-const BuyDecisionDashboard: React.FC<BuyDecisionDashboardProps> = ({ t, language }) => {
-  // 1. Local State
-  const [params, setParams] = useState<BuyTargetParams>({
-    totalPrice: 300, // 万
-    planYears: 5,
-    downPaymentRatio: 30, // %
-    currentSavings: 50, // 万
-    monthlyIncome: 30000, // 元
-    monthlyExpense: 10000,
-    anxietyScore: 70,
-    fomoScore: 65,
-    marketHeat: 80,
-    financialStretch: 60,
-    decisionSpeed: 90
-  });
+const BuyDecisionDashboard: React.FC<BuyDecisionDashboardProps> = ({ t, language, params, onParamChange }) => {
+  // Local state removed, using props 'params'
+
+  const handleParamChange = (key: keyof BuyTargetParams, value: number) => {
+    onParamChange({ ...params, [key]: value });
+  };
+
 
   const [showRisks, setShowRisks] = useState(false);
   const [emotionalState, setEmotionalState] = useState<'neutral' | 'stressed' | 'fomo' | 'uncertain'>('neutral');
@@ -82,9 +76,7 @@ const BuyDecisionDashboard: React.FC<BuyDecisionDashboardProps> = ({ t, language
   // 2. Calculation
   const result = useMemo(() => calculateBuyDeduction(params, language), [params, language]);
 
-  const handleParamChange = (key: keyof BuyTargetParams, value: number) => {
-    setParams(prev => ({ ...prev, [key]: value }));
-  };
+
 
   // 3. Helper Data for Charts
   const goalData = [

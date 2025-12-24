@@ -47,9 +47,10 @@ import CommunityDataPanel from './components/CommunityDataPanel';
 import IncomeRequirementPanel from './components/IncomeRequirementPanel';
 import SellDecisionDashboard from './components/SellDecisionDashboard';
 import BuyDecisionDashboard from './components/BuyDecisionDashboard';
+import DecisionAutopsy from './components/DecisionAutopsy';
 import SectionNav from './components/SectionNav';
 import { loadAIConfig, sendAIMessage, AIMessage, getProviderName } from './utils/aiProvider';
-import { InvestmentParams, RepaymentMethod, CalculationResult, PrepaymentStrategy, StressTestResult, LoanType, PurchaseScenario, LocationFactors, LocationScore, AssetComparisonItem, KnowledgeCardData, Language, Currency, TaxParams, TaxResult, AppreciationPredictorParams, AppreciationPrediction, MonthlyCashFlow, CustomStressTestParams, DecisionSnapshot } from './types';
+import { InvestmentParams, RepaymentMethod, CalculationResult, PrepaymentStrategy, StressTestResult, LoanType, PurchaseScenario, LocationFactors, LocationScore, AssetComparisonItem, KnowledgeCardData, Language, Currency, TaxParams, TaxResult, AppreciationPredictorParams, AppreciationPrediction, MonthlyCashFlow, CustomStressTestParams, DecisionSnapshot, BuyTargetParams } from './types';
 import { TRANSLATIONS } from './utils/translations';
 import { calculateInvestment, calculateStressTest, aggregateYearlyPaymentData, calculateLocationScore, calculateTaxes, predictAppreciation, calculateComprehensiveRisk, calculateAffordability, calculateComparison, calculateMarketRadarData } from './utils/calculate';
 
@@ -1715,6 +1716,26 @@ function App() {
   const [decisionSnapshots, setDecisionSnapshots] = useState<DecisionSnapshot[]>([]);
   const [isAnalyzingSnapshot, setIsAnalyzingSnapshot] = useState(false);
 
+  // Buy Decision State (Lifted Up)
+  const [buyTargetParams, setBuyTargetParams] = useState<BuyTargetParams>({
+    totalPrice: 300, // 万
+    planYears: 5,
+    downPaymentRatio: 30, // %
+    currentSavings: 50, // 万
+    monthlyIncome: 30000, // 元
+    monthlyExpense: 10000,
+    parentalSupport: 0,
+    anxietyScore: 70,
+    fomoScore: 65,
+    marketHeat: 80,
+    financialStretch: 60,
+    decisionSpeed: 90
+  });
+
+  const handleBuyParamChange = (newParams: BuyTargetParams) => {
+    setBuyTargetParams(newParams);
+  };
+
   // Calculate results
   const result = useMemo(() => {
     const baseResult = calculateInvestment(params, t);
@@ -2592,6 +2613,7 @@ function App() {
                    <button onClick={() => setActiveTab('asset_allocation')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'asset_allocation' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{language === 'EN' ? 'Asset Alloc.' : '资产配置'}</button>
 
                    <button onClick={() => setActiveTab('sell_decision')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'sell_decision' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{language === 'EN' ? 'Sell Decision' : '卖房决策'}</button>
+                   <button onClick={() => setActiveTab('autopsy')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'autopsy' ? 'bg-rose-600 text-white shadow-lg shadow-rose-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{language === 'EN' ? 'Decision Autopsy' : '决策尸检室'}</button>
                 </div>
 
                {activeTab === 'chart' && (
@@ -2646,6 +2668,11 @@ function App() {
                  )}
                  {activeTab === 'sell_decision' && (
                     <SellDecisionDashboard t={t} language={language} />
+                 )}
+                 {activeTab === 'autopsy' && (
+                   <div id="decision-autopsy" className="animate-fade-in">
+                     <DecisionAutopsy params={buyTargetParams} language={language} onParamChange={handleBuyParamChange} />
+                   </div>
                  )}
                  {activeTab === 'knowledge' && (
                    <div className="py-4">
