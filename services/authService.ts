@@ -5,7 +5,8 @@ import {
   signOut,
   onAuthStateChanged,
   User,
-  updateProfile
+  updateProfile,
+  sendPasswordResetEmail
 } from 'firebase/auth';
 import { doc, setDoc, getDoc, Timestamp } from 'firebase/firestore';
 import { auth, db, googleProvider } from '../config/firebase';
@@ -82,6 +83,18 @@ export const logout = async (): Promise<void> => {
   } catch (error: any) {
     console.error('Logout error:', error);
     throw new Error('登出失败，请重试');
+  }
+};
+
+/**
+ * Send password reset email
+ */
+export const resetPassword = async (email: string): Promise<void> => {
+  try {
+    await sendPasswordResetEmail(auth, email);
+  } catch (error: any) {
+    console.error('Password reset error:', error);
+    throw new Error(getErrorMessage(error.code));
   }
 };
 

@@ -1,28 +1,51 @@
-import { useState, useEffect } from 'react';
-import { X, Mail, Lock, User as UserIcon, PieChart, BrainCircuit, Building2 } from 'lucide-react';
-import { loginWithGoogle, loginWithEmail, signupWithEmail } from '../services/authService';
+import { useState, useEffect, useRef } from 'react';
+import { X, Mail, Lock, User as UserIcon, ArrowLeft, FileText, CheckCircle, Camera, Check } from 'lucide-react';
+import { loginWithGoogle, loginWithEmail, signupWithEmail, resetPassword } from '../services/authService';
+import { auth } from '../config/firebase';
+import { updateProfile } from 'firebase/auth';
 
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
   t?: any;
+  darkMode?: boolean;
 }
 
-export const AuthModal = ({ isOpen, onClose, t = {} }: AuthModalProps) => {
-  const [mode, setMode] = useState<'login' | 'signup'>('login');
+type AuthView = 'login' | 'signup' | 'forgot_password' | 'terms';
+
+export const AuthModal = ({ isOpen, onClose, t = {}, darkMode = true }: AuthModalProps) => {
+  const [view, setView] = useState<AuthView>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [error, setError] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
   const [loading, setLoading] = useState(false);
-  const [cachedName, setCachedName] = useState<string | null>(null);
+  
+  // New states for enhanced auth
+  const [agreeToTerms, setAgreeToTerms] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
 
+  // Load saved credentials on mount
+  useEffect(() => {
+    const savedEmail = localStorage.getItem('wc_saved_email');
+    const savedRemember = localStorage.getItem('wc_remember_me');
+    if (savedRemember === 'true' && savedEmail) {
+      setEmail(savedEmail);
+      setRememberMe(true);
+    }
+  }, []);
+
+  // Reset state when opening
   useEffect(() => {
     if (isOpen) {
-      const name = localStorage.getItem('last_username');
-      if (name) {
-        setCachedName(name);
-      }
+      setError('');
+      setSuccessMsg('');
+      setLoading(false);
+      setView('login');
     }
   }, [isOpen]);
 
@@ -40,38 +63,99 @@ export const AuthModal = ({ isOpen, onClose, t = {} }: AuthModalProps) => {
     }
   };
 
-
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       setLoading(true);
       setError('');
+      setSuccessMsg('');
       
-      if (mode === 'login') {
+      if (view === 'login') {
         await loginWithEmail(email, password);
-      } else {
+        // Handle Remember Me
+        if (rememberMe) {
+          localStorage.setItem('wc_saved_email', email);
+          localStorage.setItem('wc_remember_me', 'true');
+        } else {
+          localStorage.removeItem('wc_saved_email');
+          localStorage.removeItem('wc_remember_me');
+        }
+        onClose();
+        resetForm();
+      } else if (view === 'signup') {
         if (!displayName.trim()) {
           setError(t.authNicknameRequired || '请输入昵称');
           return;
         }
-        await signupWithEmail(email, password, displayName);
+        if (!agreeToTerms) {
+          setError('请先阅读并同意服务条款');
+          return;
+        }
+        const user = await signupWithEmail(email, password, displayName);
+        
+        // Upload avatar if selected
+        if (avatarFile && auth.currentUser) {
+          try {
+            // Convert file to base64 for simple storage (in production, use Firebase Storage)
+            const reader = new FileReader();
+            reader.onloadend = async () => {
+              const base64 = reader.result as string;
+              await updateProfile(auth.currentUser!, { photoURL: base64 });
+            };
+            reader.readAsDataURL(avatarFile);
+          } catch (avatarErr) {
+            console.error('Avatar upload failed:', avatarErr);
+          }
+        }
+        onClose();
+        resetForm();
+      } else if (view === 'forgot_password') {
+        if (!email) {
+           setError('请输入邮箱地址');
+           return;
+        }
+        // Assuming resetPassword exists in authService, otherwise catch will handle or we mock
+        await resetPassword(email); 
+        setSuccessMsg('重置链接已发送，请检查您的邮箱');
       }
       
-      onClose();
-      resetForm();
     } catch (err: any) {
-      setError(err.message);
+      console.error(err);
+      setError(err.message || '操作失败，请重试');
     } finally {
       setLoading(false);
     }
   };
 
   const resetForm = () => {
-    setEmail('');
+    // Don't reset email if remember me is on
+    if (!rememberMe) {
+      setEmail('');
+    }
     setPassword('');
     setDisplayName('');
     setError('');
-    setMode('login');
+    setSuccessMsg('');
+    setView('login');
+    setAgreeToTerms(false);
+    setAvatarFile(null);
+    setAvatarPreview(null);
+  };
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) { // 2MB limit
+        setError('头像文件不能超过 2MB');
+        return;
+      }
+      setAvatarFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAvatarPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleClose = () => {
@@ -82,180 +166,480 @@ export const AuthModal = ({ isOpen, onClose, t = {} }: AuthModalProps) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4 transition-all duration-300">
-      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-4xl w-full mx-4 overflow-hidden flex flex-col md:flex-row animate-fade-in-up">
+    <div className={`fixed inset-0 z-[100] flex items-center justify-center overflow-hidden animate-fade-in ${darkMode ? 'bg-black' : 'bg-white'}`}>
+      {/* Full Screen Grid Layout */}
+      <div className="w-full h-full flex flex-col md:flex-row relative">
         
-        {/* Left Side - Brand & Benefits */}
-        <div className="w-full md:w-2/5 bg-slate-50 dark:bg-black p-8 relative flex flex-col justify-between overflow-hidden border-r border-slate-100 dark:border-slate-800">
-            {/* Background Decoration */}
-            <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 rounded-full bg-indigo-500/10 dark:bg-indigo-500/20 blur-3xl"></div>
-            <div className="absolute bottom-0 left-0 -ml-16 -mb-16 w-64 h-64 rounded-full bg-purple-500/10 dark:bg-purple-500/20 blur-3xl"></div>
-            
-            <div className="relative z-10">
-                <div className="flex items-center gap-2 mb-8">
-                    <div className="p-2 bg-white dark:bg-slate-900 shadow-sm rounded-lg">
-                        {/* Simple Logo Placeholder */}
-                        <svg className="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                        </svg>
-                    </div>
-                    <span className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">WealthCompass</span>
+        {/* Close Button - Absolute Top Right */}
+        <button 
+            onClick={onClose}
+            className={`absolute top-6 right-6 z-50 p-2 transition-colors rounded-full ${darkMode ? 'text-zinc-500 hover:text-white hover:bg-zinc-900/50' : 'text-zinc-400 hover:text-zinc-900 hover:bg-zinc-100'}`}
+        >
+            <X className="h-6 w-6" />
+        </button>
+
+        {/* Left Panel - Liquid Glass Branding */}
+        <div className="hidden md:flex w-[45%] h-full relative overflow-hidden">
+            {/* Liquid Glass Background */}
+            <div className={`absolute inset-0 z-0 ${darkMode ? 'bg-gradient-to-br from-zinc-900 via-zinc-950 to-black' : 'bg-gradient-to-br from-slate-50 via-white to-slate-100'}`}>
+                {/* Animated gradient orbs */}
+                <div className={`absolute top-[-30%] left-[-20%] w-[70%] h-[70%] blur-[100px] rounded-full animate-pulse ${darkMode ? 'bg-indigo-900/30' : 'bg-indigo-200/60'}`}></div>
+                <div className={`absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] blur-[100px] rounded-full animate-pulse ${darkMode ? 'bg-emerald-900/20' : 'bg-emerald-200/50'}`} style={{ animationDelay: '1s' }}></div>
+                <div className={`absolute top-[40%] left-[30%] w-[40%] h-[40%] blur-[80px] rounded-full animate-pulse ${darkMode ? 'bg-purple-900/20' : 'bg-purple-200/40'}`} style={{ animationDelay: '2s' }}></div>
+                
+                {/* Glass noise texture overlay */}
+                <div className="absolute inset-0 opacity-[0.03]" 
+                     style={{ 
+                         backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 256 256\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noise\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noise)\'/%3E%3C/svg%3E")',
+                     }}>
                 </div>
-
-                <h3 className="text-3xl font-bold mb-4 leading-tight text-slate-900 dark:text-white">
-                    {t.authWelcomeTitle || '开启您的\n专业投资之旅'}
-                </h3>
-                <p className="text-slate-600 dark:text-slate-400 text-sm mb-8 leading-relaxed">
-                    {t.authWelcomeDesc || '登录账号，解锁全方位房产投资决策支持，让每一分投资都更明智。'}
-                </p>
-
-                <div className="space-y-4">
-                    <div className="flex items-center gap-3 group">
-                        <div className="p-2 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg group-hover:bg-indigo-100 dark:group-hover:bg-indigo-900/50 transition-colors">
-                            <PieChart className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-                        </div>
-                        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{t.authBenefit1 || '全周期还款现金流精算透视'}</span>
-                    </div>
-                    <div className="flex items-center gap-3 group">
-                         <div className="p-2 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg group-hover:bg-indigo-100 dark:group-hover:bg-indigo-900/50 transition-colors">
-                            <BrainCircuit className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-                        </div>
-                        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{t.authBenefit2 || '私人银行级 AI 投资决策顾问'}</span>
-                    </div>
-                    <div className="flex items-center gap-3 group">
-                         <div className="p-2 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg group-hover:bg-indigo-100 dark:group-hover:bg-indigo-900/50 transition-colors">
-                            <Building2 className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-                        </div>
-                        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{t.authBenefit3 || '微观级小区价值与趋势洞察'}</span>
-                    </div>
+                
+                {/* Subtle grid lines */}
+                <div className={`absolute inset-0 ${darkMode ? 'opacity-[0.02]' : 'opacity-[0.05]'}`}
+                     style={{
+                         backgroundImage: `linear-gradient(to right, ${darkMode ? 'white' : 'black'} 1px, transparent 1px), linear-gradient(to bottom, ${darkMode ? 'white' : 'black'} 1px, transparent 1px)`,
+                         backgroundSize: '40px 40px'
+                     }}>
                 </div>
             </div>
 
-            <div className="relative z-10 mt-12 text-xs text-slate-400 dark:text-slate-600">
-                &copy; 2025 WealthCompass Pro
-            </div>
-        </div>
-
-        {/* Right Side - Form */}
-        <div className="w-full md:w-3/5 p-8 bg-white dark:bg-black relative">
-            <button 
-                onClick={handleClose} 
-                className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full"
-            >
-                <X className="h-5 w-5" />
-            </button>
-
-            <div className="max-w-sm mx-auto mt-4">
-                <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">
-                    {mode === 'login' ? (cachedName ? `${t.authWelcomeBack || '欢迎回来'}，${cachedName}` : (t.authLoginTitle || '欢迎回来')) : (t.authSignupTitle || '创建账号')}
-                </h2>
-                <p className="text-slate-500 text-sm mb-8">
-                    {mode === 'login' ? '请登录以继续您的投资分析' : '只需几步即可开始使用'}
-                </p>
-
-                {/* Social Login Buttons */}
-                <div className="space-y-3 mb-6">
-                    <button
-                        onClick={handleGoogleLogin}
-                        disabled={loading}
-                        className="w-full flex items-center justify-center gap-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed group"
-                    >
-                        <svg className="h-5 w-5 group-hover:scale-110 transition-transform" viewBox="0 0 24 24">
-                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                        </svg>
-                        <span className="font-medium text-slate-700 dark:text-gray-200">{t.authGoogleLogin || '使用 Google 账号继续'}</span>
-                    </button>
-                </div>
-
-                <div className="relative mb-6">
-                    <div className="absolute inset-0 flex items-center">
-                        <div className="w-full border-t border-slate-100 dark:border-slate-700"></div>
-                    </div>
-                    <div className="relative flex justify-center text-xs uppercase">
-                        <span className="px-2 bg-white dark:bg-slate-900 text-slate-400">{t.authOrEmail || '或使用邮箱'}</span>
+            {/* Content */}
+            <div className="relative z-10 flex flex-col justify-between p-12 h-full w-full">
+                {/* Logo */}
+                <div className="flex items-center gap-2">
+                    <div className={`text-xl font-bold tracking-tighter flex items-center gap-2 ${darkMode ? 'text-white' : 'text-slate-900'}`}>
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-emerald-500 flex items-center justify-center">
+                            <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <circle cx="12" cy="12" r="10" strokeWidth="2" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16.24 7.76l-2.12 6.36-6.36 2.12 2.12-6.36 6.36-2.12z" />
+                            </svg>
+                        </div>
+                        <span>WealthCompass</span>
                     </div>
                 </div>
 
-                <form onSubmit={handleEmailAuth} className="space-y-4">
-                    {mode === 'signup' && (
-                        <div>
-                            <div className="relative">
-                                <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
-                                <input
-                                    type="text"
-                                    value={displayName}
-                                    onChange={(e) => setDisplayName(e.target.value)}
-                                    className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent dark:text-white outline-none transition-all placeholder:text-slate-400"
-                                    placeholder={t.authNicknamePlaceholder || '您的昵称'}
-                                    required={mode === 'signup'}
-                                />
+                {/* Main Title & Features */}
+                <div className="space-y-8">
+                    <div className="space-y-4">
+                        <h1 className={`text-4xl font-bold leading-tight ${darkMode ? 'text-white' : 'text-slate-900'}`}>
+                            <span className="block">智能财富决策</span>
+                            <span className={`block text-transparent bg-clip-text mt-2 ${darkMode ? 'bg-gradient-to-r from-indigo-400 via-purple-400 to-emerald-400' : 'bg-gradient-to-r from-indigo-600 via-purple-600 to-emerald-600'}`}>AI驱动的投资分析</span>
+                        </h1>
+                        <p className={`text-base max-w-sm leading-relaxed ${darkMode ? 'text-zinc-400' : 'text-slate-600'}`}>
+                            深度大数据分析与 AI 智能建议，为您的房产投资决策保驾护航。
+                        </p>
+                    </div>
+
+                    {/* Feature Highlights */}
+                    <div className="space-y-4">
+                        <div className={`flex items-start gap-4 p-4 rounded-2xl backdrop-blur-sm transition-all ${darkMode ? 'bg-white/5 border border-white/10 hover:bg-white/10' : 'bg-black/5 border border-black/5 hover:bg-black/10'}`}>
+                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${darkMode ? 'bg-indigo-500/20' : 'bg-indigo-500/10'}`}>
+                                <svg className={`w-5 h-5 ${darkMode ? 'text-indigo-400' : 'text-indigo-600'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 className={`font-medium text-sm ${darkMode ? 'text-white' : 'text-slate-900'}`}>智能财富规划</h3>
+                                <p className={`text-xs mt-0.5 ${darkMode ? 'text-zinc-500' : 'text-slate-500'}`}>个性化资产配置，精准投资回报预测</p>
                             </div>
                         </div>
-                    )}
 
-                    <div>
-                        <div className="relative">
-                            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
-                            <input
-                                type="email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent dark:text-white outline-none transition-all placeholder:text-slate-400"
-                                placeholder={t.authEmailPlaceholder || 'you@example.com'}
-                                required
-                            />
+                        <div className={`flex items-start gap-4 p-4 rounded-2xl backdrop-blur-sm transition-all ${darkMode ? 'bg-white/5 border border-white/10 hover:bg-white/10' : 'bg-black/5 border border-black/5 hover:bg-black/10'}`}>
+                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${darkMode ? 'bg-emerald-500/20' : 'bg-emerald-500/10'}`}>
+                                <svg className={`w-5 h-5 ${darkMode ? 'text-emerald-400' : 'text-emerald-600'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 className={`font-medium text-sm ${darkMode ? 'text-white' : 'text-slate-900'}`}>风险压力测试</h3>
+                                <p className={`text-xs mt-0.5 ${darkMode ? 'text-zinc-500' : 'text-slate-500'}`}>全面评估月供压力，规避还款风险</p>
+                            </div>
+                        </div>
+
+                        <div className={`flex items-start gap-4 p-4 rounded-2xl backdrop-blur-sm transition-all ${darkMode ? 'bg-white/5 border border-white/10 hover:bg-white/10' : 'bg-black/5 border border-black/5 hover:bg-black/10'}`}>
+                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${darkMode ? 'bg-purple-500/20' : 'bg-purple-500/10'}`}>
+                                <svg className={`w-5 h-5 ${darkMode ? 'text-purple-400' : 'text-purple-600'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 className={`font-medium text-sm ${darkMode ? 'text-white' : 'text-slate-900'}`}>AI 决策建议</h3>
+                                <p className={`text-xs mt-0.5 ${darkMode ? 'text-zinc-500' : 'text-slate-500'}`}>大模型智能分析，量身定制投资方案</p>
+                            </div>
                         </div>
                     </div>
-
-                    <div>
-                        <div className="relative">
-                            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
-                            <input
-                                type="password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent dark:text-white outline-none transition-all placeholder:text-slate-400"
-                                placeholder={t.authPasswordPlaceholder || '密码 (至少6位)'}
-                                required
-                                minLength={6}
-                            />
-                        </div>
-                    </div>
-
-                    {error && (
-                        <div className="flex items-center gap-2 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 px-4 py-3 rounded-xl text-sm animate-shake">
-                            <span className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0"></span>
-                            {error}
-                        </div>
-                    )}
-
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl px-4 py-3.5 font-bold hover:shadow-lg hover:shadow-indigo-500/30 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none"
-                    >
-                        {loading ? (t.authProcessing || '处理中...') : mode === 'login' ? (t.authLoginBtn || '立即登录') : (t.authSignupBtn || '创建账号')}
-                    </button>
-                </form>
-
-                <div className="mt-8 text-center text-sm">
-                    <span className="text-slate-500">{mode === 'login' ? (t.authNoAccount || '还没有账号？') : (t.authHasAccount || '已有账号？')}</span>
-                    <button
-                        onClick={() => {
-                            setMode(mode === 'login' ? 'signup' : 'login');
-                            setError('');
-                        }}
-                        className="text-indigo-600 dark:text-indigo-400 font-bold ml-1 hover:underline decoration-2 underline-offset-4"
-                    >
-                        {mode === 'login' ? (t.authSignupNow || '免费注册') : (t.authLoginNow || '直接登录')}
-                    </button>
                 </div>
+
+                {/* Bottom Stats */}
+                <div className="flex items-center gap-6 pt-4">
+                    <div className="text-center">
+                        <div className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-slate-900'}`}>50K+</div>
+                        <div className={`text-xs ${darkMode ? 'text-zinc-500' : 'text-slate-500'}`}>用户信赖</div>
+                    </div>
+                    <div className={`w-px h-10 ${darkMode ? 'bg-zinc-800' : 'bg-slate-200'}`}></div>
+                    <div className="text-center">
+                        <div className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-slate-900'}`}>¥2B+</div>
+                        <div className={`text-xs ${darkMode ? 'text-zinc-500' : 'text-slate-500'}`}>分析资产</div>
+                    </div>
+                    <div className={`w-px h-10 ${darkMode ? 'bg-zinc-800' : 'bg-slate-200'}`}></div>
+                    <div className="text-center">
+                        <div className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-slate-900'}`}>98%</div>
+                        <div className={`text-xs ${darkMode ? 'text-zinc-500' : 'text-slate-500'}`}>满意度</div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Glass border effect on right edge */}
+            <div className={`absolute right-0 top-0 bottom-0 w-px bg-gradient-to-b from-transparent to-transparent ${darkMode ? 'via-zinc-700' : 'via-slate-300'}`}></div>
+        </div>
+
+        {/* Right Panel - Dynamic Content */}
+        <div className={`flex-1 h-full flex flex-col items-center justify-center p-8 md:p-16 relative ${darkMode ? 'bg-black' : 'bg-white'}`}>
+            
+            <div className="w-full max-w-md space-y-8">
+                
+                {/* View: Terms of Service */}
+                {view === 'terms' && (
+                    <div className="text-white space-y-6 h-full flex flex-col animate-fade-in-up">
+                        <div className="flex items-center gap-4">
+                            <button onClick={() => setView('login')} className="p-2 hover:bg-zinc-900 rounded-full transition-colors">
+                                <ArrowLeft className="w-6 h-6" />
+                            </button>
+                            <h2 className="text-2xl font-bold">服务条款</h2>
+                        </div>
+                        <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-6 text-zinc-400 text-sm max-h-[60vh] border border-zinc-800 rounded-2xl p-6 bg-zinc-950">
+                            <p className="text-zinc-500 text-xs">最后更新日期：2025年10月</p>
+                            
+                            <h3 className="text-white font-semibold text-lg pt-2">创作初衷</h3>
+                            <div className="bg-gradient-to-br from-indigo-500/10 to-emerald-500/10 border border-indigo-500/20 rounded-xl p-4 space-y-3">
+                                <p>作为一名独立开发者，我深知在当今复杂的房地产市场中，做出明智的购房决策是多么困难。</p>
+                                <p>我曾目睹身边的朋友和家人在购房时面临的种种困惑：月供压力如何评估？投资回报率怎么计算？首付和贷款如何平衡？这些问题往往需要专业的财务知识，但普通购房者很难获得。</p>
+                                <p>因此，我创建了 <strong className="text-emerald-400">WealthCompass（财富罗盘）</strong>，希望能够：</p>
+                                <ul className="list-disc list-inside space-y-1 pl-2 text-zinc-300">
+                                    <li>用<strong className="text-indigo-400">数据</strong>代替直觉，让购房决策更加理性</li>
+                                    <li>用<strong className="text-indigo-400">可视化</strong>呈现复杂的财务信息，让普通人也能轻松理解</li>
+                                    <li>用<strong className="text-indigo-400">AI</strong>辅助分析，提供个性化的建议而非千篇一律的模板</li>
+                                    <li>让每一位购房者都能像专业投资者一样，全面评估自己的财务状况</li>
+                                </ul>
+                                <p className="text-zinc-500 text-xs pt-2">本平台由个人独立开发和运营，坚持用户至上、数据安全的原则，持续迭代优化，致力于成为您身边最值得信赖的房产决策助手。</p>
+                            </div>
+                            
+                            <h3 className="text-white font-semibold text-lg pt-4">1. 服务说明与接受条款</h3>
+                            <p>欢迎使用 WealthCompass（以下简称"本平台"或"我们"）。本平台由独立开发者个人运营，致力于为用户提供基于大数据分析的房产价值评估、投资回报预测、贷款计算、以及 AI 辅助决策建议服务。</p>
+                            <p>当您访问或使用本平台时，即表示您已阅读、理解并同意受本服务条款（以下简称"条款"）的约束。如果您不同意本条款的任何部分，请勿使用本平台。</p>
+                            
+                            <h3 className="text-white font-semibold text-lg pt-4">2. 用户账户与注册</h3>
+                            <p><strong className="text-zinc-300">2.1 账户创建：</strong>为使用本平台的全部功能，您需要注册一个账户。您同意提供真实、准确、完整的注册信息，并及时更新以保持其有效性。</p>
+                            <p><strong className="text-zinc-300">2.2 账户安全：</strong>您对您的账户和密码的保密性负全部责任。您同意立即通知我们任何未经授权使用您账户或任何其他安全漏洞的情况。</p>
+                            <p><strong className="text-zinc-300">2.3 账户使用：</strong>您不得将您的账户转让或出借给任何第三方。您对通过您账户进行的所有活动负责，无论是否经您授权。</p>
+                            
+                            <h3 className="text-white font-semibold text-lg pt-4">3. 服务内容与数据来源</h3>
+                            <p><strong className="text-zinc-300">3.1 服务范围：</strong>本平台提供的服务包括但不限于：房产估值、贷款还款计算、投资回报分析、市场趋势预测、AI 智能建议等。</p>
+                            <p><strong className="text-zinc-300">3.2 数据来源：</strong>本平台使用的数据来源于公开市场信息、政府公开数据、合作机构提供的数据以及用户自行输入的信息。我们尽力确保数据的准确性，但不对数据的完整性或时效性作出任何保证。</p>
+                            <p><strong className="text-zinc-300">3.3 AI 建议：</strong>本平台提供的 AI 生成内容（包括投资建议、市场分析等）仅供参考，不构成任何形式的专业投资、法律或财务建议。在做出任何重大财务决策之前，请咨询合格的专业人士。</p>
+                            
+                            <h3 className="text-white font-semibold text-lg pt-4">4. 隐私保护与数据安全</h3>
+                            <p><strong className="text-zinc-300">4.1 数据收集：</strong>我们收集您在使用服务时提供的信息，包括账户信息、查询历史、输入的房产数据等。详细信息请参阅我们的隐私政策。</p>
+                            <p><strong className="text-zinc-300">4.2 数据使用：</strong>您的数据仅用于为您提供和改进服务、生成个人化分析报告、以及改善用户体验。我们不会将您的个人数据出售给任何第三方。</p>
+                            <p><strong className="text-zinc-300">4.3 数据安全：</strong>我们采用行业标准的加密技术和安全措施保护您的数据。然而，互联网传输没有任何方法是完全安全的，我们无法保证绝对的安全性。</p>
+                            <p><strong className="text-zinc-300">4.4 数据保留：</strong>我们将在您使用服务期间以及法律要求的期限内保留您的数据。您可以随时请求删除您的账户和相关数据。</p>
+                            
+                            <h3 className="text-white font-semibold text-lg pt-4">5. 免责声明与风险提示</h3>
+                            <p><strong className="text-zinc-300">5.1 投资风险：</strong>房地产投资存在固有风险，包括但不限于市场波动、政策变化、经济衰退等。历史数据和预测不代表未来表现。您应自行评估投资风险并做出独立判断。</p>
+                            <p><strong className="text-zinc-300">5.2 信息准确性：</strong>尽管我们努力确保信息的准确性，但本平台不对任何信息的准确性、完整性、可靠性或适用性作出任何明示或暗示的保证。</p>
+                            <p><strong className="text-zinc-300">5.3 责任限制：</strong>在法律允许的最大范围内，本平台及其关联方不对因使用或无法使用本服务而导致的任何直接、间接、附带、特殊、惩罚性或后果性损害承担责任，包括但不限于利润损失、数据丢失或业务中断。</p>
+                            <p><strong className="text-zinc-300">5.4 第三方链接：</strong>本平台可能包含第三方网站的链接。我们对这些第三方网站的内容、隐私政策或做法不承担任何责任。</p>
+                            
+                            <h3 className="text-white font-semibold text-lg pt-4">6. 知识产权</h3>
+                            <p><strong className="text-zinc-300">6.1 平台权利：</strong>本平台的所有内容，包括但不限于文本、图形、徽标、图标、图像、音频剪辑、数字下载和软件，均为本平台或其内容供应商的财产，受中国和国际版权法的保护。</p>
+                            <p><strong className="text-zinc-300">6.2 用户授权：</strong>通过使用本服务，您授予我们非独占的、免版税的许可，以使用您提供的信息来为您提供服务和改进平台。</p>
+                            <p><strong className="text-zinc-300">6.3 禁止行为：</strong>未经我们明确书面许可，您不得复制、修改、分发、销售或出租本平台的任何部分或其内容，也不得对软件进行逆向工程或尝试提取源代码。</p>
+                            
+                            <h3 className="text-white font-semibold text-lg pt-4">7. 用户行为规范</h3>
+                            <p>您同意不会：</p>
+                            <ul className="list-disc list-inside space-y-1 pl-2">
+                                <li>使用本服务进行任何非法活动</li>
+                                <li>试图未经授权访问本平台的任何部分</li>
+                                <li>干扰或破坏服务或服务器的正常运行</li>
+                                <li>使用自动化手段（如机器人、爬虫）访问服务</li>
+                                <li>冒充他人或虚假陈述您与任何人或实体的关系</li>
+                                <li>上传或传输病毒或其他恶意代码</li>
+                            </ul>
+                            
+                            <h3 className="text-white font-semibold text-lg pt-4">8. 服务变更与终止</h3>
+                            <p><strong className="text-zinc-300">8.1 服务变更：</strong>我们保留随时修改、暂停或终止服务（或其任何部分）的权利，恕不另行通知。我们不对您或任何第三方因服务的任何修改、暂停或终止承担责任。</p>
+                            <p><strong className="text-zinc-300">8.2 条款修改：</strong>我们可能会不时修改本条款。修改后的条款将在本平台上发布时生效。继续使用服务即表示您接受修改后的条款。</p>
+                            <p><strong className="text-zinc-300">8.3 账户终止：</strong>我们保留自行决定暂停或终止您的账户的权利，如果我们认为您违反了本条款或从事了不当行为。</p>
+                            
+                            <h3 className="text-white font-semibold text-lg pt-4">9. 适用法律与争议解决</h3>
+                            <p><strong className="text-zinc-300">9.1 适用法律：</strong>本条款受中华人民共和国法律管辖并按其解释，不考虑法律冲突原则。</p>
+                            <p><strong className="text-zinc-300">9.2 争议解决：</strong>因本条款或服务引起的或与之相关的任何争议，双方应首先通过友好协商解决。协商不成的，任何一方均可向本平台运营方所在地有管辖权的人民法院提起诉讼。</p>
+                            
+                            <h3 className="text-white font-semibold text-lg pt-4">10. 联系我们</h3>
+                            <p>如果您对本服务条款有任何疑问或意见，请通过以下方式联系我们：</p>
+                            <p className="text-zinc-300">电子邮件：hollipembletoncrf40@gmail.com</p>
+                            <p className="text-zinc-300">工作时间：周一至周五 9:00-18:00 (北京时间)</p>
+                            
+                            <div className="border-t border-zinc-800 pt-4 mt-4">
+                                <p className="text-zinc-500 text-xs">本条款自发布之日起生效。使用本平台即表示您同意受本条款的约束。</p>
+                            </div>
+                        </div>
+                        <button 
+                            onClick={() => setView('signup')}
+                            className="w-full py-3.5 bg-white text-black font-bold rounded-full hover:bg-zinc-200 transition-colors"
+                        >
+                            我已阅读并同意
+                        </button>
+                    </div>
+                )}
+
+                {/* View: Forgot Password */}
+                {view === 'forgot_password' && (
+                    <div className="space-y-6 animate-fade-in-up">
+                        <div className="text-center space-y-2">
+                             <h2 className="text-3xl font-medium text-white tracking-wide">重置密码</h2>
+                             <p className="text-zinc-500 text-sm">请输入您的注册邮箱，我们将发送重置链接。</p>
+                        </div>
+
+                        {successMsg ? (
+                            <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-6 text-center space-y-4 animate-fade-in">
+                                <CheckCircle className="w-12 h-12 text-green-500 mx-auto" />
+                                <p className="text-green-500 font-medium">{successMsg}</p>
+                                <button 
+                                    onClick={() => setView('login')}
+                                    className="text-white text-sm hover:underline"
+                                >
+                                    返回登录
+                                </button>
+                            </div>
+                        ) : (
+                            <form onSubmit={handleEmailAuth} className="space-y-6">
+                                {error && (
+                                    <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-500 text-sm text-center">
+                                        {error}
+                                    </div>
+                                )}
+                                <div className="relative group">
+                                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-500 group-focus-within:text-white transition-colors" />
+                                    <input
+                                        type="email"
+                                        required
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        placeholder="请输入您的邮箱"
+                                        className="w-full bg-zinc-950 border border-zinc-800 text-white rounded-xl py-3.5 pl-12 pr-4 focus:ring-1 focus:ring-orange-500 focus:border-orange-500 outline-none transition-all placeholder:text-zinc-600"
+                                    />
+                                </div>
+                                <button
+                                    type="submit"
+                                    disabled={loading}
+                                    className="w-full py-3.5 px-4 bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-500 hover:to-orange-500 text-white rounded-full font-medium text-lg shadow-[0_4px_20px_rgba(220,38,38,0.4)] hover:shadow-[0_6px_25px_rgba(220,38,38,0.6)] transition-all"
+                                >
+                                    {loading ? '发送中...' : '发送重置链接'}
+                                </button>
+                                <button 
+                                    type="button" 
+                                    onClick={() => setView('login')}
+                                    className="w-full text-zinc-500 hover:text-white text-sm transition-colors py-2"
+                                >
+                                    想起密码了？返回登录
+                                </button>
+                            </form>
+                        )}
+                    </div>
+                )}
+
+                {/* View: Login or Signup */}
+                {(view === 'login' || view === 'signup') && (
+                    <>
+                        <div className="text-center space-y-2 animate-fade-in">
+                            <h2 className={`text-3xl font-medium tracking-wide ${darkMode ? 'text-white' : 'text-slate-900'}`}>
+                                {view === 'login' ? (t.loginWelcome || '登录您的账户') : (t.signupTitle || '创建新账户')}
+                            </h2>
+                            <p className={`text-sm ${darkMode ? 'text-zinc-500' : 'text-slate-500'}`}>
+                                {view === 'login' ? '还没有账户？ ' : '已有账户？ '}
+                                <button 
+                                    onClick={() => { setView(view === 'login' ? 'signup' : 'login'); setError(''); }}
+                                    className="text-orange-500 hover:text-orange-400 font-medium transition-colors"
+                                >
+                                    {view === 'login' ? (t.signupLink || '注册') : (t.loginLink || '登录')}
+                                </button>
+                            </p>
+                        </div>
+
+                        <div className="space-y-3 pt-4 animate-fade-in" style={{ animationDelay: '0.1s' }}>
+                            <button 
+                                onClick={handleGoogleLogin} disabled={loading}
+                                className={`w-full flex items-center justify-center gap-3 py-3 px-6 rounded-full transition-all group ${darkMode ? 'bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-white' : 'bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-900'}`}
+                            >
+                                {/* Real Google Logo SVG */}
+                                <svg className="w-5 h-5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                                </svg>
+                                <span className="text-sm font-medium tracking-wide">使用 Google 登录</span>
+                            </button>
+                            
+                            {/* Email signup button - only show on login view */}
+                            {view === 'login' && (
+                                <button 
+                                    onClick={() => setView('signup')} 
+                                    className={`w-full flex items-center justify-center gap-3 py-3 px-6 rounded-full transition-all group ${darkMode ? 'bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-white' : 'bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-900'}`}
+                                >
+                                    <Mail className="w-5 h-5 text-orange-400" />
+                                    <span className="text-sm font-medium tracking-wide">使用邮箱注册</span>
+                                </button>
+                            )}
+                        </div>
+
+                        <div className="relative py-4 animate-fade-in" style={{ animationDelay: '0.2s' }}>
+                            <div className="absolute inset-0 flex items-center"><div className={`w-full border-t ${darkMode ? 'border-zinc-800' : 'border-slate-200'}`}></div></div>
+                            <div className="relative flex justify-center text-xs uppercase"><span className={`px-4 ${darkMode ? 'bg-black text-zinc-600' : 'bg-white text-slate-400'}`}>{view === 'login' ? '或使用邮箱登录' : '填写注册信息'}</span></div>
+                        </div>
+
+                        <form onSubmit={handleEmailAuth} className="space-y-6 animate-fade-in" style={{ animationDelay: '0.3s' }}>
+                            {error && (
+                                <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-500 text-sm text-center">
+                                    {error}
+                                </div>
+                            )}
+
+                            <div className="space-y-4">
+                                {view === 'signup' && (
+                                    <>
+                                        {/* Avatar Upload */}
+                                        <div className="flex justify-center mb-4">
+                                            <div 
+                                                className="relative cursor-pointer group"
+                                                onClick={() => avatarInputRef.current?.click()}
+                                            >
+                                                <div className={`w-20 h-20 rounded-full overflow-hidden border-2 border-dashed ${avatarPreview ? 'border-orange-500' : 'border-zinc-700'} flex items-center justify-center bg-zinc-900 transition-all group-hover:border-orange-400`}>
+                                                    {avatarPreview ? (
+                                                        <img src={avatarPreview} alt="Avatar" className="w-full h-full object-cover" />
+                                                    ) : (
+                                                        <Camera className="w-8 h-8 text-zinc-500 group-hover:text-zinc-400" />
+                                                    )}
+                                                </div>
+                                                <div className="absolute -bottom-1 -right-1 bg-orange-500 rounded-full p-1.5 shadow-lg">
+                                                    <Camera className="w-3 h-3 text-white" />
+                                                </div>
+                                                <input
+                                                    ref={avatarInputRef}
+                                                    type="file"
+                                                    accept="image/*"
+                                                    onChange={handleAvatarChange}
+                                                    className="hidden"
+                                                />
+                                            </div>
+                                        </div>
+                                        <p className="text-center text-xs text-zinc-500 -mt-2 mb-2">点击上传头像 (可选)</p>
+
+                                        {/* Nickname */}
+                                        <div className="relative group">
+                                            <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-500 group-focus-within:text-white transition-colors" />
+                                            <input
+                                                type="text"
+                                                required
+                                                value={displayName}
+                                                onChange={(e) => setDisplayName(e.target.value)}
+                                                placeholder="昵称"
+                                                className="w-full bg-zinc-950 border border-zinc-800 text-white rounded-xl py-3.5 pl-12 pr-4 focus:ring-1 focus:ring-orange-500 focus:border-orange-500 outline-none transition-all placeholder:text-zinc-600"
+                                            />
+                                        </div>
+                                    </>
+                                )}
+
+                                <div className="relative group">
+                                    <Mail className={`absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 transition-colors ${darkMode ? 'text-zinc-500 group-focus-within:text-white' : 'text-slate-400 group-focus-within:text-slate-600'}`} />
+                                    <input
+                                        type="email"
+                                        required
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        placeholder="邮箱"
+                                        className={`w-full rounded-xl py-3.5 pl-12 pr-4 focus:ring-1 focus:ring-orange-500 focus:border-orange-500 outline-none transition-all ${darkMode ? 'bg-zinc-950 border border-zinc-800 text-white placeholder:text-zinc-600' : 'bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400'}`}
+                                    />
+                                </div>
+
+                                <div className="relative group">
+                                    <Lock className={`absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 transition-colors ${darkMode ? 'text-zinc-500 group-focus-within:text-white' : 'text-slate-400 group-focus-within:text-slate-600'}`} />
+                                    <input
+                                        type="password"
+                                        required
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        placeholder="密码"
+                                        className={`w-full rounded-xl py-3.5 pl-12 pr-4 focus:ring-1 focus:ring-orange-500 focus:border-orange-500 outline-none transition-all ${darkMode ? 'bg-zinc-950 border border-zinc-800 text-white placeholder:text-zinc-600' : 'bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400'}`}
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Remember Me for Login */}
+                            {view === 'login' && (
+                                <label className="flex items-center gap-3 cursor-pointer group">
+                                    <div 
+                                        className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${rememberMe ? 'bg-orange-500 border-orange-500' : darkMode ? 'border-zinc-600 group-hover:border-zinc-400' : 'border-slate-300 group-hover:border-slate-400'}`}
+                                        onClick={() => setRememberMe(!rememberMe)}
+                                    >
+                                        {rememberMe && <Check className="w-3 h-3 text-white" />}
+                                    </div>
+                                    <span className={`text-sm ${darkMode ? 'text-zinc-400 group-hover:text-zinc-300' : 'text-slate-500 group-hover:text-slate-600'}`}>记住我</span>
+                                </label>
+                            )}
+
+                            {/* Terms checkbox for Signup */}
+                            {view === 'signup' && (
+                                <label className="flex items-start gap-3 cursor-pointer group">
+                                    <div 
+                                        className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all flex-shrink-0 mt-0.5 ${agreeToTerms ? 'bg-orange-500 border-orange-500' : darkMode ? 'border-zinc-600 group-hover:border-zinc-400' : 'border-slate-300 group-hover:border-slate-400'}`}
+                                        onClick={() => setAgreeToTerms(!agreeToTerms)}
+                                    >
+                                        {agreeToTerms && <Check className="w-3 h-3 text-white" />}
+                                    </div>
+                                    <span className={`text-sm ${darkMode ? 'text-zinc-400 group-hover:text-zinc-300' : 'text-slate-500 group-hover:text-slate-600'}`}>
+                                        我已阅读并同意
+                                        <button 
+                                            type="button"
+                                            onClick={(e) => { e.preventDefault(); setView('terms'); }}
+                                            className="text-orange-500 hover:text-orange-400 underline ml-1"
+                                        >
+                                            服务条款
+                                        </button>
+                                    </span>
+                                </label>
+                            )}
+
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className="w-full py-3.5 px-4 bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-500 hover:to-orange-500 text-white rounded-full font-medium text-lg shadow-[0_4px_20px_rgba(220,38,38,0.4)] hover:shadow-[0_6px_25px_rgba(220,38,38,0.6)] hover:scale-[1.01] active:scale-[0.99] transition-all duration-300 relative overflow-hidden"
+                            >
+                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] animate-shimmer" />
+                                <span className="relative z-10">{loading ? 'Processing...' : (view === 'login' ? '登 录' : '创建账户')}</span>
+                            </button>
+                        </form>
+
+                        <div className="text-center space-y-4 pt-4 animate-fade-in" style={{ animationDelay: '0.4s' }}>
+                             {view === 'login' && (
+                                <button 
+                                    onClick={() => setView('forgot_password')}
+                                    className="text-xs text-red-500/80 hover:text-red-400 transition-colors"
+                                >
+                                    忘记密码?
+                                </button>
+                             )}
+                             <div className={`flex items-center justify-center gap-4 text-[10px] ${darkMode ? 'text-zinc-600' : 'text-slate-400'}`}>
+                                 <button onClick={() => setView('terms')} className={`${darkMode ? 'hover:text-zinc-400' : 'hover:text-slate-600'}`}>服务条款</button>
+                             </div>
+                        </div>
+                    </>
+                )}
             </div>
         </div>
       </div>
     </div>
   );
 };
+
