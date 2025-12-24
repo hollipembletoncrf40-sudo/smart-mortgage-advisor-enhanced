@@ -38,16 +38,34 @@ export const calculateSellScenario = (params: SellParams): SellResult => {
   // Sell Later (3 years default)
   const sellLaterYear = 3;
 
+  let accumulatedHoldCash = 0;
+
   for (let year = 0; year <= 30; year++) {
     // --- Path A: HOLD ---
-    const holdNetWorth = currentHoldValue - currentLoan;
+    // 1. Calculate Asset Equity
+    const assetEquity = currentHoldValue - currentLoan;
     
-    // Cash Flow: Rent - Mortgage - Holding
-    // Rent grows with inflation/appreciation (simplified to appreciation rate * 0.5)
+    // 2. Calculate Annual Cash Flow (Rent - Mortgage - Holding)
+    // Rent grows with inflation/appreciation (simplified to appreciation rate * 0.5 for rental growth lag)
     const annualRent = currentHoldValue * (params.rentalYield / 100);
     const annualMortgage = standardMonthlyPayment * 12 / 10000; 
     const annualHolding = params.holdingCostPerYear * Math.pow(1.02, year); // 2% inflation on costs
-    const holdCashFlow = (annualRent - annualMortgage * 10000 / 10000 - annualHolding) / 12 * 10000;
+    
+    const yearlyNetCashFlow = annualRent - annualMortgage - annualHolding;
+
+    // 3. Accumulate Cash (Reinvested at investmentReturnRate)
+    if (year > 0) {
+        // Grow previous cash pile
+        accumulatedHoldCash *= (1 + params.investmentReturnRate / 100);
+        // Add this year's cash flow (assuming end of year)
+        accumulatedHoldCash += yearlyNetCashFlow;
+    }
+
+    // Total Hold Net Worth = Equity + Liquid Cash from Rent/Savings
+    const holdNetWorth = assetEquity + accumulatedHoldCash;
+    
+    // Cash Flow for display (Monthly)
+    const holdCashFlow = (yearlyNetCashFlow / 12) * 10000;
 
     // --- Path B: SELL NOW ---
     // Cash grows at investmentReturnRate
@@ -59,33 +77,27 @@ export const calculateSellScenario = (params: SellParams): SellResult => {
     if (year < sellLaterYear) {
         sellLaterNetWorth = holdNetWorth; // Simplified, ignores transaction friction until sale
     } else if (year === sellLaterYear) {
-         // Execute Sale
-         sellLaterNetWorth = currentHoldValue * (1 - sellingCostRatio) - currentLoan;
+         // Execute Sale: Equity -> Cash, plus accumulated cash so far
+         const equityAfterFees = currentHoldValue * (1 - sellingCostRatio) - currentLoan;
+         sellLaterNetWorth = equityAfterFees + accumulatedHoldCash;
     } else {
-         // Grow Cash
-         // Value at year 3 * growth^(year-3)
-         const cashAtSale = (params.currentPrice * Math.pow(1 + params.appreciationRate/100, sellLaterYear)) * (1 - sellingCostRatio) 
-                            - (currentLoan * 1.05); // Rough guess loan principal hasn't dropped much? Let's use loop variable
-         // Actually we should use the state variable at year 3. 
-         // For simplicity in this non-state loop, we approximate:
-         const valAtSale = params.currentPrice * Math.pow(1 + params.appreciationRate/100, sellLaterYear);
-         // Recursion is tricky here without strict state tracking for Path C. 
-         // Let's use a simpler proxy: It tracks Hold until year 3, then behaves like Sell Now.
-         const prevObj = multiversePath[sellLaterYear];
-         if (prevObj) {
-            sellLaterNetWorth = prevObj.sellLaterNetWorth * (1 + params.investmentReturnRate/100);
+         // Grow Cash from the sale point
+         // We need the value at saleYear to project forward. 
+         // Since we don't store state for Path C easily in this loop structure without an array lookbehind:
+         if (multiversePath[sellLaterYear]) {
+             const cashAtSalePoint = multiversePath[sellLaterYear].sellLaterNetWorth;
+             sellLaterNetWorth = cashAtSalePoint * Math.pow(1 + params.investmentReturnRate/100, year - sellLaterYear);
          } else {
-             // Fallback for logic check
-             sellLaterNetWorth = holdNetWorth; 
+             // Fallback during the exact year calculation or before array update (shouldn't happen due to order)
+             sellLaterNetWorth = holdNetWorth;
          }
     }
 
-    // Fix Sell Later Logic properly for loop
-    if (year > sellLaterYear) {
-        // Look back at year 3 value
-        const saleYearVal = multiversePath[sellLaterYear].sellLaterNetWorth;
-        sellLaterNetWorth = saleYearVal * Math.pow(1 + params.investmentReturnRate/100, year - sellLaterYear);
-    } 
+    // Fix: Ensure Sell Later logic uses the correct base if we are past the sale year
+    if (multiversePath.length > sellLaterYear && year > sellLaterYear) {
+         const cashAtSalePoint = multiversePath[sellLaterYear].sellLaterNetWorth;
+         sellLaterNetWorth = cashAtSalePoint * Math.pow(1 + params.investmentReturnRate/100, year - sellLaterYear);
+    }
 
     multiversePath.push({
       year,
@@ -96,7 +108,7 @@ export const calculateSellScenario = (params: SellParams): SellResult => {
       sellNowCashFlow
     });
 
-    // Evolve Hold State
+    // Evolve Hold State for Next Year
     currentHoldValue = currentHoldValue * (1 + params.appreciationRate / 100);
     
     // Amortization (Principal reduction)
@@ -104,6 +116,38 @@ export const calculateSellScenario = (params: SellParams): SellResult => {
     const principalPart = standardMonthlyPayment - interestPart;
     currentLoan = Math.max(0, currentLoan - principalPart / 10000);
   }
+
+  // --- New Logic: Calculate Optimal Sell Timing Curve ---
+  // For each year T (1 to 30), if we sell at T, what is our Final Wealth at Year 30?
+  // Wealth(30) = (Net Proceeds @ T + Accumulated Cash @ T) * (1 + Invest)^ (30 - T)
+  
+  const optimalSellData = multiversePath.map((point) => {
+      const remainingYears = 30 - point.year;
+      // Net Proceeds at year T
+      // Note: multiversePath[i].holdNetWorth includes (Equity + Accumulated Cash).
+      // We need to apply transaction cost to the PROPERTY VALUE part only.
+      // But we don't store property value in MultiversePoint. 
+      // We can approximate or re-calculate. 
+      // Actually, Hold Net Worth = Equity + Cash. 
+      // Equity = Property - Loan.
+      // If we sell, we lose TransactionCost * PropertyValue.
+      // So Proceeds = Equity - TransactionCost + Cash.
+      // Total Wealth(T) = HoldNetWorth(T) - TransactionCost.
+      
+      // Let's re-estimate Property Value for that year roughly?
+      // Or better, track property value in MultiversePoint?
+      // For now, let's use the approximation:
+      const propertyValueAtT = params.currentPrice * Math.pow(1 + params.appreciationRate/100, point.year);
+      const transactionCost = propertyValueAtT * sellingCostRatio;
+      
+      const wealthAtSale = point.holdNetWorth - transactionCost;
+      const finalNetWorth = wealthAtSale * Math.pow(1 + params.investmentReturnRate/100, remainingYears);
+      
+      return {
+          sellYear: point.year,
+          finalNetWorth: point.year === 0 ? multiversePath[30].sellNowNetWorth : finalNetWorth // Year 0 is Sell Now
+      };
+  });
 
   // Calculate Optimal
   const horizon = 10; // Check 10 year horizon for decision
@@ -146,6 +190,7 @@ export const calculateSellScenario = (params: SellParams): SellResult => {
     freedomScore,
     multiversePath,
     optimalPath,
+    optimalSellData, // New field
     illusionBreakdown: {
       buyPrice: params.originalPrice,
       interestPaid,

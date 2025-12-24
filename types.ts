@@ -607,6 +607,11 @@ export interface MultiversePoint {
   sellNowCashFlow: number; // 元/月
 }
 
+export interface OptimalPoint {
+  sellYear: number;
+  finalNetWorth: number; // Value at Year 30 if sold at sellYear
+}
+
 export interface SellResult {
   // Module 1: Dilemma Scan
   dtiRatio: number; // Current DTI
@@ -616,6 +621,7 @@ export interface SellResult {
   // Module 2: Multiverse
   multiversePath: MultiversePoint[];
   optimalPath: 'HOLD' | 'SELL_NOW' | 'SELL_LATER';
+  optimalSellData: OptimalPoint[]; // New Chart Data
   
   // Module 3: Price Illusion
   illusionBreakdown: {

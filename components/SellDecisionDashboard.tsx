@@ -145,7 +145,8 @@ const SellDecisionDashboard: React.FC<SellDecisionDashboardProps> = ({ t, langua
             <Activity className="h-4 w-4" />
             {language === 'ZH' ? '关键假设调整' : 'Key Assumptions'}
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-8">
+           {/* Asset Status */}
            <InputSlider 
              label={language === 'ZH' ? '当前估值 (万)' : 'Current Price'} 
              value={params.currentPrice} 
@@ -161,6 +162,22 @@ const SellDecisionDashboard: React.FC<SellDecisionDashboardProps> = ({ t, langua
              color="blue"
            />
            <InputSlider 
+             label={language === 'ZH' ? '买入成本 (万)' : 'Original Cost'} 
+             value={params.originalPrice} 
+             min={100} max={2000} step={10}
+             onChange={(v) => handleParamChange('originalPrice', v)}
+             color="slate"
+           />
+           <InputSlider 
+             label={language === 'ZH' ? '房贷利率 (%)' : 'Mortgage Rate'} 
+             value={params.interestRate} 
+             min={2} max={6} step={0.1}
+             onChange={(v) => handleParamChange('interestRate', v)}
+             color="orange"
+           />
+
+           {/* Market Assumptions */}
+           <InputSlider 
              label={language === 'ZH' ? '预期年涨幅 (%)' : 'Exp. Appreciation'} 
              value={params.appreciationRate} 
              min={-5} max={10} step={0.1}
@@ -173,6 +190,20 @@ const SellDecisionDashboard: React.FC<SellDecisionDashboardProps> = ({ t, langua
              min={1} max={8} step={0.1}
              onChange={(v) => handleParamChange('investmentReturnRate', v)}
              color="purple"
+           />
+           <InputSlider 
+             label={language === 'ZH' ? '租金回报率 (%)' : 'Rental Yield'} 
+             value={params.rentalYield} 
+             min={0.5} max={5} step={0.1}
+             onChange={(v) => handleParamChange('rentalYield', v)}
+             color="teal"
+           />
+           <InputSlider 
+             label={language === 'ZH' ? '年持有成本 (万)' : 'Holding Cost/Yr'} 
+             value={params.holdingCostPerYear} 
+             min={0} max={20} step={0.5}
+             onChange={(v) => handleParamChange('holdingCostPerYear', v)}
+             color="pink"
            />
         </div>
       </div>
@@ -231,6 +262,48 @@ const SellDecisionDashboard: React.FC<SellDecisionDashboardProps> = ({ t, langua
                         <Line type="monotone" dataKey="sellLaterNetWorth" name={language === 'ZH' ? "3年后卖 (Sell Later)" : "Sell Later"} stroke="#f59e0b" strokeWidth={2} strokeDasharray="5 5" dot={false} />
                     </ComposedChart>
                 </ResponsiveContainer>
+            </div>
+            
+            {/* New Module: Optimal Sell Timing Analysis */}
+            <div className="mt-8 pt-8 border-t border-slate-100 dark:border-slate-800">
+                <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2 flex items-center gap-2">
+                    <Clock className="h-6 w-6 text-purple-500" />
+                    {language === 'ZH' ? '最佳卖出时机分析' : 'Optimal Sell Timing Analysis'}
+                </h3>
+                <p className="text-sm text-slate-500 mb-6">
+                    {language === 'ZH' 
+                        ? '如果有“卖出”的念头，哪一年卖最划算？下图展示不同年份卖出并理财到第30年的“最终财富总值”。' 
+                        : 'If you plan to sell, which year is optimal? Chart shows Final Wealth at Year 30 for different sale years.'}
+                </p>
+                
+                <div className="h-[350px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                        <LineChart data={result.optimalSellData} margin={{ top: 10, right: 30, left: 10, bottom: 0 }}>
+                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" opacity={0.3} />
+                            <XAxis 
+                                dataKey="sellYear" 
+                                axisLine={false} 
+                                tickLine={false} 
+                                tick={{fill: '#94A3B8'}} 
+                                label={{ value: language === 'ZH' ? '卖出年份' : 'Sell Year', position: 'insideBottom', offset: -5, fill: '#94A3B8', fontSize: 12 }} 
+                            />
+                            <YAxis 
+                                axisLine={false} 
+                                tickLine={false} 
+                                tick={{fill: '#94A3B8'}} 
+                                unit={unit} 
+                                domain={['auto', 'auto']} 
+                            />
+                            <Tooltip 
+                                contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.2)', backgroundColor: '#1e293b', color: '#fff' }}
+                                labelFormatter={(value) => `${language === 'ZH' ? '第' : 'Year '}${value}${language === 'ZH' ? '年卖出' : ''}`}
+                            />
+                            <Legend />
+                            
+                            <Line type="monotone" dataKey="finalNetWorth" name={language === 'ZH' ? "最终财富总值 (Final Wealth)" : "Final Wealth @ Y30"} stroke="#8b5cf6" strokeWidth={3} dot={{r: 4}} activeDot={{r: 7}} />
+                        </LineChart>
+                    </ResponsiveContainer>
+                </div>
             </div>
         </div>
 
