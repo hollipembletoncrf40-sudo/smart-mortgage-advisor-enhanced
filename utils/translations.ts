@@ -915,10 +915,13 @@ export const TRANSLATIONS = {
 
     // Section Navigation
     navInputPanel: "参数输入",
+    navComparison: "资产对比",
+    navAnalysis: "分析工具",
     navRoastPanel: "房子评你",
     navInteractive: "实时仪表",
     navTimeline: "时间轴",
     navGameMode: "游戏模式",
+    navAIPanel: "AI顾问",
 
     // Interactive Dashboard
     realTimeViz: "实时决策可视化",
@@ -1932,10 +1935,13 @@ export const TRANSLATIONS = {
 
     // Section Navigation
     navInputPanel: "Parameters",
+    navComparison: "Asset Compare",
+    navAnalysis: "Analysis Tools",
     navRoastPanel: "House Roast",
     navInteractive: "Live Dashboard",
     navTimeline: "Timeline",
     navGameMode: "Game Mode",
+    navAIPanel: "AI Advisor",
 
     // Interactive Dashboard
     realTimeViz: "Real-time Decision Viz",

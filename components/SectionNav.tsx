@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { List, BarChart3, Zap, Clock, Gamepad2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { List, BarChart3, Zap, Clock, Gamepad2, ChevronLeft, ChevronRight, TrendingUp, LayoutGrid, Bot } from 'lucide-react';
 
 interface SectionNavProps {
   t: any;
@@ -14,10 +14,13 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   { id: 'input-panel', icon: List, labelKey: 'navInputPanel', fallbackLabel: '参数输入' },
+  { id: 'comparison-panel', icon: TrendingUp, labelKey: 'navComparison', fallbackLabel: '资产对比' },
+  { id: 'tabs-section', icon: LayoutGrid, labelKey: 'navAnalysis', fallbackLabel: '分析工具' },
   { id: 'roast-panel', icon: BarChart3, labelKey: 'navRoastPanel', fallbackLabel: '房子评价' },
   { id: 'interactive-dashboard', icon: Zap, labelKey: 'navInteractive', fallbackLabel: '实时仪表' },
   { id: 'timeline-panel', icon: Clock, labelKey: 'navTimeline', fallbackLabel: '时间轴' },
   { id: 'game-panel', icon: Gamepad2, labelKey: 'navGameMode', fallbackLabel: '游戏模式' },
+  { id: 'ai-panel', icon: Bot, labelKey: 'navAIPanel', fallbackLabel: 'AI顾问' },
 ];
 
 const SectionNav: React.FC<SectionNavProps> = ({ t }) => {
