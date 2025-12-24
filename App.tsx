@@ -49,6 +49,7 @@ import SellDecisionDashboard from './components/SellDecisionDashboard';
 import BuyDecisionDashboard from './components/BuyDecisionDashboard';
 import DecisionAutopsy from './components/DecisionAutopsy';
 import FreedomAnalytics from './components/FreedomAnalytics';
+import LifeLeverageAnalytics from './components/LifeLeverageAnalytics';
 import SectionNav from './components/SectionNav';
 import { loadAIConfig, sendAIMessage, AIMessage, getProviderName } from './utils/aiProvider';
 import { InvestmentParams, RepaymentMethod, CalculationResult, PrepaymentStrategy, StressTestResult, LoanType, PurchaseScenario, LocationFactors, LocationScore, AssetComparisonItem, KnowledgeCardData, Language, Currency, TaxParams, TaxResult, AppreciationPredictorParams, AppreciationPrediction, MonthlyCashFlow, CustomStressTestParams, DecisionSnapshot, BuyTargetParams } from './types';
@@ -2616,6 +2617,7 @@ function App() {
                    <button onClick={() => setActiveTab('sell_decision')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'sell_decision' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{language === 'EN' ? 'Sell Decision' : '卖房决策'}</button>
                    <button onClick={() => setActiveTab('autopsy')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'autopsy' ? 'bg-rose-600 text-white shadow-lg shadow-rose-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{language === 'EN' ? 'Decision Autopsy' : '决策尸检室'}</button>
                    <button onClick={() => setActiveTab('freedom')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'freedom' ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{language === 'EN' ? 'Freedom Analytics' : '未来自由度'}</button>
+                   <button onClick={() => setActiveTab('leverage')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'leverage' ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{language === 'EN' ? 'Life Leverage' : '人生杠杆'}</button>
                 </div>
 
                {activeTab === 'chart' && (
@@ -2679,6 +2681,11 @@ function App() {
                  {activeTab === 'freedom' && (
                    <div id="freedom-analytics" className="animate-fade-in">
                      <FreedomAnalytics params={buyTargetParams} language={language} />
+                   </div>
+                 )}
+                 {activeTab === 'leverage' && (
+                   <div id="life-leverage" className="animate-fade-in">
+                     <LifeLeverageAnalytics params={buyTargetParams} language={language} />
                    </div>
                  )}
                  {activeTab === 'knowledge' && (
