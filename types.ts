@@ -651,3 +651,72 @@ export interface SellResult {
     regretHold: number; // % chance you regret holding
   };
 }
+
+// ----------------------------------------
+// Buy Decision Dashboard Types
+// ----------------------------------------
+
+export interface BuyTargetParams {
+  totalPrice: number; // 万
+  planYears: number; // 年
+  downPaymentRatio: number; // %
+  currentSavings: number; // 万
+  monthlyIncome: number; // 元
+  monthlyExpense: number; // 元 (For savings calc)
+  parentalSupport?: number; // 万 (Parental Support)
+  
+  // Psychological Inputs
+  anxietyScore: number; // 0-100
+  fomoScore: number; // 0-100
+  marketHeat: number; // 0-100
+  financialStretch: number; // 0-100
+  decisionSpeed: number; // 0-100
+}
+
+export interface BuyCountdownItem {
+  id: string;
+  title: string;
+  deadline: string; // YYYY-MM-DD
+  type: 'tactic' | 'reality';
+  description: string;
+}
+
+export interface DelayCostAnalysis {
+  waitDays: number; // 7
+  probPriceRise: number; // %
+  probPriceDrop: number; // %
+  paymentImpact: number; // 元/Month if rate +0.05%
+  clarityValue: number; // 0-100 Score
+}
+
+export interface ImpulseRadarData {
+  subject: string;
+  A: number; // Current User
+  fullMark: number;
+}
+
+export interface AntiRegretRisk {
+  id: string;
+  riskTitle: string;
+  probability: string;
+  severity: 'high' | 'medium' | 'low';
+  description: string;
+}
+
+export interface BuyResult {
+  // Module 1: Goal Deduction
+  requiredReturn: number; // % (Annual Yield Needed)
+  monthlySavingsNeeded: number; // 元
+  isAchievable: boolean;
+  gap: number; // 万
+  
+  // Module 3: Delay Cost
+  delayAnalysis: DelayCostAnalysis;
+  
+  // Module 4: Impulse Radar
+  impulseRadar: ImpulseRadarData[];
+  isImpulsive: boolean; // calculated from radar area
+  
+  // Module 5: Anti-Regret
+  risks: AntiRegretRisk[];
+}

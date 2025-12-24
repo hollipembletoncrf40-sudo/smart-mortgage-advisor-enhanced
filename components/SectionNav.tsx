@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { List, BarChart3, Zap, Clock, Gamepad2, ChevronLeft, ChevronRight, TrendingUp, LayoutGrid, Bot } from 'lucide-react';
+import { List, BarChart3, Zap, Clock, Gamepad2, ChevronLeft, ChevronRight, TrendingUp, LayoutGrid, Bot, Target } from 'lucide-react';
 
 interface SectionNavProps {
   t: any;

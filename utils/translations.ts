@@ -737,7 +737,8 @@ export const TRANSLATIONS = {
 
     // Life Path Nav (Vertical)
     navLifePath: "人生路径模拟",
-    navCountdown: "买房倒计时",
+    navCountdown: "买房倒计时", // This existed? Maybe rename or reuse.
+    navBuyDecision: "买房倒计时", // Use this new explicit key
     navWealth: "财富兑换",
     navKnowledgeTree: "知识树",
     navOpportunity: "机会成本 & 股市",

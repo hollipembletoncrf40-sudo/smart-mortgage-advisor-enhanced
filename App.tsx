@@ -28,7 +28,6 @@ import DetailedPaymentTable from './components/DetailedPaymentTable';
 import InvestmentWisdomCard from './components/InvestmentWisdomCard';
 import MarketSentimentSlider from './components/MarketSentimentSlider';
 import RentHiddenCostCalculator from './components/RentHiddenCostCalculator';
-import GoalReverseCalculator from './components/GoalReverseCalculator';
 import CarPurchasePanel from './components/CarPurchasePanel';
 import AssetAllocationPanel from './components/AssetAllocationPanel';
 import TokenExchangePanel from './components/TokenExchangePanel';
@@ -47,6 +46,7 @@ import LifeDragIndexPanel from './components/LifeDragIndexPanel';
 import CommunityDataPanel from './components/CommunityDataPanel';
 import IncomeRequirementPanel from './components/IncomeRequirementPanel';
 import SellDecisionDashboard from './components/SellDecisionDashboard';
+import BuyDecisionDashboard from './components/BuyDecisionDashboard';
 import SectionNav from './components/SectionNav';
 import { loadAIConfig, sendAIMessage, AIMessage, getProviderName } from './utils/aiProvider';
 import { InvestmentParams, RepaymentMethod, CalculationResult, PrepaymentStrategy, StressTestResult, LoanType, PurchaseScenario, LocationFactors, LocationScore, AssetComparisonItem, KnowledgeCardData, Language, Currency, TaxParams, TaxResult, AppreciationPredictorParams, AppreciationPrediction, MonthlyCashFlow, CustomStressTestParams, DecisionSnapshot } from './types';
@@ -2633,7 +2633,7 @@ function App() {
                 )}
                 {activeTab === 'lifePath' && <LifePathSimulator params={params} t={t} />}
                  {activeTab === 'goal' && (
-                   <GoalReverseCalculator t={t} />
+                   <BuyDecisionDashboard t={t} language={language} />
                  )}
                  {activeTab === 'token' && (
                    <TokenExchangePanel result={result} params={params} t={t} />
@@ -2834,6 +2834,7 @@ function App() {
         <div id="roast-panel">
           <DecisionDashboard params={params} result={result} t={t} language={language} />
         </div>
+
         
 
         {/* Interactive Visualization Dashboard */}
