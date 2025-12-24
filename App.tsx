@@ -3256,10 +3256,8 @@ function App() {
           <div className="border-t border-slate-200 dark:border-slate-800 pt-6">
             <div className="flex flex-col md:flex-row items-center justify-between gap-4">
               {/* Creator Info */}
-              <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
-                <span className="text-xs">Crafted with</span>
+              <div className="flex items-center gap-1 text-slate-600 dark:text-slate-400">
                 <span className="text-red-500 animate-pulse">♥</span>
-                <span className="text-xs">by</span>
                 <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400">
                   Josephine
                 </span>

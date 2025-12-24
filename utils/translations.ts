@@ -225,7 +225,7 @@ export const TRANSLATIONS = {
     feedbackPlaceholder: '请描述您的问题或建议...',
     feedbackSuccessTitle: '感谢您的反馈!',
     feedbackSuccessDesc: '我们会认真阅读您的建议。',
-    feedbackContact: '联系邮箱📮：3251361185@qq.com',
+    feedbackContact: '联系邮箱📮：hollipembletoncrf40@gmail.com',
     
     // Chart Legends
     propertyValue: "房产名义价值",
@@ -1499,7 +1499,7 @@ export const TRANSLATIONS = {
     feedbackPlaceholder: 'Describe your issue or suggestion...',
     feedbackSuccessTitle: 'Thanks for feedback!',
     feedbackSuccessDesc: 'We will read your suggestions carefully.',
-    feedbackContact: 'Contact: 3251361185@qq.com',
+    feedbackContact: 'Contact: hollipembletoncrf40@gmail.com',
     
     // Chart Legends
     propertyValue: "Nominal Property Value",

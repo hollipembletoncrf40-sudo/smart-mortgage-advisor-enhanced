@@ -312,7 +312,7 @@ const FeedbackModal = ({ onClose }: { onClose: () => void }) => {
             <button onClick={handleSubmit} disabled={rating === 0} className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 dark:disabled:bg-slate-800 disabled:cursor-not-allowed text-white rounded-xl text-sm font-bold shadow-lg shadow-indigo-500/20 transition-all">提交反馈</button>
           </>
         ) : (
-          <div className="text-center py-8 animate-fade-in"><div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center mx-auto mb-4 text-emerald-500"><CheckCircle2 className="h-8 w-8" /></div><h3 className="text-lg font-bold text-slate-800 dark:text-white mb-2">感谢您的反馈!</h3><p className="text-slate-500 dark:text-slate-400 text-sm mb-2">我们会认真阅读您的建议。</p><p className="text-slate-400 dark:text-slate-500 text-xs">联系邮箱📮：3251361185@qq.com</p></div>
+          <div className="text-center py-8 animate-fade-in"><div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center mx-auto mb-4 text-emerald-500"><CheckCircle2 className="h-8 w-8" /></div><h3 className="text-lg font-bold text-slate-800 dark:text-white mb-2">感谢您的反馈!</h3><p className="text-slate-500 dark:text-slate-400 text-sm mb-2">我们会认真阅读您的建议。</p><p className="text-slate-400 dark:text-slate-500 text-xs">联系邮箱📮：hollipembletoncrf40@gmail.com</p></div>
         )}
       </div>
     </div>
