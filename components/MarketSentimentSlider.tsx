@@ -62,59 +62,62 @@ const MarketSentimentSlider: React.FC<MarketSentimentSliderProps> = ({ params, o
   };
 
   const getSentimentData = (val: number) => {
+    // Detect English by checking if translation contains English text
+    const isEN = (t.sentimentBearish || '').includes('Bear') || (t.sentimentBullish || '').includes('Bull');
+    
     if (val < 30) {
       return {
         text: t.sentimentBearish || '悲观 (熊市)',
-        shortText: '熊市',
+        shortText: isEN ? 'Bear' : '熊市',
         color: 'from-emerald-500 to-teal-500',
         textColor: 'text-emerald-400',
         icon: TrendingDown,
         description: t.sentimentDescBearish || '市场低迷，房价可能下跌，但贷款利率较低',
         advice: t.sentimentAdviceBearish || '适合有稳定收入、风险承受能力强的购房者',
         score: Math.round(val * 1.5),
-        riskLevel: '低风险',
-        marketPhase: '买入机会',
+        riskLevel: isEN ? 'Low Risk' : '低风险',
+        marketPhase: isEN ? 'Buy Zone' : '买入机会',
         impacts: [
-          { label: '房价', trend: 'down', value: '下行压力', icon: Home },
-          { label: '利率', trend: 'down', value: '较低', icon: Percent },
-          { label: '租金', trend: 'stable', value: '稳定', icon: DollarSign }
+          { label: isEN ? 'Price' : '房价', trend: 'down', value: isEN ? 'Downward' : '下行压力', icon: Home },
+          { label: isEN ? 'Rate' : '利率', trend: 'down', value: isEN ? 'Lower' : '较低', icon: Percent },
+          { label: isEN ? 'Rent' : '租金', trend: 'stable', value: isEN ? 'Stable' : '稳定', icon: DollarSign }
         ]
       };
     }
     if (val > 70) {
       return {
         text: t.sentimentBullish || '乐观 (牛市)',
-        shortText: '牛市',
+        shortText: isEN ? 'Bull' : '牛市',
         color: 'from-rose-500 to-red-500',
         textColor: 'text-rose-400',
         icon: TrendingUp,
         description: t.sentimentDescBullish || '市场繁荣，房价上涨，但贷款成本增加',
         advice: t.sentimentAdviceBullish || '需要评估高房价和高利率的双重压力',
         score: Math.round(val * 1.2),
-        riskLevel: '高风险',
-        marketPhase: '谨慎观望',
+        riskLevel: isEN ? 'High Risk' : '高风险',
+        marketPhase: isEN ? 'Caution' : '谨慎观望',
         impacts: [
-          { label: '房价', trend: 'up', value: '上涨', icon: Home },
-          { label: '利率', trend: 'up', value: '较高', icon: Percent },
-          { label: '租金', trend: 'up', value: '上涨', icon: DollarSign }
+          { label: isEN ? 'Price' : '房价', trend: 'up', value: isEN ? 'Rising' : '上涨', icon: Home },
+          { label: isEN ? 'Rate' : '利率', trend: 'up', value: isEN ? 'Higher' : '较高', icon: Percent },
+          { label: isEN ? 'Rent' : '租金', trend: 'up', value: isEN ? 'Rising' : '上涨', icon: DollarSign }
         ]
       };
     }
     return {
       text: t.sentimentNeutral || '中性 (震荡)',
-      shortText: '震荡',
+      shortText: isEN ? 'Neutral' : '震荡',
       color: 'from-amber-500 to-orange-500',
       textColor: 'text-amber-400',
       icon: Minus,
       description: t.sentimentDescNeutral || '市场平稳，各项指标处于合理区间',
       advice: t.sentimentAdviceNeutral || '适合大多数购房者的常规市场环境',
       score: 50 + Math.round((val - 50) * 0.8),
-      riskLevel: '中等风险',
-      marketPhase: '正常配置',
+      riskLevel: isEN ? 'Medium Risk' : '中等风险',
+      marketPhase: isEN ? 'Normal' : '正常配置',
       impacts: [
-        { label: '房价', trend: 'stable', value: '平稳', icon: Home },
-        { label: '利率', trend: 'stable', value: '中等', icon: Percent },
-        { label: '租金', trend: 'stable', value: '稳定', icon: DollarSign }
+        { label: isEN ? 'Price' : '房价', trend: 'stable', value: isEN ? 'Steady' : '平稳', icon: Home },
+        { label: isEN ? 'Rate' : '利率', trend: 'stable', value: isEN ? 'Medium' : '中等', icon: Percent },
+        { label: isEN ? 'Rent' : '租金', trend: 'stable', value: isEN ? 'Stable' : '稳定', icon: DollarSign }
       ]
     };
   };
@@ -122,6 +125,8 @@ const MarketSentimentSlider: React.FC<MarketSentimentSliderProps> = ({ params, o
   const currentVal = localVal;
   const sentimentData = getSentimentData(currentVal);
   const Icon = sentimentData.icon;
+  // Detect English by checking if translation contains English text
+  const isEN = (t.sentimentBearish || '').includes('Bear') || (t.sentimentBullish || '').includes('Bull');
 
   // Calculate impact preview
   const impactPreview = useMemo(() => {
@@ -216,11 +221,11 @@ const MarketSentimentSlider: React.FC<MarketSentimentSliderProps> = ({ params, o
         <div className="relative mb-8">
           <div className="flex justify-between mb-3">
             <span className="text-xs font-bold text-emerald-400 flex items-center gap-1">
-              <TrendingDown className="w-3 h-3" /> 悲观
+              <TrendingDown className="w-3 h-3" /> {isEN ? 'Bearish' : '悲观'}
             </span>
-            <span className="text-xs font-bold text-amber-400">中性</span>
+            <span className="text-xs font-bold text-amber-400">{isEN ? 'Neutral' : '中性'}</span>
             <span className="text-xs font-bold text-rose-400 flex items-center gap-1">
-              乐观 <TrendingUp className="w-3 h-3" />
+              {isEN ? 'Bullish' : '乐观'} <TrendingUp className="w-3 h-3" />
             </span>
           </div>
           
@@ -362,7 +367,7 @@ const MarketSentimentSlider: React.FC<MarketSentimentSliderProps> = ({ params, o
                 <Info className="w-4 h-4 text-purple-400" />
               </div>
               <div>
-                <div className="text-xs font-bold text-purple-300 mb-1">市场分析</div>
+                <div className="text-xs font-bold text-purple-300 mb-1">{isEN ? 'Market Analysis' : '市场分析'}</div>
                 <p className="text-xs text-slate-400 leading-relaxed">{sentimentData.description}</p>
               </div>
             </div>
@@ -373,7 +378,7 @@ const MarketSentimentSlider: React.FC<MarketSentimentSliderProps> = ({ params, o
                 <Target className="w-4 h-4 text-amber-400" />
               </div>
               <div>
-                <div className="text-xs font-bold text-amber-300 mb-1">投资建议</div>
+                <div className="text-xs font-bold text-amber-300 mb-1">{isEN ? 'Investment Advice' : '投资建议'}</div>
                 <p className="text-xs text-slate-400 leading-relaxed">{sentimentData.advice}</p>
               </div>
             </div>
