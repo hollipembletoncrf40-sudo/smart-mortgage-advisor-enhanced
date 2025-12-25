@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import ReactDOM from 'react-dom';
 import { 
   Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer,
   PieChart, Pie, Cell, Tooltip, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid,
@@ -82,6 +83,21 @@ const NavalWisdomEngine: React.FC<NavalWisdomEngineProps> = ({ language, t }) =>
     ethics: 100, // 0-100% (Safety factor)
     consistency: 80 // 0-100% (Growth factor)
   });
+
+  // 8. Naval Biography Modal
+  const [showNavalBio, setShowNavalBio] = useState(false);
+
+  // Lock body scroll when modal is open
+  React.useEffect(() => {
+    if (showNavalBio) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [showNavalBio]);
   
   // Helpers
   const updateWealth = (key: string, value: number) => {
@@ -198,19 +214,23 @@ const NavalWisdomEngine: React.FC<NavalWisdomEngineProps> = ({ language, t }) =>
         <div className="absolute top-4 left-6 text-6xl text-purple-500/30 font-serif">"</div>
         
         <div className="relative z-10">
-          {/* Main Title with Flowing Gradient */}
-          <h2 className="text-4xl font-black flex items-center gap-4 mb-4">
-            <div className="p-3 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl shadow-lg shadow-purple-500/30">
+          {/* Main Title with Flowing Gradient - Clickable */}
+          <h2 
+            className="text-4xl font-black flex items-center gap-4 mb-4 cursor-pointer group"
+            onClick={() => setShowNavalBio(true)}
+          >
+            <div className="p-3 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl shadow-lg shadow-purple-500/30 group-hover:scale-110 transition-transform">
               <Brain className="h-8 w-8 text-white" />
             </div>
             <span 
-              className="bg-clip-text text-transparent bg-gradient-to-r from-purple-300 via-pink-300 to-purple-300 bg-[length:200%_auto]"
+              className="bg-clip-text text-transparent bg-gradient-to-r from-purple-300 via-pink-300 to-purple-300 bg-[length:200%_auto] group-hover:opacity-80 transition-opacity"
               style={{ 
                 animation: 'gradient-flow 3s linear infinite',
               }}
             >
               {language === 'EN' ? 'Naval Wisdom Engine' : 'Naval 智慧引擎'}
             </span>
+            <span className="text-xs text-purple-400/60 ml-2 opacity-0 group-hover:opacity-100 transition-opacity">{language === 'EN' ? 'Click for bio' : '点击查看简介'}</span>
           </h2>
           
           {/* Quote with Premium Typography */}
@@ -221,7 +241,12 @@ const NavalWisdomEngine: React.FC<NavalWisdomEngineProps> = ({ language, t }) =>
                 : '"追求财富，而非金钱或地位。财富是拥有能在你睡觉时也能赚钱的资产。"'
               }
             </p>
-            <p className="text-sm text-purple-300/70 mt-2 font-medium">— Naval Ravikant</p>
+            <p 
+              className="text-sm text-purple-300/70 mt-2 font-medium cursor-pointer hover:text-purple-300 transition-colors"
+              onClick={() => setShowNavalBio(true)}
+            >
+              — Naval Ravikant
+            </p>
           </div>
         </div>
         
@@ -1082,6 +1107,249 @@ const NavalWisdomEngine: React.FC<NavalWisdomEngineProps> = ({ language, t }) =>
 
       {/* Naval Tweet Quotes Carousel */}
       <NavalTweetCarousel language={language} />
+
+      {/* Naval Biography Modal - Rendered via Portal */}
+      {showNavalBio && ReactDOM.createPortal(
+        <div 
+          className="fixed inset-0 bg-black/95 z-[99999] flex items-center justify-center p-4 md:p-8 overflow-y-auto animate-fade-in"
+          onClick={() => setShowNavalBio(false)}
+        >
+          <div 
+            className="bg-slate-900 rounded-2xl border border-slate-700 shadow-2xl w-full max-w-2xl relative max-h-[90vh] overflow-y-auto animate-scale-in"
+            style={{ animation: 'scale-in 0.3s ease-out' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <style>{`
+              @keyframes scale-in {
+                from { opacity: 0; transform: scale(0.9); }
+                to { opacity: 1; transform: scale(1); }
+              }
+              @keyframes fade-in {
+                from { opacity: 0; }
+                to { opacity: 1; }
+              }
+              .animate-scale-in { animation: scale-in 0.3s ease-out; }
+              .animate-fade-in { animation: fade-in 0.2s ease-out; }
+            `}</style>
+            {/* Close Button */}
+            <button 
+              onClick={() => setShowNavalBio(false)}
+              className="absolute top-4 right-4 w-10 h-10 rounded-full bg-slate-800/80 hover:bg-red-500/80 flex items-center justify-center text-white transition-colors z-10 group"
+            >
+              <svg className="w-5 h-5 group-hover:rotate-90 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+
+            {/* Header with Photo */}
+            <div className="relative p-8 pb-6 border-b border-slate-700">
+              <div className="flex items-start gap-6">
+                <div className="relative">
+                  <div className="w-28 h-28 rounded-2xl overflow-hidden border-2 border-slate-600 shadow-lg">
+                    <img 
+                      src="https://unavatar.io/twitter/naval" 
+                      alt="Naval Ravikant"
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = 'https://ui-avatars.com/api/?name=Naval+Ravikant&background=8b5cf6&color=fff&size=128';
+                      }}
+                    />
+                  </div>
+                  <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                    <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+                    </svg>
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <h2 className="text-3xl font-black text-white mb-1">Naval Ravikant</h2>
+                  <a 
+                    href="https://twitter.com/naval" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-slate-400 font-medium hover:text-white transition-colors inline-flex items-center gap-1"
+                  >
+                    @naval
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                  </a>
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    <span className="px-3 py-1 bg-purple-500/20 text-purple-400 rounded-full text-xs font-medium">{language === 'EN' ? 'Entrepreneur' : '创业家'}</span>
+                    <span className="px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded-full text-xs font-medium">{language === 'EN' ? 'Investor' : '投资人'}</span>
+                    <span className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full text-xs font-medium">{language === 'EN' ? 'Philosopher' : '思想家'}</span>
+                    <span className="px-3 py-1 bg-amber-500/20 text-amber-400 rounded-full text-xs font-medium">{language === 'EN' ? 'Podcaster' : '播客主'}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Biography Content */}
+            <div className="p-8 space-y-6 text-white/90">
+              {/* Quick Stats */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="bg-slate-800 p-4 rounded-xl text-center border border-slate-700">
+                  <div className="text-2xl font-bold text-purple-400">1974</div>
+                  <div className="text-xs text-slate-400">{language === 'EN' ? 'Born in India' : '出生于印度'}</div>
+                </div>
+                <div className="bg-slate-800 p-4 rounded-xl text-center border border-slate-700">
+                  <div className="text-2xl font-bold text-emerald-400">$10B+</div>
+                  <div className="text-xs text-slate-400">{language === 'EN' ? 'Portfolio Value' : '投资组合价值'}</div>
+                </div>
+                <div className="bg-slate-800 p-4 rounded-xl text-center border border-slate-700">
+                  <div className="text-2xl font-bold text-blue-400">200+</div>
+                  <div className="text-xs text-slate-400">{language === 'EN' ? 'Companies Invested' : '投资公司数'}</div>
+                </div>
+                <div className="bg-slate-800 p-4 rounded-xl text-center border border-slate-700">
+                  <div className="text-2xl font-bold text-amber-400">2M+</div>
+                  <div className="text-xs text-slate-400">{language === 'EN' ? 'Twitter Followers' : '推特粉丝'}</div>
+                </div>
+              </div>
+
+              {/* Main Biography */}
+              <div className="space-y-4 leading-relaxed">
+                <h3 className="text-xl font-bold text-yellow-400 flex items-center gap-2">
+                  <span>📖</span> {language === 'EN' ? 'Biography' : '人物简介'}
+                </h3>
+                <p className="text-slate-300">
+                  {language === 'EN' 
+                    ? `Naval Ravikant is an Indian-American entrepreneur, investor, and philosopher who has become one of the most influential voices in Silicon Valley. Born in New Delhi, India in 1974, he immigrated to the United States with his family as a child, growing up in Queens, New York. His journey from humble beginnings to becoming a tech titan embodies the American dream and his own philosophy of building wealth through leverage.`
+                    : `纳瓦尔·拉维坎特（Naval Ravikant）是一位印裔美籍创业家、投资人和思想家，已成为硅谷最具影响力的声音之一。1974年出生于印度新德里，童年时随家人移民美国，成长于纽约皇后区。他从贫寒背景到成为科技巨头的历程，正是美国梦的缩影，也印证了他自己关于通过杠杆创造财富的哲学。`
+                  }
+                </p>
+                <p className="text-slate-300">
+                  {language === 'EN'
+                    ? `After graduating from Dartmouth College with degrees in Computer Science and Economics, Naval co-founded Epinions in 1999, which later merged to become Shopping.com and was acquired by eBay for $620 million. He went on to co-found AngelList in 2010, a platform that has revolutionized startup fundraising and venture capital, now valued at over $4 billion.`
+                    : `从达特茅斯学院计算机科学和经济学双学位毕业后，纳瓦尔于1999年联合创立了Epinions，后来合并成为Shopping.com，被eBay以6.2亿美元收购。2010年他又联合创立了AngelList，这个平台彻底改变了初创企业融资和风险投资的方式，目前估值超过40亿美元。`
+                  }
+                </p>
+              </div>
+
+              {/* Investments */}
+              <div className="space-y-4">
+                <h3 className="text-xl font-bold text-emerald-400 flex items-center gap-2">
+                  <span>💰</span> {language === 'EN' ? 'Notable Investments' : '知名投资'}
+                </h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {['Twitter', 'Uber', 'Notion', 'Clubhouse', 'Postmates', 'Yammer', 'Clearbit', 'Opendoor'].map((company) => (
+                    <div key={company} className="bg-slate-800 px-4 py-2 rounded-lg text-center text-sm font-medium text-white border border-slate-700">
+                      {company}
+                    </div>
+                  ))}
+                </div>
+                <p className="text-slate-300 text-sm">
+                  {language === 'EN'
+                    ? `As an angel investor, Naval has invested in over 200 companies, with many becoming unicorns. His early investments in Twitter, Uber, and other tech giants have generated returns exceeding 1000x.`
+                    : `作为天使投资人，纳瓦尔已投资超过200家公司，其中许多成为独角兽企业。他对Twitter、Uber等科技巨头的早期投资已产生超过1000倍的回报。`
+                  }
+                </p>
+              </div>
+
+              {/* Philosophy */}
+              <div className="space-y-4">
+                <h3 className="text-xl font-bold text-yellow-400 flex items-center gap-2">
+                  <span>💡</span> {language === 'EN' ? 'Core Philosophy' : '核心理念'}
+                </h3>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="bg-slate-800 p-4 rounded-xl border border-slate-700">
+                    <div className="font-bold text-blue-400 mb-2">{language === 'EN' ? 'Specific Knowledge' : '特有知识'}</div>
+                    <p className="text-sm text-slate-400">{language === 'EN' ? 'Build skills that cannot be taught or outsourced. Find what feels like play to you but looks like work to others.' : '培养无法传授或外包的技能。找到对你来说像游戏、对他人来说像工作的事情。'}</p>
+                  </div>
+                  <div className="bg-slate-800 p-4 rounded-xl border border-slate-700">
+                    <div className="font-bold text-purple-400 mb-2">{language === 'EN' ? 'Leverage' : '杠杆效应'}</div>
+                    <p className="text-sm text-slate-400">{language === 'EN' ? 'Use code, media, and capital to multiply your output. Seek permissionless leverage for infinite scalability.' : '利用代码、媒体和资本来放大你的产出。寻求无需许可的杠杆以实现无限可扩展性。'}</p>
+                  </div>
+                  <div className="bg-slate-800 p-4 rounded-xl border border-slate-700">
+                    <div className="font-bold text-emerald-400 mb-2">{language === 'EN' ? 'Judgment' : '判断力'}</div>
+                    <p className="text-sm text-slate-400">{language === 'EN' ? 'The most important skill. Wisdom applied to real decisions. It comes from experience and self-knowledge.' : '最重要的技能。将智慧应用于实际决策。它来自经验和自我认知。'}</p>
+                  </div>
+                  <div className="bg-slate-800 p-4 rounded-xl border border-slate-700">
+                    <div className="font-bold text-amber-400 mb-2">{language === 'EN' ? 'Happiness' : '幸福'}</div>
+                    <p className="text-sm text-slate-400">{language === 'EN' ? 'Happiness is a skill and a choice. It comes from inner peace, not external achievements. Desire is suffering.' : '幸福是一种技能和选择。它来自内心的平静，而非外在的成就。欲望即痛苦。'}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Famous Works */}
+              <div className="space-y-4">
+                <h3 className="text-xl font-bold text-yellow-400 flex items-center gap-2">
+                  <span>📚</span> {language === 'EN' ? 'Famous Works & Podcasts' : '著名作品与播客'}
+                </h3>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-4 bg-slate-800 p-4 rounded-xl border border-slate-700">
+                    <div className="text-3xl">📘</div>
+                    <div>
+                      <div className="font-bold text-white">{language === 'EN' ? 'The Almanack of Naval Ravikant' : '纳瓦尔宝典'}</div>
+                      <div className="text-sm text-slate-400">{language === 'EN' ? 'A guide to wealth and happiness, compiled by Eric Jorgenson' : '由Eric Jorgenson编纂的财富与幸福指南'}</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4 bg-slate-800 p-4 rounded-xl border border-slate-700">
+                    <div className="text-3xl">🎙️</div>
+                    <div>
+                      <div className="font-bold text-white">{language === 'EN' ? 'Naval Podcast' : 'Naval 播客'}</div>
+                      <div className="text-sm text-slate-400">{language === 'EN' ? 'Deep conversations on wealth, happiness, and life philosophy' : '关于财富、幸福和人生哲学的深度对话'}</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4 bg-slate-800 p-4 rounded-xl border border-slate-700">
+                    <div className="text-3xl">🐦</div>
+                    <div>
+                      <div className="font-bold text-white">{language === 'EN' ? 'Twitter Threads' : '推特长文'}</div>
+                      <div className="text-sm text-slate-400">{language === 'EN' ? '"How to Get Rich (without getting lucky)" - viral thread with millions of readers' : '"如何致富（不靠运气）" - 数百万读者的病毒式传播长文'}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Quote */}
+              <div className="bg-slate-800 p-6 rounded-2xl border border-slate-700 text-center">
+                <div className="text-4xl mb-4">"</div>
+                <p className="text-xl font-medium text-white/90 italic leading-relaxed">
+                  {language === 'EN'
+                    ? 'The most important skill for getting rich is becoming a perpetual learner.'
+                    : '致富最重要的技能是成为一个终身学习者。'
+                  }
+                </p>
+                <p className="text-purple-300/70 mt-4 font-medium">— Naval Ravikant</p>
+              </div>
+
+              {/* Links Section */}
+              <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-slate-700">
+                <a 
+                  href="https://nav.al" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold rounded-xl transition-all shadow-lg hover:shadow-purple-500/30"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                  </svg>
+                  {language === 'EN' ? 'Visit Official Website' : '访问官方网站'}
+                </a>
+                <a 
+                  href="https://twitter.com/naval" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl transition-all border border-slate-700"
+                >
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                  </svg>
+                  {language === 'EN' ? 'Follow on X' : '关注 X (Twitter)'}
+                </a>
+              </div>
+
+              {/* Close Button */}
+              <button 
+                onClick={() => setShowNavalBio(false)}
+                className="w-full mt-4 px-6 py-3 bg-slate-800/50 hover:bg-slate-700/50 text-slate-400 hover:text-white font-medium rounded-xl transition-all border border-slate-700/50"
+              >
+                {language === 'EN' ? 'Close' : '关闭'}
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
 
     </div>
   );
