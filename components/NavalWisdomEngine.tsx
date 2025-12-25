@@ -182,22 +182,60 @@ const NavalWisdomEngine: React.FC<NavalWisdomEngineProps> = ({ language, t }) =>
 
   return (
     <div className="space-y-6 animate-fade-in p-2 pb-20">
-      {/* Header - Matching FreedomAnalytics Style */}
-      <div className="bg-gradient-to-br from-purple-950 via-slate-900 to-slate-950 p-6 rounded-3xl border border-purple-500/30 shadow-2xl relative overflow-hidden text-white">
-        <div className="absolute top-0 right-0 w-80 h-80 bg-purple-600/20 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2"></div>
-        <div className="absolute top-0 right-0 p-4 opacity-10">
-          <Brain size={200} />
+      {/* Header - Premium Design with Flowing Gradient */}
+      <div className="bg-gradient-to-br from-purple-950 via-slate-900 to-slate-950 p-8 rounded-3xl border border-purple-500/30 shadow-2xl relative overflow-hidden text-white">
+        {/* Animated Background Blobs */}
+        <div className="absolute top-0 right-0 w-96 h-96 bg-purple-600/20 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2 animate-pulse" />
+        <div className="absolute bottom-0 left-0 w-80 h-80 bg-indigo-600/15 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/2 animate-pulse" style={{ animationDelay: '1s' }} />
+        <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-pink-500/10 rounded-full blur-[80px] -translate-x-1/2 -translate-y-1/2" />
+        
+        {/* Decorative Brain Icon */}
+        <div className="absolute top-0 right-0 p-4 opacity-5">
+          <Brain size={250} />
         </div>
+        
+        {/* Quote Marks */}
+        <div className="absolute top-4 left-6 text-6xl text-purple-500/30 font-serif">"</div>
+        
         <div className="relative z-10">
-          <h2 className="text-3xl font-black flex items-center gap-3 mb-2">
-            <Brain className="h-8 w-8 text-purple-400" />
-            {language === 'EN' ? 'Naval Wisdom Engine' : 'Naval 智慧引擎'}
+          {/* Main Title with Flowing Gradient */}
+          <h2 className="text-4xl font-black flex items-center gap-4 mb-4">
+            <div className="p-3 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl shadow-lg shadow-purple-500/30">
+              <Brain className="h-8 w-8 text-white" />
+            </div>
+            <span 
+              className="bg-clip-text text-transparent bg-gradient-to-r from-purple-300 via-pink-300 to-purple-300 bg-[length:200%_auto]"
+              style={{ 
+                animation: 'gradient-flow 3s linear infinite',
+              }}
+            >
+              {language === 'EN' ? 'Naval Wisdom Engine' : 'Naval 智慧引擎'}
+            </span>
           </h2>
-          <p className="text-purple-200/80 max-w-2xl text-sm leading-relaxed italic">
-            "Seek wealth, not money or status. Wealth is having assets that earn while you sleep."
-          </p>
+          
+          {/* Quote with Premium Typography */}
+          <div className="relative pl-6 border-l-2 border-purple-500/50 ml-2">
+            <p className="text-xl font-medium text-white/90 leading-relaxed tracking-wide" style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>
+              {language === 'EN' 
+                ? '"Seek wealth, not money or status. Wealth is having assets that earn while you sleep."'
+                : '"追求财富，而非金钱或地位。财富是拥有能在你睡觉时也能赚钱的资产。"'
+              }
+            </p>
+            <p className="text-sm text-purple-300/70 mt-2 font-medium">— Naval Ravikant</p>
+          </div>
         </div>
+        
+        {/* Bottom Accent Line */}
+        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-purple-500 to-transparent opacity-50" />
       </div>
+      
+      {/* CSS for gradient animation */}
+      <style>{`
+        @keyframes gradient-flow {
+          0% { background-position: 0% center; }
+          100% { background-position: 200% center; }
+        }
+      `}</style>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         
@@ -1287,34 +1325,59 @@ const NavalTweetCarousel = ({ language }: { language: 'CN' | 'EN' }) => {
           </div>
         </div>
 
-        {/* Main Quote Card */}
+        {/* Main Quote Card - Exact Match to Top Header */}
         {currentTweet && (
           <div className="relative">
-            {/* Quote Marks */}
-            <div className="absolute -top-2 left-2 text-7xl text-purple-500/20 font-serif leading-none">"</div>
+            {/* Double Quote Marks - Large decorative */}
+            <div className="absolute top-6 left-8 text-7xl text-purple-400/20 font-serif z-20 leading-none">"</div>
+            <div className="absolute bottom-6 right-8 text-7xl text-purple-400/20 font-serif z-20 leading-none rotate-180">"</div>
             
-            <div className={`relative p-6 md:p-10 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 min-h-[180px] flex flex-col justify-center`}>
+            <div className={`p-10 md:p-12 rounded-3xl border border-purple-500/20 shadow-2xl relative overflow-hidden min-h-[200px] flex flex-col justify-center transition-all duration-700`}
+              style={{
+                background: currentTweet.category === 'wealth' 
+                  ? 'linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%)'
+                  : currentTweet.category === 'wisdom'
+                  ? 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)'
+                  : currentTweet.category === 'life'
+                  ? 'linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%)'
+                  : currentTweet.category === 'entrepreneurship'
+                  ? 'linear-gradient(135deg, #200122 0%, #6f0000 50%, #200122 100%)'
+                  : currentTweet.category === 'politics'
+                  ? 'linear-gradient(135deg, #1a0a1c 0%, #3d1a40 50%, #1a0a1c 100%)'
+                  : currentTweet.category === 'technology'
+                  ? 'linear-gradient(135deg, #0a1628 0%, #1a3a5c 50%, #0a1628 100%)'
+                  : 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%)'
+              }}
+            >
+              {/* Animated Background Blobs - Match header exactly */}
+              <div className="absolute top-0 right-0 w-96 h-96 bg-purple-600/15 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2 animate-pulse" />
+              <div className="absolute bottom-0 left-0 w-80 h-80 bg-indigo-600/10 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/2 animate-pulse" style={{ animationDelay: '1s' }} />
+              <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-pink-500/5 rounded-full blur-[80px] -translate-x-1/2 -translate-y-1/2" />
+              
               {/* Category Badge */}
-              <div className={`absolute top-4 right-4 px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r ${currentCategory.color} text-white`}>
+              <div className={`absolute top-4 right-4 px-4 py-1.5 rounded-full text-xs font-bold bg-gradient-to-r ${currentCategory.color} text-white shadow-lg z-20`}>
                 {language === 'EN' ? currentCategory.labelEN : currentCategory.labelZH}
               </div>
 
-              {/* Tweet Text */}
-              <p className="text-xl md:text-2xl lg:text-3xl font-medium text-slate-800 dark:text-white leading-relaxed mb-6">
+              {/* Tweet Text - Exact same as top header */}
+              <p className="relative z-10 text-xl md:text-2xl font-medium text-white/90 leading-relaxed tracking-wide mb-6 px-8" style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>
                 {getTweetText(currentTweet)}
               </p>
 
-              {/* Meta Info */}
-              <div className="flex items-center gap-4 text-sm text-slate-500 dark:text-purple-300/60">
-                <span className="flex items-center gap-1">
+              {/* Meta Info - Same as top header */}
+              <div className="relative z-10 flex items-center gap-4 text-sm text-purple-300/60 px-8">
+                <span className="flex items-center gap-1.5 font-medium">
                   <span>❤️</span> {currentTweet.likes}
                 </span>
                 <span>•</span>
                 <span>{currentTweet.date}</span>
-                <span className="ml-auto text-purple-600 dark:text-purple-400 font-mono">
+                <span className="ml-auto font-mono font-medium">
                   {currentIndex + 1} / {filteredTweets.length}
                 </span>
               </div>
+              
+              {/* Bottom Accent Line - Same as top */}
+              <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-purple-500 to-transparent opacity-30" />
             </div>
 
             {/* Navigation Arrows */}
