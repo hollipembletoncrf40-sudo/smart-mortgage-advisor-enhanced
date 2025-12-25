@@ -2596,33 +2596,24 @@ function App() {
                         <div className="flex flex-col gap-1.5">
                             <div className="flex items-center gap-1">
                                 <label className="text-xs font-medium text-slate-500 dark:text-slate-400">{language === 'EN' ? 'Investment Type' : '投资类型'}</label>
-                                <KnowledgeTooltip term={language === 'EN' ? 'Choose your investment strategy' : '选择您的投资策略'} />
+                                <KnowledgeTooltip term={language === 'EN' ? 'Choose your investment strategy to adjust return rate range' : '选择投资策略，自动调整收益率区间'} />
                             </div>
                             <select 
-                                value={params.investmentType || 'balanced'}
+                                value={params.investmentType || 'custom'}
                                 onChange={(e) => handleInputChange('investmentType', e.target.value)}
                                 className="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white transition-all"
                             >
-                                <option value="conservative">{language === 'EN' ? '🏦 Conservative (3-5%)' : '🏦 保守型 (3-5%)'}</option>
+                                <option value="conservative">{language === 'EN' ? '🏦 Conservative (≤4%)' : '🏦 保守型 (≤4%)'}</option>
                                 <option value="balanced">{language === 'EN' ? '📊 Balanced (5-8%)' : '📊 稳健型 (5-8%)'}</option>
                                 <option value="growth">{language === 'EN' ? '📈 Growth (8-12%)' : '📈 成长型 (8-12%)'}</option>
                                 <option value="aggressive">{language === 'EN' ? '🚀 Aggressive (12-20%)' : '🚀 进取型 (12-20%)'}</option>
-                                <option value="custom">{language === 'EN' ? '⚙️ Custom' : '⚙️ 自定义'}</option>
+                                <option value="custom">{language === 'EN' ? '⚙️ Custom (Manual)' : '⚙️ 自定义 (手动)'}</option>
                             </select>
                         </div>
                         
-                        <InputGroup label={t.alternativeReturn} value={params.alternativeReturnRate} onChange={v => handleInputChange('alternativeReturnRate', v)} step={0.1} tooltip={t.tipAlternativeReturn} />
+                        <InputGroup label={t.alternativeReturn} value={params.alternativeReturnRate} onChange={v => handleInputChange('alternativeReturnRate', v)} step={0.1} tooltip={language === 'EN' ? 'Affects: Asset Comparison Chart, Wealth Curve, Opportunity Cost Panel' : '影响：资产对比图表、财富曲线、机会成本面板'} />
                         
-                        {/* Risk-free Rate */}
-                        <InputGroup 
-                            label={language === 'EN' ? 'Risk-free Rate (%)' : '无风险收益率 (%)'} 
-                            value={params.riskFreeRate || 2.5} 
-                            onChange={v => handleInputChange('riskFreeRate', v)} 
-                            step={0.1} 
-                            tooltip={language === 'EN' ? 'Treasury bond or bank deposit rate as baseline' : '以国债或银行存款利率作为基准'} 
-                        />
-                        
-                        <InputGroup label={t.inflationRate} value={params.inflationRate} onChange={v => handleInputChange('inflationRate', v)} step={0.1} tooltip={t.tipInflation} />
+                        <InputGroup label={t.inflationRate} value={params.inflationRate} onChange={v => handleInputChange('inflationRate', v)} step={0.1} tooltip={language === 'EN' ? 'Affects: Real Wealth Curve (after inflation), Asset Comparison' : '影响：实际财富曲线（扣除通胀）、资产对比'} />
                         
                         {/* Tax Rate on Investment Returns */}
                         <InputGroup 
@@ -2630,24 +2621,7 @@ function App() {
                             value={params.investmentTaxRate || 0} 
                             onChange={v => handleInputChange('investmentTaxRate', v)} 
                             step={0.1} 
-                            tooltip={language === 'EN' ? 'Tax on investment gains (e.g., capital gains tax)' : '投资收益税（如资本利得税）'} 
-                        />
-                        
-                        {/* Emergency Fund Months */}
-                        <InputGroup 
-                            label={language === 'EN' ? 'Emergency Fund (months)' : '应急储备金 (月)'} 
-                            value={params.emergencyFundMonths || 6} 
-                            onChange={v => handleInputChange('emergencyFundMonths', v)} 
-                            tooltip={language === 'EN' ? 'Recommended 3-12 months of expenses' : '建议储备3-12个月的生活费用'} 
-                        />
-                        
-                        {/* Monthly Savings Rate */}
-                        <InputGroup 
-                            label={language === 'EN' ? 'Monthly Savings Rate (%)' : '月储蓄率 (%)'} 
-                            value={params.monthlySavingsRate || 20} 
-                            onChange={v => handleInputChange('monthlySavingsRate', v)} 
-                            step={1} 
-                            tooltip={language === 'EN' ? 'Percentage of income saved each month' : '每月收入中储蓄的比例'} 
+                            tooltip={language === 'EN' ? 'Affects: Stock Net Worth in Asset Comparison (reduces investment returns)' : '影响：资产对比中的股票净值（减少投资收益）'} 
                         />
                    </div>
                </div>
