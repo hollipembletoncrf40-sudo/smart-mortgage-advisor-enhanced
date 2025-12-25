@@ -11,8 +11,8 @@ type ViewMode = 'day' | 'week' | 'month' | 'quarter' | 'year' | 'all';
 
 // 分页配置
 const PAGE_SIZE = {
-  day: 90,   // 每次加载90天（3个月）
-  week: 48,  // 每次加载48周（1年）
+  day: 120,   // 每次加载120天（4个月）
+  week: 52,  // 每次加载52周（1年）
 };
 
 const DetailedPaymentTable: React.FC<DetailedPaymentTableProps> = ({ monthlyPayments, t }) => {
@@ -156,7 +156,7 @@ const DetailedPaymentTable: React.FC<DetailedPaymentTableProps> = ({ monthlyPaym
   };
 
   return (
-    <div className="flex flex-col overflow-hidden h-[750px] border-t border-slate-100 dark:border-slate-800">
+    <div className="flex flex-col overflow-hidden h-[960px] border-t border-slate-100 dark:border-slate-800">
       {/* 标题栏 */}
       <div className="p-4 border-b border-slate-100 dark:border-slate-800 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20">
         <div className="flex items-center justify-between mb-3">

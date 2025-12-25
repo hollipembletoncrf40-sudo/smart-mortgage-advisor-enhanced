@@ -51,6 +51,8 @@ import DecisionAutopsy from './components/DecisionAutopsy';
 import FreedomAnalytics from './components/FreedomAnalytics';
 import LifeLeverageAnalytics from './components/LifeLeverageAnalytics';
 import NavalWisdomEngine from './components/NavalWisdomEngine';
+import DetailedRepaymentTab from './components/DetailedRepaymentTab';
+import LifeOSDashboard from './components/LifeOSDashboard';
 import SectionNav from './components/SectionNav';
 import { loadAIConfig, sendAIMessage, AIMessage, getProviderName } from './utils/aiProvider';
 import { InvestmentParams, RepaymentMethod, CalculationResult, PrepaymentStrategy, StressTestResult, LoanType, PurchaseScenario, LocationFactors, LocationScore, AssetComparisonItem, KnowledgeCardData, Language, Currency, TaxParams, TaxResult, AppreciationPredictorParams, AppreciationPrediction, MonthlyCashFlow, CustomStressTestParams, DecisionSnapshot, BuyTargetParams } from './types';
@@ -721,61 +723,97 @@ const RentVsBuyChart = ({ data, t }: { data: any[], t: any }) => {
   );
 };
 
-const CashFlowChart = ({ data, t }: { data: MonthlyCashFlow[], t: any }) => {
+const CashFlowChart = ({ data, t, language = 'CN' }: { data: MonthlyCashFlow[], t: any, language?: 'CN' | 'SC' | 'EN' | 'ZH' }) => {
   const darkMode = document.documentElement.classList.contains('dark');
+  const isEn = language === 'EN';
   
-  // 转换数据格式以适配图表
+  // 转换数据格式 - 收入为正值，支出为负值显示
   const chartData = data.map(item => ({
-    month: t.monthLabel.replace('{n}', item.month.toString()),
-    [t.rentalIncome]: item.rentalIncome,
-    [t.mortgagePayment]: -item.mortgagePayment, // 负值表示支出
-    [t.holdingCost]: -item.holdingCost, // 负值表示支出
-    [t.netCashFlow]: item.netCashFlow
+    month: isEn ? `Month ${item.month}` : `${item.month}月`,
+    income: item.rentalIncome,
+    expense: item.mortgagePayment + item.holdingCost,
+    net: item.netCashFlow
   }));
 
   // 计算平均值
   const avgNetCashFlow = data.reduce((sum, item) => sum + item.netCashFlow, 0) / data.length;
 
+  // 配色方案 - 与左侧深色背景协调
+  const colors = {
+    income: '#34d399', // 收入 - 柔和的绿色
+    expense: '#94a3b8', // 支出 - 柔和的灰蓝色
+    net: '#818cf8', // 净现金流 - 紫色
+    grid: darkMode ? '#334155' : '#e2e8f0',
+    text: darkMode ? '#94a3b8' : '#64748b'
+  };
+
+  // 货币单位和格式化
+  const formatCurrency = (val: number) => {
+    const absVal = Math.abs(val).toFixed(0);
+    // 英文模式显示 ¥ 前缀，中文模式显示 元 后缀
+    return isEn ? `¥${absVal}` : `${absVal}元`;
+  };
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {/* 平均现金流指示器 */}
       <div className="flex items-center justify-between">
-        <h4 className="text-sm font-bold text-slate-700 dark:text-white">{t.cashFlowProjection}</h4>
-        <div className={`px-3 py-1 rounded-full text-xs font-bold ${avgNetCashFlow >= 0 ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'}`}>
-          {t.monthlyAverage}: {avgNetCashFlow.toFixed(0)}元 {avgNetCashFlow >= 0 ? '✓' : '✗'}
+        <h4 className="text-xs font-bold text-slate-600 dark:text-slate-300">{t.cashFlowProjection}</h4>
+        <div className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${avgNetCashFlow >= 0 ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400' : 'bg-slate-100 text-slate-600 dark:bg-slate-500/20 dark:text-slate-400'}`}>
+          {t.monthlyAverage}: {formatCurrency(avgNetCashFlow)}
         </div>
       </div>
 
-      <div className="h-80 w-full">
+      <div className="h-40 w-full">
         <ResponsiveContainer width="100%" height="100%">
-          <ComposedChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke={darkMode ? '#334155' : '#e2e8f0'} />
-            <XAxis dataKey="month" tick={{fill: darkMode ? '#94a3b8' : '#64748b', fontSize: 11}} />
-            <YAxis tick={{fill: darkMode ? '#94a3b8' : '#64748b', fontSize: 11}} />
+          <ComposedChart data={chartData} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke={colors.grid} opacity={0.3} vertical={false} />
+            <XAxis dataKey="month" tick={{fill: colors.text, fontSize: 8}} tickLine={false} axisLine={false} />
+            <YAxis tick={{fill: colors.text, fontSize: 8}} tickLine={false} axisLine={false} tickFormatter={(v) => `${(v/1000).toFixed(0)}k`} />
             <Tooltip 
-              contentStyle={{ backgroundColor: darkMode ? '#1e293b' : '#fff', borderRadius: '12px', border: 'none' }} 
-              formatter={(value: number) => [`${Math.abs(value).toFixed(0)}元`, '']}
+              contentStyle={{ 
+                backgroundColor: darkMode ? '#1e293b' : 'rgba(255, 255, 255, 0.95)', 
+                borderRadius: '8px', 
+                border: darkMode ? '1px solid #334155' : '1px solid #e2e8f0',
+                fontSize: '10px',
+                padding: '8px 12px',
+                color: darkMode ? '#f1f5f9' : '#1e293b',
+                boxShadow: darkMode ? 'none' : '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+              }}
+              labelStyle={{ color: darkMode ? '#94a3b8' : '#64748b', marginBottom: '4px' }}
+              itemStyle={{ padding: '2px 0', color: darkMode ? '#f1f5f9' : '#1e293b' }}
+              formatter={(value: number, name: string) => [
+                formatCurrency(value), 
+                name === 'income' ? (isEn ? 'Rental Income' : '租金收入') : 
+                name === 'expense' ? (isEn ? 'Total Expense' : '总支出') : 
+                (isEn ? 'Net Cash Flow' : '净现金流')
+              ]}
             />
-            <Legend wrapperStyle={{fontSize: '12px'}} />
             
-            {/* 零线参考 */}
-            <ReferenceLine y={0} stroke={darkMode ? '#64748b' : '#94a3b8'} strokeDasharray="3 3" />
+            {/* 收入柱 - 绿色 */}
+            <Bar dataKey="income" fill={colors.income} radius={[3, 3, 0, 0]} name="income" />
             
-            {/* 堆积柱状图 */}
-            <Bar dataKey={t.rentalIncome} stackId="a" fill="#10b981" />
-            <Bar dataKey={t.mortgagePayment} stackId="a" fill="#ef4444" />
-            <Bar dataKey={t.holdingCost} stackId="a" fill="#f97316" />
+            {/* 支出柱 - 灰色 */}
+            <Bar dataKey="expense" fill={colors.expense} radius={[3, 3, 0, 0]} name="expense" opacity={0.6} />
             
             {/* 净现金流折线 */}
             <Line 
               type="monotone" 
-              dataKey={t.netCashFlow} 
-              stroke="#3b82f6" 
-              strokeWidth={3} 
-              dot={{ fill: '#3b82f6', r: 4 }}
+              dataKey="net" 
+              stroke={colors.net}
+              strokeWidth={2} 
+              dot={{ fill: colors.net, r: 2, strokeWidth: 0 }}
+              name="net"
             />
           </ComposedChart>
         </ResponsiveContainer>
+      </div>
+      
+      {/* 紧凑图例 */}
+      <div className="flex justify-center gap-3 text-[9px] text-slate-400">
+        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm" style={{background: colors.income}}></span> {isEn ? 'Rent' : '租金'}</span>
+        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm" style={{background: colors.expense, opacity: 0.6}}></span> {isEn ? 'Expense' : '支出'}</span>
+        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full" style={{background: colors.net}}></span> {isEn ? 'Net' : '净额'}</span>
       </div>
     </div>
   );
@@ -1848,7 +1886,7 @@ function App() {
   });
 
 
-  const [activeTab, setActiveTab] = useState<'chart' | 'table' | 'rentVsBuy' | 'stress' | 'risk' | 'affordability' | 'lifePath' | 'goal' | 'token' | 'knowledge' | 'opportunity' | 'journal' | 'negotiation' | 'liquidity' | 'life_drag' | 'community_data' | 'income_threshold' | 'car_analysis' | 'asset_allocation' | 'sell_decision' | 'autopsy' | 'freedom' | 'leverage' | 'naval'>('chart');
+  const [activeTab, setActiveTab] = useState<'chart' | 'table' | 'rentVsBuy' | 'stress' | 'risk' | 'affordability' | 'lifePath' | 'goal' | 'token' | 'knowledge' | 'opportunity' | 'journal' | 'negotiation' | 'liquidity' | 'life_drag' | 'community_data' | 'income_threshold' | 'car_analysis' | 'asset_allocation' | 'sell_decision' | 'autopsy' | 'freedom' | 'leverage' | 'naval' | 'life_os' | 'repayment_detail'>('chart');
   const [rentMentalCost, setRentMentalCost] = useState(0);
   const [showKnowledgeTree, setShowKnowledgeTree] = useState(false);
   const [selectedKnowledgeTerm, setSelectedKnowledgeTerm] = useState<string | undefined>();
@@ -2662,10 +2700,10 @@ function App() {
         </section>
 
         {/* 2. MAIN RESULTS GRID */}
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+        <div className="flex flex-col gap-8">
           
-          {/* Left Column (2/3) */}
-          <div className="xl:col-span-2 space-y-8" id="result-panel">
+          {/* Main Content Area */}
+          <div className="w-full space-y-8" id="result-panel">
             {/* Score Cards */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                <MetricCard label={t.metricCashOnCash} value={`${result.cashOnCashReturn.toFixed(2)}%`} sub={t.subActualInvest} color="indigo" tooltip={t.tipCashOnCash} />
@@ -2675,102 +2713,119 @@ function App() {
             </div>
 
             {/* Asset Comparison & Cost */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-               {/* Initial Cost - Enhanced Visualization */}
-               <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-xl border border-slate-100 dark:border-slate-800/50 md:col-span-1 flex flex-col relative overflow-hidden">
-                  {/* Decorative elements */}
-                  <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 dark:from-indigo-500/10 dark:to-purple-500/10 rounded-full blur-3xl" />
+            {/* Unified Asset Comparison & Initial Cost Panel */}
+            <div id="comparison-panel" className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-xl border border-slate-100 dark:border-slate-800/50">
+               {/* Section Header */}
+               <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-2 text-slate-800 dark:text-white font-bold text-lg"><TrendingUp className="h-5 w-5 text-indigo-500" /> {t.assetComparison}</div>
+                  <div className="text-xs font-medium text-slate-500 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full">{t.netWorthAtYear.replace('{year}', params.holdingYears.toString())}</div>
+               </div>
+               
+               {/* Main Grid: Comparison (2/3) + Cost Pie (1/3) */}
+               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  {/* Left: Comparison Cards & Table */}
+                  <div className="lg:col-span-2">
+                     <div className="grid grid-cols-2 gap-4 mb-6">
+                         <div className={`relative p-4 rounded-2xl border transition-all ${result.assetComparison.winner === 'House' ? 'border-indigo-500 bg-indigo-50/50 dark:bg-indigo-900/20' : 'border-slate-100 dark:border-slate-800'}`}>
+                           {result.assetComparison.winner === 'House' && <div className="absolute -top-2 left-2 bg-indigo-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full shadow-md">{t.labelWinner}</div>}
+                           <div className="flex items-center gap-2 mb-2"><div className="p-1.5 bg-indigo-100 dark:bg-indigo-900 rounded-md text-indigo-600 dark:text-indigo-400"><TrendingUp className="h-4 w-4"/></div><div className="text-xs font-bold dark:text-white">{t.labelHouseInvest}</div></div>
+                           <div className="text-xl font-bold text-slate-800 dark:text-white mb-2">{result.assetComparison.houseNetWorth.toFixed(1)} <span className="text-xs font-normal text-slate-500">{t.unitWanSimple}</span></div>
+                         </div>
+                         <div className={`relative p-4 rounded-2xl border transition-all ${result.assetComparison.winner === 'Stock' ? 'border-emerald-500 bg-emerald-50/50 dark:bg-emerald-900/20' : 'border-slate-100 dark:border-slate-800'}`}>
+                           {result.assetComparison.winner === 'Stock' && <div className="absolute -top-2 left-2 bg-emerald-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full shadow-md">{t.labelWinner}</div>}
+                           <div className="flex items-center gap-2 mb-2"><div className="p-1.5 bg-emerald-100 dark:bg-emerald-900 rounded-md text-emerald-600 dark:text-emerald-400"><BarChart3 className="h-4 w-4"/></div><div className="text-xs font-bold dark:text-white">{t.labelStockInvest}</div></div>
+                           <div className="text-xl font-bold text-slate-800 dark:text-white mb-2">{result.assetComparison.stockNetWorth.toFixed(1)} <span className="text-xs font-normal text-slate-500">{t.unitWanSimple}</span></div>
+                         </div>
+                     </div>
+                     
+                     {/* Qualitative Table */}
+                     <AssetComparisonTable data={result.assetComparison.qualitative} t={t} />
+                  </div>
                   
-                  <h2 className="text-lg font-bold flex items-center gap-2 text-slate-800 dark:text-white mb-6 relative z-10">
-                    <div className="p-2 bg-indigo-100 dark:bg-indigo-500/20 rounded-xl">
-                      <PieChartIcon className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-                    </div>
-                    {t.chartInitialCost}
-                  </h2>
-                  
-                  {/* Large Donut Chart */}
-                  <div className="flex-1 min-h-[220px] relative z-10">
-                     <ResponsiveContainer width="100%" height="100%">
-                        <PieChart>
-                          <Pie 
-                            data={initialCostData} 
-                            cx="50%" 
-                            cy="50%" 
-                            innerRadius={60} 
-                            outerRadius={90} 
-                            paddingAngle={3} 
-                            dataKey="value"
-                            stroke="rgba(255,255,255,0.3)"
-                            strokeWidth={2}
-                          >
-                            {initialCostData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
-                          </Pie>
-                          <Tooltip 
-                            formatter={(v: number) => `${v.toFixed(1)}${t.unitWanSimple}`} 
-                            contentStyle={{
-                              background: 'rgba(255, 255, 255, 0.95)',
-                              border: '1px solid rgba(100, 116, 139, 0.2)',
-                              borderRadius: '12px', 
-                              fontSize: '13px',
-                              color: '#1e293b',
-                              boxShadow: '0 10px 40px rgba(0,0,0,0.1)'
-                            }} 
-                          />
-                        </PieChart>
-                     </ResponsiveContainer>
-                     {/* Central Display */}
-                     <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                       <div className="text-4xl font-black text-slate-800 dark:text-white drop-shadow-sm">{result.initialCosts.total.toFixed(0)}</div>
-                       <div className="text-sm text-slate-500 dark:text-slate-400 font-medium">{t.labelTotalInvest}</div>
+                  {/* Right: Initial Cost Pie Chart - Clean Premium Design */}
+                  <div className="lg:col-span-1 flex flex-col">
+                     <h3 className="text-sm font-bold flex items-center gap-2 text-slate-600 dark:text-slate-300 mb-3">
+                       <div className="p-1.5 bg-indigo-100 dark:bg-indigo-500/20 rounded-lg">
+                         <PieChartIcon className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+                       </div>
+                       {t.chartInitialCost}
+                     </h3>
+                     
+                     {/* Large Elegant Donut Chart */}
+                     <div className="flex-1 min-h-[250px] flex flex-col items-center justify-center mb-2">
+                       <div className="w-full h-[200px] relative">
+                         <ResponsiveContainer width="100%" height="100%">
+                           <PieChart>
+                             <Pie 
+                               data={initialCostData} 
+                               cx="50%" 
+                               cy="50%" 
+                               innerRadius={50} 
+                               outerRadius={95} 
+                               paddingAngle={2} 
+                               dataKey="value" 
+                               stroke={document.documentElement.classList.contains('dark') ? "#0f172a" : "#fff"} 
+                               strokeWidth={3}
+                               animationBegin={0}
+                               animationDuration={800}
+                             >
+                               {initialCostData.map((entry, index) => (
+                                 <Cell key={`cell-${index}`} fill={entry.color} stroke={document.documentElement.classList.contains('dark') ? "#0f172a" : "#fff"} />
+                               ))}
+                             </Pie>
+                             <Tooltip 
+                               formatter={(v: number, name: string) => {
+                                 const total = initialCostData.reduce((sum, item) => sum + item.value, 0);
+                                 const percent = ((v / total) * 100).toFixed(1);
+                                 return [`${v.toFixed(1)}万 (${percent}%)`, name];
+                               }}
+                               contentStyle={{
+                                 background: document.documentElement.classList.contains('dark') ? 'rgba(15, 23, 42, 0.95)' : 'rgba(255, 255, 255, 0.95)', 
+                                 border: document.documentElement.classList.contains('dark') ? '1px solid #334155' : '1px solid #e2e8f0', 
+                                 borderRadius: '8px', 
+                                 fontSize: '12px', 
+                                 color: document.documentElement.classList.contains('dark') ? '#f8fafc' : '#1e293b',
+                                 padding: '8px 12px',
+                                 boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)'
+                               }}
+                               itemStyle={{ color: document.documentElement.classList.contains('dark') ? '#f8fafc' : '#1e293b' }}
+                             />
+                           </PieChart>
+                         </ResponsiveContainer>
+                       </div>
+                       
+                       {/* Total Label moved below with spacing */}
+                       <div className="flex flex-col items-center justify-center mt-2">
+                         <div className="text-3xl font-black text-slate-800 dark:text-white tracking-tight">{result.initialCosts.total.toFixed(0)}<span className="text-sm font-normal text-slate-500 ml-1">{t.unitWanSimple}</span></div>
+                         <div className="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-widest">{t.labelTotalInvest}</div>
+                       </div>
+                     </div>
+                     
+                     {/* Clean Legend */}
+                     <div className="mt-2 grid grid-cols-2 gap-2">
+                       {initialCostData.map((item, i) => (
+                         <div 
+                           key={i} 
+                           className="flex items-center justify-between px-3 py-2 rounded-lg bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/50 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors"
+                         >
+                           <span className="flex items-center gap-2 text-[11px] font-medium text-slate-600 dark:text-slate-300">
+                             <span className="w-2.5 h-2.5 rounded-full shadow-sm" style={{background: item.color}} />
+                             {item.name}
+                           </span>
+                           <span className="text-[11px] font-bold text-slate-800 dark:text-white">{item.value.toFixed(1)}<span className="text-[9px] text-slate-400 dark:text-slate-500 ml-0.5">{language === 'EN' ? 'W' : '万'}</span></span>
+                         </div>
+                       ))}
+                     </div>
+                     
+                     {/* Cash Flow Chart */}
+                     <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                       <CashFlowChart data={result.monthlyCashFlow} t={t} language={language} />
                      </div>
                   </div>
-                  
-                  {/* Legend Pills */}
-                  <div className="mt-4 grid grid-cols-2 gap-2 relative z-10">
-                    {initialCostData.map((item, i) => (
-                      <div 
-                        key={i} 
-                        className="flex items-center justify-between px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800/50"
-                        style={{ borderLeft: `3px solid ${item.color}` }}
-                      >
-                        <span className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300">
-                          <span className="w-2.5 h-2.5 rounded-full" style={{background: item.color}} />
-                          {item.name}
-                        </span>
-                        <span className="text-sm font-bold text-slate-800 dark:text-white">{item.value.toFixed(1)}<span className="text-xs text-slate-500 dark:text-slate-400">{language === 'EN' ? 'W' : '万'}</span></span>
-                      </div>
-                    ))}
-                  </div>
-                  
-                  {/* 现金流图表 */}
-                  <div className="mt-6 pt-6 border-t border-slate-100 dark:border-slate-800 relative z-10">
-                    <CashFlowChart data={result.monthlyCashFlow} t={t} />
-                  </div>
                </div>
-
-               {/* Asset Comparison */}
-               <div id="comparison-panel" className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-xl border border-slate-100 dark:border-slate-800/50 md:col-span-2">
-                  <div className="flex items-center justify-between mb-6 relative z-10">
-                     <div className="flex items-center gap-2 text-slate-800 dark:text-white font-bold text-lg"><TrendingUp className="h-5 w-5 text-indigo-500" /> {t.assetComparison}</div>
-                     <div className="text-xs font-medium text-slate-500 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full">{t.netWorthAtYear.replace('{year}', params.holdingYears.toString())}</div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4 mb-6">
-                      <div className={`relative p-4 rounded-2xl border transition-all ${result.assetComparison.winner === 'House' ? 'border-indigo-500 bg-indigo-50/50 dark:bg-indigo-900/20' : 'border-slate-100 dark:border-slate-800'}`}>
-                        {result.assetComparison.winner === 'House' && <div className="absolute -top-2 left-2 bg-indigo-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full shadow-md">{t.labelWinner}</div>}
-                        <div className="flex items-center gap-2 mb-2"><div className="p-1.5 bg-indigo-100 dark:bg-indigo-900 rounded-md text-indigo-600 dark:text-indigo-400"><TrendingUp className="h-4 w-4"/></div><div className="text-xs font-bold dark:text-white">{t.labelHouseInvest}</div></div>
-                        <div className="text-xl font-bold text-slate-800 dark:text-white mb-2">{result.assetComparison.houseNetWorth.toFixed(1)} <span className="text-xs font-normal text-slate-500">{t.unitWanSimple}</span></div>
-                      </div>
-                      <div className={`relative p-4 rounded-2xl border transition-all ${result.assetComparison.winner === 'Stock' ? 'border-emerald-500 bg-emerald-50/50 dark:bg-emerald-900/20' : 'border-slate-100 dark:border-slate-800'}`}>
-                        {result.assetComparison.winner === 'Stock' && <div className="absolute -top-2 left-2 bg-emerald-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full shadow-md">{t.labelWinner}</div>}
-                        <div className="flex items-center gap-2 mb-2"><div className="p-1.5 bg-emerald-100 dark:bg-emerald-900 rounded-md text-emerald-600 dark:text-emerald-400"><BarChart3 className="h-4 w-4"/></div><div className="text-xs font-bold dark:text-white">{t.labelStockInvest}</div></div>
-                        <div className="text-xl font-bold text-slate-800 dark:text-white mb-2">{result.assetComparison.stockNetWorth.toFixed(1)} <span className="text-xs font-normal text-slate-500">{t.unitWanSimple}</span></div>
-                      </div>
-                  </div>
-                  
-                  {/* New Asset Comparison Table */}
-                  <AssetComparisonTable data={result.assetComparison.qualitative} t={t} />
-
-                  {/* New Knowledge Carousel */}
+               
+               {/* Knowledge Carousel at bottom */}
+               <div className="mt-6 pt-6 border-t border-slate-100 dark:border-slate-800">
                   <KnowledgeCarousel cards={result.assetComparison.knowledgeCards} t={t} language={language} />
                </div>
             </div>
@@ -2779,6 +2834,7 @@ function App() {
             {/* Wealth Chart & Analysis Tabs */}
             <div id="tabs-section" className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-xl border border-slate-100 dark:border-slate-800/50">
                <div className="flex flex-wrap gap-2 mb-6">
+                   <button onClick={() => setActiveTab('repayment_detail')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'repayment_detail' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{language === 'EN' ? 'Payment Schedule' : '详细还款计划'}</button>
                    <button onClick={() => setActiveTab('chart')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'chart' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{t.wealthCurve}</button>
                    <button onClick={() => setActiveTab('rentVsBuy')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'rentVsBuy' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{t.rentVsBuyAnalysis}</button>
                    <button onClick={() => setActiveTab('stress')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'stress' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{t.stressTest}</button>
@@ -2803,6 +2859,8 @@ function App() {
                    <button onClick={() => setActiveTab('freedom')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'freedom' ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{language === 'EN' ? 'Freedom Analytics' : '未来自由度'}</button>
                    <button onClick={() => setActiveTab('leverage')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'leverage' ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{language === 'EN' ? 'Life Leverage' : '人生杠杆'}</button>
                    <button onClick={() => setActiveTab('naval')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'naval' ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{t.navNavalWisdom || 'Naval智慧引擎'}</button>
+                   <button onClick={() => setActiveTab('life_os')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'life_os' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>Life OS</button>
+
                 </div>
 
                {activeTab === 'chart' && (
@@ -2876,6 +2934,11 @@ function App() {
                  {activeTab === 'naval' && (
                    <div id="naval-wisdom" className="animate-fade-in">
                      <NavalWisdomEngine language={language} t={t} />
+                   </div>
+                 )}
+                 {activeTab === 'life_os' && (
+                   <div id="life-os" className="animate-fade-in">
+                     <LifeOSDashboard language={language} t={t} />
                    </div>
                  )}
                  {activeTab === 'knowledge' && (
@@ -2975,91 +3038,22 @@ function App() {
              </div>
           </div>
 
-          {/* Right Column (1/3) */}
-          <div className="xl:col-span-1 flex flex-col gap-6 sticky top-6 self-start" id="ai-panel">
-            {/* Unified Payment Panel */}
-            <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-800/50 overflow-hidden">
-              {/* Chart Section */}
-              <div className="p-6 pb-0">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-sm font-bold text-slate-700 dark:text-white flex items-center gap-2">
-                    <TrendingUp className="h-4 w-4 text-indigo-500" />
-                    {t.paymentSchedule}
-                  </h3>
-                  <div className="flex bg-slate-100 dark:bg-slate-800 rounded-lg p-1">
-                    <button onClick={() => setChartGranularity('year')} className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${chartGranularity === 'year' ? 'bg-white dark:bg-slate-700 shadow-sm text-indigo-600 dark:text-indigo-400' : 'text-slate-500'}`}>{t.viewYear}</button>
-                    <button onClick={() => setChartGranularity('month')} className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${chartGranularity === 'month' ? 'bg-white dark:bg-slate-700 shadow-sm text-indigo-600 dark:text-indigo-400' : 'text-slate-500'}`}>{t.viewMonth}</button>
-                  </div>
-                </div>
-                <div className="h-[200px] w-full">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={scheduleChartData} margin={{ top: 5, right: 0, left: -20, bottom: 0 }}>
-                      <defs>
-                        <linearGradient id="colorPrincipal" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3}/>
-                          <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
-                        </linearGradient>
-                        <linearGradient id="colorInterest" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#f43f5e" stopOpacity={0.3}/>
-                          <stop offset="95%" stopColor="#f43f5e" stopOpacity={0}/>
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={darkMode ? '#334155' : '#e2e8f0'} />
-                      <XAxis dataKey="label" tick={{fill: darkMode ? '#94a3b8' : '#64748b', fontSize: 10}} axisLine={false} tickLine={false} />
-                      <YAxis tick={{fill: darkMode ? '#94a3b8' : '#64748b', fontSize: 10}} axisLine={false} tickLine={false} />
-                      <Tooltip contentStyle={{ backgroundColor: darkMode ? '#1e293b' : '#fff', borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
-                      <Area type="monotone" dataKey="principal" stackId="1" stroke="#6366f1" fill="url(#colorPrincipal)" name={t.principal} />
-                      <Area type="monotone" dataKey="interest" stackId="1" stroke="#f43f5e" fill="url(#colorInterest)" name={t.interest} />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-              
-              {/* Amortization Mood Bar */}
-              <div className="px-6 pb-6">
-                <AmortizationMoodBar result={result} params={params} t={t} />
-              </div>
-              
-              {/* Detailed Table Section - Login Required */}
-              <div className="relative">
-                {!user && (
-                  <div className="absolute inset-0 z-10 bg-white/80 dark:bg-black/90 backdrop-blur-sm rounded-2xl flex flex-col items-center justify-center transition-colors">
-                    <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 text-center max-w-sm mx-4 shadow-2xl">
-                      <div className="w-14 h-14 mx-auto mb-4 bg-indigo-600 rounded-full flex items-center justify-center shadow-lg shadow-indigo-200 dark:shadow-none">
-                        <LogIn className="h-7 w-7 text-white" />
-                      </div>
-                      <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-2">
-                        {language === 'EN' ? 'Unlock Detailed Schedule' : '解锁详细还款计划'}
-                      </h3>
-                      <p className="text-slate-500 dark:text-slate-400 text-sm mb-6">
-                        {language === 'EN' 
-                          ? 'Log in to view complete monthly repayment schedule, principal/interest breakdown, and more professional insights.' 
-                          : '登录后即可查看完整的逐月还款明细、本金利息分布等专业分析数据'}
-                      </p>
-                      <button 
-                        onClick={() => setShowAuthModal(true)}
-                        className="w-full px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl transition-all shadow-md hover:shadow-xl hover:-translate-y-0.5"
-                      >
-                        {language === 'EN' ? 'Login / Sign Up Now' : '立即登录 / 注册'}
-                      </button>
-                      <p className="text-slate-400 dark:text-slate-600 text-xs mt-4 flex items-center justify-center gap-1">
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                        {language === 'EN' ? 'Your data is secure' : '您的数据安全有保障'}
-                      </p>
-                    </div>
-                  </div>
-                )}
-                <div id="payment-schedule" className={!user ? 'opacity-30 pointer-events-none select-none' : ''}>
-                  <DetailedPaymentTable 
-                    monthlyPayments={result.monthlyData}
-                    t={t as any}
-                  />
-                </div>
-              </div>
-            </div>
-
+             {activeTab === 'repayment_detail' && (
+               <DetailedRepaymentTab
+                 t={t}
+                 language={language}
+                 result={result}
+                 params={params}
+                 user={user}
+                 setShowAuthModal={setShowAuthModal}
+                 chartGranularity={chartGranularity}
+                 setChartGranularity={setChartGranularity}
+                 scheduleChartData={scheduleChartData}
+                 darkMode={darkMode}
+               />
+             )}
           </div>
-        </div>
+
 
         {/* 房子评价你 - House Roast Section */}
         <div id="roast-panel">
@@ -3119,7 +3113,7 @@ function App() {
       )}
 
       {/* Section Navigation */}
-      <SectionNav t={t} />
+      <SectionNav t={t} onTabChange={setActiveTab} />
 
       {/* Floating AI Advisor */}
       <FloatingAIAdvisor 

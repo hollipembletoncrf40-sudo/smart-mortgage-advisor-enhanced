@@ -3,6 +3,7 @@ import { List, BarChart3, Zap, Clock, Gamepad2, TrendingUp, LayoutGrid, Bot, Hel
 
 interface SectionNavProps {
   t: any;
+  onTabChange: (tab: any) => void;
 }
 
 interface NavItem {
@@ -11,6 +12,7 @@ interface NavItem {
   labelKey: string;
   fallbackLabel: string;
   fallbackLabelEN: string;
+  targetTab?: string; // New: optional target tab
 }
 
 const NAV_ITEMS: NavItem[] = [
@@ -21,12 +23,12 @@ const NAV_ITEMS: NavItem[] = [
   { id: 'interactive-dashboard', icon: Zap, labelKey: 'navInteractive', fallbackLabel: '实时仪表', fallbackLabelEN: 'Dashboard' },
   { id: 'timeline-panel', icon: Clock, labelKey: 'navTimeline', fallbackLabel: '时间轴', fallbackLabelEN: 'Timeline' },
   { id: 'game-panel', icon: Gamepad2, labelKey: 'navGameMode', fallbackLabel: '游戏模式', fallbackLabelEN: 'Game Mode' },
-  { id: 'ai-panel', icon: Bot, labelKey: 'navAIPanel', fallbackLabel: 'AI顾问', fallbackLabelEN: 'AI Advisor' },
-  { id: 'payment-schedule', icon: CalendarDays, labelKey: 'navPaymentSchedule', fallbackLabel: '还款计划', fallbackLabelEN: 'Payment Schedule' },
+
+  { id: 'payment-schedule', icon: CalendarDays, labelKey: 'navPaymentSchedule', fallbackLabel: '还款计划', fallbackLabelEN: 'Payment Schedule', targetTab: 'repayment_detail' },
   { id: 'faq-section', icon: HelpCircle, labelKey: 'navFAQ', fallbackLabel: '常见问题', fallbackLabelEN: 'FAQ' },
 ];
 
-const SectionNav: React.FC<SectionNavProps> = ({ t }) => {
+const SectionNav: React.FC<SectionNavProps> = ({ t, onTabChange }) => {
   const [activeSection, setActiveSection] = useState<string>('input-panel');
   const [isExpanded, setIsExpanded] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -65,7 +67,26 @@ const SectionNav: React.FC<SectionNavProps> = ({ t }) => {
     return () => observer.disconnect();
   }, []);
 
-  const scrollToSection = useCallback((id: string) => {
+  const scrollToSection = useCallback((id: string, targetTab?: string) => {
+    if (targetTab) {
+      onTabChange(targetTab);
+      // Give React a moment to render the tab content before trying to scroll
+      setTimeout(() => {
+        const element = document.getElementById(id);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          setActiveSection(id);
+        } else {
+             // Fallback: scroll to top of tabs section if element not found immediately
+             const tabs = document.getElementById('tabs-section');
+             if(tabs) tabs.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
+      
+      if (isMobile) setIsExpanded(false);
+      return;
+    }
+
     const element = document.getElementById(id);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -73,7 +94,7 @@ const SectionNav: React.FC<SectionNavProps> = ({ t }) => {
       // Collapse on mobile after clicking
       if (isMobile) setIsExpanded(false);
     }
-  }, [isMobile]);
+  }, [isMobile, onTabChange]);
 
   return (
     <nav 
@@ -97,7 +118,7 @@ const SectionNav: React.FC<SectionNavProps> = ({ t }) => {
             return (
               <button
                 key={item.id}
-                onClick={() => scrollToSection(item.id)}
+                onClick={() => scrollToSection(item.id, item.targetTab)}
                 className={`w-full flex items-center gap-3 px-2 py-2 rounded-xl transition-all text-left group ${
                   isActive 
                     ? 'bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300' 

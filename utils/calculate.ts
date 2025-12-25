@@ -521,6 +521,15 @@ export const calculateInvestment = (params: InvestmentParams, t: any): Calculati
     { dimension: t.dimLeverage, houseValue: t.valStrongLev, houseScore: 5, stockValue: t.valWeakLev, stockScore: 2 },
     { dimension: t.dimEffort, houseValue: t.valHighEffort, houseScore: 2, stockValue: t.valLowEffort, stockScore: 5 },
     { dimension: t.dimInflation, houseValue: t.valStrongInf, houseScore: 5, stockValue: t.valMedInf, stockScore: 3 },
+    { dimension: t.dimVolatility || '波动性 (Volatility)', houseValue: t.valLowVol || '低 (年波动5-10%)', houseScore: 4, stockValue: t.valHighVol || '高 (年波动15-30%)', stockScore: 2 },
+    { dimension: t.dimTax || '税务优势 (Tax)', houseValue: t.valTaxHouse || '契税+持有成本', houseScore: 3, stockValue: t.valTaxStock || '资本利得税', stockScore: 3 },
+    { dimension: t.dimPsychology || '心理安全 (Psychology)', houseValue: t.valPsychHouse || '强 (实物资产)', houseScore: 5, stockValue: t.valPsychStock || '弱 (账面数字)', stockScore: 2 },
+    { dimension: t.dimDiversify || '分散能力 (Diversify)', houseValue: t.valDivHouse || '弱 (单一资产)', houseScore: 2, stockValue: t.valDivStock || '强 (可分散)', stockScore: 5 },
+    { dimension: t.dimPassive || '被动收入 (Passive)', houseValue: t.valPassHouse || '租金收入', houseScore: 4, stockValue: t.valPassStock || '股息分红', stockScore: 3 },
+    { dimension: t.dimInherit || '传承价值 (Inherit)', houseValue: t.valInhHouse || '强 (实物遗产)', houseScore: 5, stockValue: t.valInhStock || '中 (账户继承)', stockScore: 3 },
+    { dimension: t.dimExit || '退出难度 (Exit)', houseValue: t.valExitHouse || '高 (交易周期长)', houseScore: 2, stockValue: t.valExitStock || '低 (随时卖出)', stockScore: 5 },
+    { dimension: t.dimGrowth || '增长潜力 (Growth)', houseValue: t.valGrowthHouse || '中 (跟随GDP)', houseScore: 3, stockValue: t.valGrowthStock || '高 (可选成长股)', stockScore: 4 },
+    { dimension: t.dimManage || '管理复杂度 (Manage)', houseValue: t.valManageHouse || '高 (租客/维修)', houseScore: 2, stockValue: t.valManageStock || '低 (被动持有)', stockScore: 5 },
   ];
 
   const knowledgeCards: KnowledgeCardData[] = [
@@ -533,8 +542,9 @@ export const calculateInvestment = (params: InvestmentParams, t: any): Calculati
 
   // 计算月度现金流（12个月）
   const monthlyCashFlow: MonthlyCashFlow[] = [];
-  const monthlyRentIncome = params.monthlyRent * (1 - params.vacancyRate / 100); // 考虑空置率
-  const monthlyHoldingCost = (params.totalPrice * params.holdingCostRatio / 100 / 12) + params.propertyMaintenanceCost;
+  const monthlyRentIncome = params.monthlyRent * (1 - params.vacancyRate / 100); // 考虑空置率，单位：元
+  // totalPrice 是万元，holdingCostRatio 是百分比，propertyMaintenanceCost 也是万元，需要乘以10000转换为元
+  const monthlyHoldingCost = (params.totalPrice * 10000 * params.holdingCostRatio / 100 / 12) + (params.propertyMaintenanceCost * 10000 / 12);
   
   for (let month = 1; month <= 12; month++) {
     const rentalIncome = monthlyRentIncome;
