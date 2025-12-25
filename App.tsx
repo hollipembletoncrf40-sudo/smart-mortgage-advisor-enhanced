@@ -2591,8 +2591,64 @@ function App() {
                             <div className="flex items-center justify-between"><label className="text-sm font-medium dark:text-slate-300">{t.enablePrepayment}</label><input type="checkbox" checked={params.enablePrepayment} onChange={(e) => handleInputChange('enablePrepayment', e.target.checked)} className="w-5 h-5 rounded text-indigo-600 focus:ring-indigo-500 border-gray-300 cursor-pointer" /></div>
                             {params.enablePrepayment && (<div className="animate-fade-in space-y-4 pt-2"><InputGroup label={t.prepaymentYear} value={params.prepaymentYear} onChange={v => handleInputChange('prepaymentYear', v)} tooltip={t.tipPrepaymentYear} /><InputGroup label={t.prepaymentAmount} value={params.prepaymentAmount} onChange={v => handleInputChange('prepaymentAmount', v)} tooltip={t.tipPrepaymentAmount} /><div className="flex flex-col gap-1.5"><label className="text-xs font-medium text-slate-500 dark:text-slate-400">{t.repaymentStrategy}</label><select value={params.prepaymentStrategy} onChange={(e) => handleInputChange('prepaymentStrategy', e.target.value)} className="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white transition-all"><option value={PrepaymentStrategy.REDUCE_PAYMENT}>{t.reducePayment}</option><option value={PrepaymentStrategy.REDUCE_TERM}>{t.reduceTerm}</option></select></div></div>)}
                         </div>
+                        
+                        {/* Investment Type Selector */}
+                        <div className="flex flex-col gap-1.5">
+                            <div className="flex items-center gap-1">
+                                <label className="text-xs font-medium text-slate-500 dark:text-slate-400">{language === 'EN' ? 'Investment Type' : '投资类型'}</label>
+                                <KnowledgeTooltip term={language === 'EN' ? 'Choose your investment strategy' : '选择您的投资策略'} />
+                            </div>
+                            <select 
+                                value={params.investmentType || 'balanced'}
+                                onChange={(e) => handleInputChange('investmentType', e.target.value)}
+                                className="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white transition-all"
+                            >
+                                <option value="conservative">{language === 'EN' ? '🏦 Conservative (3-5%)' : '🏦 保守型 (3-5%)'}</option>
+                                <option value="balanced">{language === 'EN' ? '📊 Balanced (5-8%)' : '📊 稳健型 (5-8%)'}</option>
+                                <option value="growth">{language === 'EN' ? '📈 Growth (8-12%)' : '📈 成长型 (8-12%)'}</option>
+                                <option value="aggressive">{language === 'EN' ? '🚀 Aggressive (12-20%)' : '🚀 进取型 (12-20%)'}</option>
+                                <option value="custom">{language === 'EN' ? '⚙️ Custom' : '⚙️ 自定义'}</option>
+                            </select>
+                        </div>
+                        
                         <InputGroup label={t.alternativeReturn} value={params.alternativeReturnRate} onChange={v => handleInputChange('alternativeReturnRate', v)} step={0.1} tooltip={t.tipAlternativeReturn} />
+                        
+                        {/* Risk-free Rate */}
+                        <InputGroup 
+                            label={language === 'EN' ? 'Risk-free Rate (%)' : '无风险收益率 (%)'} 
+                            value={params.riskFreeRate || 2.5} 
+                            onChange={v => handleInputChange('riskFreeRate', v)} 
+                            step={0.1} 
+                            tooltip={language === 'EN' ? 'Treasury bond or bank deposit rate as baseline' : '以国债或银行存款利率作为基准'} 
+                        />
+                        
                         <InputGroup label={t.inflationRate} value={params.inflationRate} onChange={v => handleInputChange('inflationRate', v)} step={0.1} tooltip={t.tipInflation} />
+                        
+                        {/* Tax Rate on Investment Returns */}
+                        <InputGroup 
+                            label={language === 'EN' ? 'Investment Tax Rate (%)' : '投资收益税率 (%)'} 
+                            value={params.investmentTaxRate || 0} 
+                            onChange={v => handleInputChange('investmentTaxRate', v)} 
+                            step={0.1} 
+                            tooltip={language === 'EN' ? 'Tax on investment gains (e.g., capital gains tax)' : '投资收益税（如资本利得税）'} 
+                        />
+                        
+                        {/* Emergency Fund Months */}
+                        <InputGroup 
+                            label={language === 'EN' ? 'Emergency Fund (months)' : '应急储备金 (月)'} 
+                            value={params.emergencyFundMonths || 6} 
+                            onChange={v => handleInputChange('emergencyFundMonths', v)} 
+                            tooltip={language === 'EN' ? 'Recommended 3-12 months of expenses' : '建议储备3-12个月的生活费用'} 
+                        />
+                        
+                        {/* Monthly Savings Rate */}
+                        <InputGroup 
+                            label={language === 'EN' ? 'Monthly Savings Rate (%)' : '月储蓄率 (%)'} 
+                            value={params.monthlySavingsRate || 20} 
+                            onChange={v => handleInputChange('monthlySavingsRate', v)} 
+                            step={1} 
+                            tooltip={language === 'EN' ? 'Percentage of income saved each month' : '每月收入中储蓄的比例'} 
+                        />
                    </div>
                </div>
                {/* Column 4 */}

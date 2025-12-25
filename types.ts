@@ -115,6 +115,13 @@ export interface InvestmentParams {
   rateAdjustmentPeriod: number; // 利率调整周期(年)
   expectedRateChange: number; // 预期利率变化(%)
 
+  // 投资策略参数 (新增)
+  investmentType?: 'conservative' | 'balanced' | 'growth' | 'aggressive' | 'custom'; // 投资类型
+  riskFreeRate?: number; // % (无风险收益率，如国债)
+  investmentTaxRate?: number; // % (投资收益税率)
+  emergencyFundMonths?: number; // 应急储备金月数
+  monthlySavingsRate?: number; // % (月储蓄率)
+
   method: RepaymentMethod;
 }
 
