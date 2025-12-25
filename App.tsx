@@ -305,7 +305,7 @@ const KnowledgeCarousel = ({ cards, t, language = 'ZH' }: { cards: KnowledgeCard
 
     let animationId: number;
     let scrollPos = 0;
-    const scrollSpeed = 0.5; // pixels per frame
+    const scrollSpeed = 1.2; // pixels per frame (increased for faster scroll)
 
     const scroll = () => {
       if (!isPaused && container) {
@@ -3429,47 +3429,17 @@ function App() {
             </div>
           </div>
 
-          {/* Bottom Bar */}
+          {/* Bottom Bar - Professional Footer */}
           <div className="border-t border-slate-200 dark:border-slate-800 pt-6">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-              {/* Creator Info */}
-              <div className="flex items-center gap-1 text-slate-600 dark:text-slate-400">
-                <span className="text-red-500 animate-pulse">♥</span>
-                <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400">
-                  Josephine
-                </span>
-              </div>
-
+            <div className="flex flex-col items-center gap-3">
               {/* Quote */}
-              <div className="text-center">
-                <p className="text-xs text-slate-400 dark:text-slate-500 italic">
-                  {t.quote || '"明智的决策源于充分的信息"'}
-                </p>
-              </div>
-
-              {/* Navigation Link */}
-              <a
-                href="https://hilarious-cajeta-a096d8.netlify.app/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="relative group flex items-center gap-2 px-5 py-2 rounded-full transition-all duration-300 hover:-translate-y-0.5
-                  bg-white/50 dark:bg-slate-900/50 backdrop-blur-md
-                  border border-indigo-200/60 dark:border-indigo-500/30
-                  text-indigo-600 dark:text-indigo-300 font-bold text-xs
-                  shadow-[0_4px_12px_-2px_rgba(99,102,241,0.15)] dark:shadow-[0_4px_20px_-4px_rgba(99,102,241,0.3)]
-                  hover:shadow-[0_8px_20px_-4px_rgba(99,102,241,0.25)] dark:hover:shadow-[0_8px_30px_-4px_rgba(99,102,241,0.5)]
-                  hover:border-indigo-400 dark:hover:border-indigo-400
-                  hover:bg-white dark:hover:bg-slate-900"
-              >
-                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-indigo-500/10 to-purple-500/10 dark:from-indigo-500/20 dark:to-purple-500/20 opacity-0 group-hover:opacity-100 transition-opacity" />
-                <span className="text-sm filter drop-shadow-sm">✨</span>
-                <span className="relative z-10">璃光导航</span>
-                <ExternalLink className="relative z-10 h-3 w-3 opacity-60 group-hover:opacity-100 transition-all group-hover:translate-x-0.5" />
-              </a>
-
-              {/* Copyright */}
-              <div className="text-xs text-slate-500 dark:text-slate-500">
-                © 2025 WealthCompass
+              <p className="text-xs text-slate-400 dark:text-slate-500 italic text-center max-w-md">
+                {t.quote || '"明智的决策源于充分的信息"'}
+              </p>
+              
+              {/* Copyright - Professional Style */}
+              <div className="text-xs text-slate-400 dark:text-slate-500 text-center">
+                © 2025 WealthCompass by Josephine. All rights reserved.
               </div>
             </div>
           </div>
