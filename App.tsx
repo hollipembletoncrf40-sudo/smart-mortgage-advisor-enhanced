@@ -3275,60 +3275,8 @@ function App() {
             </div>
           </div>
 
-          {/* Main Footer Content */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-10 mb-8 border-t border-slate-200 dark:border-slate-800 pt-8">
-
-            {/* Quick Links */}
-            <div>
-              <h3 className="text-sm font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
-                <Compass className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
-                {t.quickNav || '快速导航'}
-              </h3>
-              <ul className="space-y-2 text-xs">
-                <li>
-                  <button onClick={() => { setActiveTab('chart'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors flex items-center gap-1">
-                    <ChevronRight className="h-3 w-3" />
-                    {t.navHome || '首页/对比分析'}
-                  </button>
-                </li>
-                <li>
-                  <button onClick={() => { setActiveTab('asset_allocation'); setTimeout(() => document.getElementById('tabs-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 150); }} className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors flex items-center gap-1">
-                    <ChevronRight className="h-3 w-3" />
-                    {t.navAsset || '资产配置'}
-                  </button>
-                </li>
-                <li>
-                  <button onClick={() => { setActiveTab('lifePath'); setTimeout(() => document.getElementById('tabs-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 150); }} className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors flex items-center gap-1">
-                    <ChevronRight className="h-3 w-3" />
-                    {t.navLifePath || '人生路径'}
-                  </button>
-                </li>
-                <li>
-                  <button onClick={() => { setActiveTab('car_analysis'); setTimeout(() => document.getElementById('tabs-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 150); }} className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors flex items-center gap-1">
-                    <ChevronRight className="h-3 w-3" />
-                    {t.navCar || '购车决策'}
-                  </button>
-                </li>
-                <li>
-                  <button onClick={() => { setActiveTab('knowledge'); setTimeout(() => document.getElementById('tabs-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 150); }} className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors flex items-center gap-1">
-                    <ChevronRight className="h-3 w-3" />
-                    {t.navKnowledge || '知识树/词汇百科'}
-                  </button>
-                </li>
-                <li>
-                  <button onClick={() => { setActiveTab('stress'); setTimeout(() => document.getElementById('tabs-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 150); }} className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors flex items-center gap-1">
-                    <ChevronRight className="h-3 w-3" />
-                    {t.navStress || '压力测试/情景模拟'}
-                  </button>
-                </li>
-                <li>
-                  <button onClick={() => setShowMethodology(true)} className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors flex items-center gap-1">
-                    <ChevronRight className="h-3 w-3" />
-                    {t.navLogic || '计算原理说明'}
-                  </button>
-                </li>
-              </ul>
-            </div>
+          {/* Main Footer Content - 3 Column Layout */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-10 mb-8 border-t border-slate-200 dark:border-slate-800 pt-8">
 
             {/* Data Sources */}
             <div>
@@ -3380,30 +3328,30 @@ function App() {
               </ul>
             </div>
 
-            {/* Help & Feedback */}
+            {/* Help & Feedback - Consistent Styling */}
             <div>
               <h3 className="text-sm font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
                 <MessageCircle className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
                 {t.helpFeedback || '帮助与反馈'}
               </h3>
-              <div className="space-y-3">
+              <div className="space-y-2">
                 <button 
                   onClick={() => setShowFeedback(true)} 
-                  className="w-full flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:border-indigo-300 dark:hover:border-indigo-600 rounded-lg text-xs font-medium shadow-sm hover:shadow-md transition-all"
+                  className="w-full flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:border-indigo-300 dark:hover:border-indigo-600 rounded-lg text-xs font-medium transition-all"
                 >
                   <Send className="h-3 w-3" />
                   {t.feedbackBtn || '提交反馈'}
                 </button>
                 <button 
                   onClick={() => setShowDonation(true)} 
-                  className="w-full flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white rounded-lg text-xs font-medium shadow-lg shadow-emerald-500/30 transition-all transform hover:scale-105"
+                  className="w-full flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:border-indigo-300 dark:hover:border-indigo-600 rounded-lg text-xs font-medium transition-all"
                 >
                   <Coffee className="h-3 w-3" />
                   {t.donateBtn || '赞赏支持'}
                 </button>
                 <button 
                   onClick={() => setShowWeChat(true)} 
-                  className="w-full flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white rounded-lg text-xs font-medium shadow-lg shadow-green-500/30 transition-all transform hover:scale-105"
+                  className="w-full flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:border-indigo-300 dark:hover:border-indigo-600 rounded-lg text-xs font-medium transition-all"
                 >
                   <User className="h-3 w-3" />
                   {t.contactAuthor || '联系作者'}
