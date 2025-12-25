@@ -1495,6 +1495,7 @@ const NavalTweetCarousel = ({ language }: { language: 'CN' | 'EN' }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [isAutoPlay, setIsAutoPlay] = useState(true);
+  const [carouselSpeed, setCarouselSpeed] = useState(40); // 0 = paused, 10-60 seconds
 
   // Use imported tweets from data file
   const allTweets = navalTweets;
@@ -1518,7 +1519,7 @@ const NavalTweetCarousel = ({ language }: { language: 'CN' | 'EN' }) => {
     if (!isAutoPlay || filteredTweets.length <= 1) return;
     const timer = setInterval(() => {
       setCurrentIndex(prev => (prev + 1) % filteredTweets.length);
-    }, 5000);
+    }, 8000); // Slower rotation - 8 seconds
     return () => clearInterval(timer);
   }, [isAutoPlay, filteredTweets.length, selectedCategory]);
 
@@ -1530,9 +1531,22 @@ const NavalTweetCarousel = ({ language }: { language: 'CN' | 'EN' }) => {
   const currentTweet = filteredTweets[currentIndex];
   const currentCategory = categories.find(c => c.id === currentTweet?.category) || categories[0];
 
+  // Throttle for smoother hover switching
+  const lastHoverTime = React.useRef(0);
+  const throttleDelay = 150; // ms between switches
+
   const goTo = (index: number) => {
     setCurrentIndex(index);
     setIsAutoPlay(false);
+  };
+
+  // Throttled version for hover
+  const goToThrottled = (index: number) => {
+    const now = Date.now();
+    if (now - lastHoverTime.current >= throttleDelay) {
+      lastHoverTime.current = now;
+      setCurrentIndex(index);
+    }
   };
 
   const goPrev = () => {
@@ -1600,7 +1614,9 @@ const NavalTweetCarousel = ({ language }: { language: 'CN' | 'EN' }) => {
             <div className="absolute top-6 left-8 text-7xl text-purple-400/20 font-serif z-20 leading-none">"</div>
             <div className="absolute bottom-6 right-8 text-7xl text-purple-400/20 font-serif z-20 leading-none rotate-180">"</div>
             
-            <div className={`p-10 md:p-12 rounded-3xl border border-purple-500/20 shadow-2xl relative overflow-hidden min-h-[200px] flex flex-col justify-center transition-all duration-700`}
+            <div 
+              onClick={goNext}
+              className={`p-10 md:p-12 rounded-3xl border border-purple-500/20 shadow-2xl relative overflow-hidden min-h-[200px] flex flex-col justify-center transition-all duration-700 cursor-pointer hover:scale-[1.01] active:scale-[0.99]`}
               style={{
                 background: currentTweet.category === 'wealth' 
                   ? 'linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%)'
@@ -1668,105 +1684,218 @@ const NavalTweetCarousel = ({ language }: { language: 'CN' | 'EN' }) => {
           </div>
         )}
 
-        {/* Pagination Dots */}
-        <div className="flex items-center justify-center gap-2 mt-6 flex-wrap">
-          {filteredTweets.slice(0, Math.min(filteredTweets.length, 15)).map((_, idx) => (
-            <button
-              key={idx}
-              onClick={() => goTo(idx)}
-              className={`transition-all duration-300 rounded-full ${
-                idx === currentIndex 
-                  ? 'w-8 h-2 bg-gradient-to-r from-purple-400 to-pink-400' 
-                  : 'w-2 h-2 bg-slate-300 dark:bg-slate-600 hover:bg-slate-400 dark:hover:bg-slate-500'
-              }`}
-            />
-          ))}
+        {/* Pagination Dots - Hover to switch (macOS Dock style) */}
+        <div className="flex items-center justify-center gap-1.5 mt-6 py-3 px-4 rounded-full bg-slate-800/30 backdrop-blur-sm mx-auto w-fit">
+          {filteredTweets.slice(0, Math.min(filteredTweets.length, 15)).map((_, idx) => {
+            // Calculate scale based on distance from current (Dock magnification effect)
+            const distance = Math.abs(idx - currentIndex);
+            const scale = distance === 0 ? 1.5 : distance === 1 ? 1.2 : 1;
+            
+            return (
+              <button
+                key={idx}
+                onMouseEnter={() => goToThrottled(idx)}
+                onClick={() => goTo(idx)}
+                className={`rounded-full cursor-pointer ${
+                  idx === currentIndex 
+                    ? 'bg-gradient-to-r from-purple-400 to-pink-400 shadow-lg shadow-purple-500/40' 
+                    : 'bg-slate-500/50 hover:bg-purple-400/70'
+                }`}
+                style={{
+                  width: idx === currentIndex ? '24px' : '8px',
+                  height: '8px',
+                  transform: `scale(${scale})`,
+                  transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)' // Spring-like easing
+                }}
+              />
+            );
+          })}
           {filteredTweets.length > 15 && (
-            <span className="text-xs text-slate-400 dark:text-slate-500 ml-2">+{filteredTweets.length - 15}</span>
+            <span className="text-xs text-slate-400 ml-2">+{filteredTweets.length - 15}</span>
           )}
         </div>
 
-        {/* Auto-play Toggle */}
-        <div className="flex justify-center mt-4">
-          <button
-            onClick={() => setIsAutoPlay(!isAutoPlay)}
-            className={`flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300 shadow-sm hover:shadow-md ${
-              isAutoPlay 
-                ? 'bg-white dark:bg-slate-800 text-purple-500 dark:text-purple-400 border border-purple-200 dark:border-purple-500/30 hover:bg-purple-50 dark:hover:bg-purple-900/20' 
-                : 'bg-white dark:bg-slate-800 text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-600 dark:hover:text-slate-300'
-            }`}
-            title={language === 'EN' ? (isAutoPlay ? 'Pause Auto-play' : 'Start Auto-play') : (isAutoPlay ? '暂停自动播放' : '开始自动播放')}
-          >
-            {isAutoPlay ? (
-              <Pause className="w-5 h-5 fill-current" />
-            ) : (
-              <Play className="w-5 h-5 fill-current ml-1" />
-            )}
-          </button>
-        </div>
-
-        {/* Tweet Thumbnails */}
-        <div className="mt-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-          {filteredTweets.slice(0, 10).map((tweet, idx) => {
-            const cat = categories.find(c => c.id === tweet.category);
-            return (
+        {/* Bidirectional Infinite Carousel with Hover Control */}
+        <div className="relative mt-8 pt-16 group/carousel">
+          {/* Floating Speed Control - Above carousel, only visible on hover */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 z-20 opacity-0 group-hover/carousel:opacity-100 transition-all duration-500 pointer-events-none group-hover/carousel:pointer-events-auto">
+            <div className="flex items-center gap-3 bg-slate-900/95 backdrop-blur-xl rounded-2xl px-5 py-3 border border-purple-500/30 shadow-2xl shadow-purple-500/20">
+              {/* Pause Button */}
               <button
-                key={tweet.id}
-                onClick={() => goTo(idx)}
-                className={`p-3 rounded-xl text-left transition-all duration-300 ${
-                  idx === currentIndex 
-                    ? 'bg-purple-100 dark:bg-purple-900/30 ring-2 ring-purple-400 scale-105' 
-                    : 'bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800'
+                onClick={() => setCarouselSpeed(0)}
+                className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300 ${
+                  carouselSpeed === 0 
+                    ? 'bg-purple-500 text-white shadow-lg shadow-purple-500/30' 
+                    : 'bg-slate-700/50 text-slate-400 hover:bg-slate-700 hover:text-white'
                 }`}
+                title={language === 'EN' ? 'Pause' : '暂停'}
               >
-                <div className={`w-2 h-2 rounded-full bg-gradient-to-r ${cat?.color} mb-2`} />
-                <p className="text-xs text-slate-600 dark:text-slate-300 line-clamp-2 leading-snug">
-                  {getTweetText(tweet).slice(0, 50)}...
-                </p>
-                <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1">❤️ {tweet.likes}</p>
+                <Pause className="w-3.5 h-3.5" />
               </button>
-            );
-          })}
-        </div>
-
-        {/* Flowing Quote Ticker - Bidirectional */}
-        <div className="mt-8 overflow-hidden">
-          {/* Top Row - Left to Right */}
-          <div className="relative mb-3 overflow-hidden">
-            <div className="flex gap-4 animate-scroll-left">
-              {/* Duplicate for seamless loop */}
-              {[...allTweets.slice(0, 20), ...allTweets.slice(0, 20)].map((tweet, idx) => (
-                <div
-                  key={`ticker-l-${idx}`}
-                  className="flex-shrink-0 px-5 py-3 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/40 dark:to-pink-900/40 rounded-xl border border-purple-200 dark:border-purple-700/50 hover:scale-110 hover:-translate-y-1 hover:shadow-2xl hover:shadow-purple-500/20 hover:border-purple-400 dark:hover:border-purple-400/50 hover:z-10 transition-all duration-300 cursor-pointer group"
-                  onClick={() => goTo(tweet.id - 1)}
-                >
-                  <p className="text-sm font-medium text-slate-700 dark:text-slate-200 whitespace-nowrap group-hover:text-purple-700 dark:group-hover:text-purple-300 transition-colors">
-                    "{getTweetText(tweet).slice(0, 80)}..."
-                  </p>
+              
+              {/* Speed Slider */}
+              <div className="flex flex-col items-center gap-0.5">
+                <div className="relative w-32 h-1.5">
+                  <div className="absolute inset-0 bg-slate-700 rounded-full overflow-hidden">
+                    <div 
+                      className="absolute left-0 top-0 h-full bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500 rounded-full transition-all duration-300"
+                      style={{ 
+                        width: carouselSpeed === 0 ? '0%' : `${((carouselSpeed - 10) / 50) * 100}%`,
+                        backgroundSize: '200% 100%',
+                        animation: carouselSpeed > 0 ? 'gradient-flow 3s linear infinite' : 'none'
+                      }}
+                    />
+                  </div>
+                  <input
+                    type="range"
+                    min="10"
+                    max="60"
+                    value={carouselSpeed || 10}
+                    onChange={(e) => setCarouselSpeed(parseInt(e.target.value))}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                  />
+                  {/* Slider Thumb */}
+                  <div 
+                    className="absolute top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full shadow-lg pointer-events-none transition-all duration-150"
+                    style={{ left: `calc(${((carouselSpeed || 10) - 10) / 50 * 100}% - 6px)` }}
+                  />
                 </div>
-              ))}
+                <span className="text-[10px] text-purple-400 font-medium">
+                  {carouselSpeed === 0 
+                    ? (language === 'EN' ? 'Paused' : '暂停')
+                    : `${carouselSpeed}s`
+                  }
+                </span>
+              </div>
+              
+              {/* Play Button */}
+              <button
+                onClick={() => setCarouselSpeed(40)}
+                className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300 ${
+                  carouselSpeed > 0 
+                    ? 'bg-purple-500 text-white shadow-lg shadow-purple-500/30' 
+                    : 'bg-slate-700/50 text-slate-400 hover:bg-slate-700 hover:text-white'
+                }`}
+                title={language === 'EN' ? 'Play' : '播放'}
+              >
+                <Play className="w-3.5 h-3.5 ml-0.5" />
+              </button>
+            </div>
+          </div>
+
+          {/* Carousel Content */}
+          <div className="space-y-4 overflow-hidden">
+          <style>{`
+            @keyframes scroll-left {
+              0% { transform: translateX(0); }
+              100% { transform: translateX(-50%); }
+            }
+            @keyframes scroll-right {
+              0% { transform: translateX(-50%); }
+              100% { transform: translateX(0); }
+            }
+            .quote-card {
+              transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            .quote-card:hover {
+              transform: scale(1.08) translateY(-8px);
+              box-shadow: 0 25px 50px -12px rgba(139, 92, 246, 0.35);
+              z-index: 10;
+            }
+          `}</style>
+          
+          {/* Top Row - Left to Right */}
+          <div className="carousel-container relative">
+            <div 
+              className="flex gap-4" 
+              style={{ 
+                width: 'max-content',
+                animation: carouselSpeed > 0 ? `scroll-left ${carouselSpeed}s linear infinite` : 'none',
+              }}
+              onMouseEnter={(e) => { if (carouselSpeed > 0) e.currentTarget.style.animationPlayState = 'paused'; }}
+              onMouseLeave={(e) => { if (carouselSpeed > 0) e.currentTarget.style.animationPlayState = 'running'; }}
+            >
+              {[...allTweets.slice(0, 15), ...allTweets.slice(0, 15)].map((tweet, idx) => {
+                const cat = categories.find(c => c.id === tweet.category);
+                return (
+                  <div
+                    key={`left-${idx}`}
+                    onClick={() => goTo(allTweets.indexOf(tweet))}
+                    className="quote-card flex-shrink-0 w-72 p-5 bg-gradient-to-br from-slate-800/90 to-slate-900/90 backdrop-blur-sm rounded-2xl border border-slate-700/50 cursor-pointer group relative overflow-hidden"
+                  >
+                    {/* Glow Effect */}
+                    <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br ${cat?.color} blur-xl`} style={{ transform: 'scale(0.8)' }} />
+                    
+                    {/* Category Badge */}
+                    <div className={`relative z-10 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r ${cat?.color} text-white mb-3 shadow-lg`}>
+                      {language === 'EN' ? cat?.labelEN : cat?.labelZH}
+                    </div>
+                    
+                    {/* Quote */}
+                    <p className="relative z-10 text-sm text-slate-200 leading-relaxed line-clamp-3 group-hover:text-white transition-colors">
+                      "{getTweetText(tweet)}"
+                    </p>
+                    
+                    {/* Footer */}
+                    <div className="relative z-10 flex items-center justify-between mt-3 pt-3 border-t border-slate-700/50">
+                      <span className="flex items-center gap-1 text-xs text-pink-400">
+                        <span>❤️</span> {tweet.likes}
+                      </span>
+                      <span className="text-xs text-slate-500">{tweet.date}</span>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
           {/* Bottom Row - Right to Left */}
-          <div className="relative overflow-hidden">
-            <div className="flex gap-4 animate-scroll-right">
-              {/* Duplicate for seamless loop */}
-              {[...allTweets.slice(20, 40), ...allTweets.slice(20, 40)].map((tweet, idx) => (
-                <div
-                  key={`ticker-r-${idx}`}
-                  className="flex-shrink-0 px-5 py-3 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/40 dark:to-indigo-900/40 rounded-xl border border-blue-200 dark:border-blue-700/50 hover:scale-110 hover:-translate-y-1 hover:shadow-2xl hover:shadow-blue-500/20 hover:border-blue-400 dark:hover:border-blue-400/50 hover:z-10 transition-all duration-300 cursor-pointer group"
-                  onClick={() => goTo(tweet.id - 1)}
-                >
-                  <p className="text-sm font-medium text-slate-700 dark:text-slate-200 whitespace-nowrap group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors">
-                    "{getTweetText(tweet).slice(0, 80)}..."
-                  </p>
-                </div>
-              ))}
+          <div className="carousel-container relative">
+            <div 
+              className="flex gap-4" 
+              style={{ 
+                width: 'max-content',
+                animation: carouselSpeed > 0 ? `scroll-right ${carouselSpeed}s linear infinite` : 'none',
+              }}
+              onMouseEnter={(e) => { if (carouselSpeed > 0) e.currentTarget.style.animationPlayState = 'paused'; }}
+              onMouseLeave={(e) => { if (carouselSpeed > 0) e.currentTarget.style.animationPlayState = 'running'; }}
+            >
+              {[...allTweets.slice(15, 30), ...allTweets.slice(15, 30)].map((tweet, idx) => {
+                const cat = categories.find(c => c.id === tweet.category);
+                return (
+                  <div
+                    key={`right-${idx}`}
+                    onClick={() => goTo(allTweets.indexOf(tweet))}
+                    className="quote-card flex-shrink-0 w-72 p-5 bg-gradient-to-br from-slate-800/90 to-slate-900/90 backdrop-blur-sm rounded-2xl border border-slate-700/50 cursor-pointer group relative overflow-hidden"
+                  >
+                    {/* Glow Effect */}
+                    <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br ${cat?.color} blur-xl`} style={{ transform: 'scale(0.8)' }} />
+                    
+                    {/* Category Badge */}
+                    <div className={`relative z-10 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r ${cat?.color} text-white mb-3 shadow-lg`}>
+                      {language === 'EN' ? cat?.labelEN : cat?.labelZH}
+                    </div>
+                    
+                    {/* Quote */}
+                    <p className="relative z-10 text-sm text-slate-200 leading-relaxed line-clamp-3 group-hover:text-white transition-colors">
+                      "{getTweetText(tweet)}"
+                    </p>
+                    
+                    {/* Footer */}
+                    <div className="relative z-10 flex items-center justify-between mt-3 pt-3 border-t border-slate-700/50">
+                      <span className="flex items-center gap-1 text-xs text-pink-400">
+                        <span>❤️</span> {tweet.likes}
+                      </span>
+                      <span className="text-xs text-slate-500">{tweet.date}</span>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
+          </div>
         </div>
+
       </div>
     </div>
   );
