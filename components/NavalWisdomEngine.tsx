@@ -199,7 +199,7 @@ const NavalWisdomEngine: React.FC<NavalWisdomEngineProps> = ({ language, t }) =>
   return (
     <div className="space-y-6 animate-fade-in p-2 pb-20">
       {/* Header - Premium Design with Flowing Gradient */}
-      <div className="bg-gradient-to-br from-purple-950 via-slate-900 to-slate-950 p-8 rounded-3xl border border-purple-500/30 shadow-2xl relative overflow-hidden text-white">
+      <div className="bg-white dark:bg-gradient-to-br dark:from-purple-950 dark:via-slate-900 dark:to-slate-950 p-8 rounded-3xl border border-slate-200 dark:border-purple-500/30 shadow-2xl relative overflow-hidden text-slate-900 dark:text-white">
         {/* Animated Background Blobs */}
         <div className="absolute top-0 right-0 w-96 h-96 bg-purple-600/20 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2 animate-pulse" />
         <div className="absolute bottom-0 left-0 w-80 h-80 bg-indigo-600/15 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/2 animate-pulse" style={{ animationDelay: '1s' }} />
@@ -211,7 +211,7 @@ const NavalWisdomEngine: React.FC<NavalWisdomEngineProps> = ({ language, t }) =>
         </div>
         
         {/* Quote Marks */}
-        <div className="absolute top-4 left-6 text-6xl text-purple-500/30 font-serif">"</div>
+        <div className="absolute top-4 left-6 text-6xl text-purple-200 dark:text-purple-500/30 font-serif">"</div>
         
         <div className="relative z-10">
           {/* Main Title with Flowing Gradient - Clickable */}
@@ -235,14 +235,14 @@ const NavalWisdomEngine: React.FC<NavalWisdomEngineProps> = ({ language, t }) =>
           
           {/* Quote with Premium Typography */}
           <div className="relative pl-6 border-l-2 border-purple-500/50 ml-2">
-            <p className="text-xl font-medium text-white/90 leading-relaxed tracking-wide" style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>
+            <p className="text-xl font-medium text-slate-700 dark:text-white/90 leading-relaxed tracking-wide" style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>
               {language === 'EN' 
                 ? '"Seek wealth, not money or status. Wealth is having assets that earn while you sleep."'
                 : '"追求财富，而非金钱或地位。财富是拥有能在你睡觉时也能赚钱的资产。"'
               }
             </p>
             <p 
-              className="text-sm text-purple-300/70 mt-2 font-medium cursor-pointer hover:text-purple-300 transition-colors"
+              className="text-sm text-purple-600 dark:text-purple-300/70 mt-2 font-medium cursor-pointer hover:text-purple-500 dark:hover:text-purple-300 transition-colors"
               onClick={() => setShowNavalBio(true)}
             >
               — Naval Ravikant
@@ -394,7 +394,7 @@ const NavalWisdomEngine: React.FC<NavalWisdomEngineProps> = ({ language, t }) =>
 
             {/* Financial Independence Cockpit (Pro) - Horizontal Layout */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-700 h-24 flex flex-col justify-center">
+              <div className="bg-white dark:bg-slate-800/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700 h-24 flex flex-col justify-center">
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
                     <div className="text-xs text-slate-400 font-bold mb-1">{language === 'EN' ? "Runway" : "跑道"}</div>
@@ -409,7 +409,7 @@ const NavalWisdomEngine: React.FC<NavalWisdomEngineProps> = ({ language, t }) =>
                 </div>
               </div>
               
-              <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-700 h-24 flex flex-col justify-center">
+              <div className="bg-white dark:bg-slate-800/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700 h-24 flex flex-col justify-center">
                 <div className="text-xs text-slate-400 font-bold mb-1">{language === 'EN' ? "FIRE Progress" : "自由度"}</div>
                 <div className="text-2xl font-black text-emerald-600 dark:text-emerald-400 mb-2" style={{ fontVariantNumeric: 'tabular-nums' }}>{fireProgress}%</div>
                 <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
@@ -417,7 +417,7 @@ const NavalWisdomEngine: React.FC<NavalWisdomEngineProps> = ({ language, t }) =>
                 </div>
               </div>
               
-              <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-700 h-24 flex flex-col justify-center">
+              <div className="bg-white dark:bg-slate-800/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700 h-24 flex flex-col justify-center">
                 <div className="text-xs text-slate-400 font-bold mb-1">{language === 'EN' ? "Sleep Income" : "睡后时薪"}</div>
                 <div className="text-2xl font-black text-purple-600 dark:text-purple-400" style={{ fontVariantNumeric: 'tabular-nums' }}>
                   ${sleepIncome}
@@ -427,7 +427,7 @@ const NavalWisdomEngine: React.FC<NavalWisdomEngineProps> = ({ language, t }) =>
             </div>
 
             {/* Controls: Financial Inputs */}
-            <div className="bg-slate-50 dark:bg-slate-800/30 p-4 rounded-xl border border-slate-100 dark:border-slate-800 grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-white dark:bg-slate-800/30 p-4 rounded-xl border border-slate-200 dark:border-slate-800 grid grid-cols-1 md:grid-cols-3 gap-6">
                <div className="space-y-2">
                  <div className="flex justify-between text-xs font-bold text-slate-500">
                    <span>{language === 'EN' ? "Monthly Burn" : "月支出"}</span>
@@ -1099,13 +1099,13 @@ const NavalWisdomEngine: React.FC<NavalWisdomEngineProps> = ({ language, t }) =>
             {/* Control Cards Row - Connected Design */}
             <div className="flex mb-6 rounded-xl overflow-hidden border border-slate-700">
               {/* Years Card */}
-              <div className="relative flex-1 bg-gradient-to-br from-indigo-900/40 to-purple-900/40 p-3 border-r border-slate-700">
-                <div className="text-[10px] font-bold text-slate-400 mb-2">{language === 'EN' ? "Time Horizon" : "时间跨度"}</div>
+              <div className="relative flex-1 bg-white dark:bg-gradient-to-br dark:from-indigo-900/40 dark:to-purple-900/40 p-3 border-r border-slate-200 dark:border-slate-700">
+                <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-2">{language === 'EN' ? "Time Horizon" : "时间跨度"}</div>
                 <div className="flex items-center gap-2 mb-2">
                   <div className="w-8 h-8 rounded-lg bg-indigo-800/50 flex items-center justify-center text-lg flex-shrink-0">⏳</div>
                   <div className="text-xl font-black text-indigo-400">{infiniteGame.years}<span className="text-sm">{language === 'EN' ? 'yr' : '年'}</span></div>
                 </div>
-                <div className="h-1.5 bg-slate-700 rounded-full overflow-hidden">
+                <div className="h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
                   <div className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full" style={{ width: `${Math.min(infiniteGame.years * 2.5, 100)}%` }} />
                 </div>
                 <input type="range" min="1" max="40" value={infiniteGame.years} 
@@ -1114,13 +1114,13 @@ const NavalWisdomEngine: React.FC<NavalWisdomEngineProps> = ({ language, t }) =>
               </div>
 
               {/* Ethics Card */}
-              <div className="relative flex-1 bg-gradient-to-br from-emerald-900/40 to-teal-900/40 p-3 border-r border-slate-700">
-                <div className="text-[10px] font-bold text-slate-400 mb-2">{language === 'EN' ? "Ethics" : "诚信度"}</div>
+              <div className="relative flex-1 bg-white dark:bg-gradient-to-br dark:from-emerald-900/40 dark:to-teal-900/40 p-3 border-r border-slate-200 dark:border-slate-700">
+                <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-2">{language === 'EN' ? "Ethics" : "诚信度"}</div>
                 <div className="flex items-center gap-2 mb-2">
                   <div className="w-8 h-8 rounded-lg bg-emerald-800/50 flex items-center justify-center text-lg flex-shrink-0">🛡️</div>
                   <div className={`text-xl font-black ${infiniteGame.ethics >= 80 ? 'text-emerald-400' : 'text-amber-400'}`}>{infiniteGame.ethics}<span className="text-sm">%</span></div>
                 </div>
-                <div className="h-1.5 bg-slate-700 rounded-full overflow-hidden">
+                <div className="h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
                   <div className={`h-full rounded-full ${infiniteGame.ethics >= 80 ? 'bg-gradient-to-r from-emerald-500 to-teal-500' : 'bg-amber-400'}`} style={{ width: `${infiniteGame.ethics}%` }} />
                 </div>
                 <input type="range" min="0" max="100" value={infiniteGame.ethics}
@@ -1129,13 +1129,13 @@ const NavalWisdomEngine: React.FC<NavalWisdomEngineProps> = ({ language, t }) =>
               </div>
 
               {/* Consistency Card */}
-              <div className="relative flex-1 bg-gradient-to-br from-blue-900/40 to-cyan-900/40 p-3">
-                <div className="text-[10px] font-bold text-slate-400 mb-2">{language === 'EN' ? "Consistency" : "一致性"}</div>
+              <div className="relative flex-1 bg-white dark:bg-gradient-to-br dark:from-blue-900/40 dark:to-cyan-900/40 p-3">
+                <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-2">{language === 'EN' ? "Consistency" : "一致性"}</div>
                 <div className="flex items-center gap-2 mb-2">
                   <div className="w-8 h-8 rounded-lg bg-blue-800/50 flex items-center justify-center text-lg flex-shrink-0">📈</div>
                   <div className="text-xl font-black text-blue-400">{infiniteGame.consistency}<span className="text-sm">%</span></div>
                 </div>
-                <div className="h-1.5 bg-slate-700 rounded-full overflow-hidden">
+                <div className="h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
                   <div className="h-full bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full" style={{ width: `${infiniteGame.consistency}%` }} />
                 </div>
                 <input type="range" min="0" max="100" value={infiniteGame.consistency}
@@ -1145,7 +1145,7 @@ const NavalWisdomEngine: React.FC<NavalWisdomEngineProps> = ({ language, t }) =>
             </div>
 
             {/* Chart Section */}
-            <div className="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800/50 dark:to-slate-800/30 rounded-2xl border border-slate-200 dark:border-slate-700 p-4 mb-4">
+            <div className="bg-white dark:bg-gradient-to-br dark:from-slate-800/50 dark:to-slate-800/30 rounded-2xl border border-slate-200 dark:border-slate-700 p-4 mb-4">
               <div className="h-[220px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={gameData}>
@@ -1214,8 +1214,8 @@ const NavalWisdomEngine: React.FC<NavalWisdomEngineProps> = ({ language, t }) =>
             {/* Bottom Insight Panel */}
             <div className={`p-4 rounded-xl transition-all duration-500 ${
               infiniteGame.ethics >= 80 
-                ? 'bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 border border-emerald-200 dark:border-emerald-800/30' 
-                : 'bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border border-amber-200 dark:border-amber-800/30'
+                ? 'bg-emerald-50 dark:bg-gradient-to-r dark:from-emerald-900/20 dark:to-teal-900/20 border border-emerald-200 dark:border-emerald-800/30' 
+                : 'bg-amber-50 dark:bg-gradient-to-r dark:from-amber-900/20 dark:to-orange-900/20 border border-amber-200 dark:border-amber-800/30'
             }`}>
               <div className="flex items-start gap-3">
                 <div className="text-2xl">{infiniteGame.ethics >= 80 ? '🛡️' : '⚠️'}</div>
@@ -1817,7 +1817,7 @@ const NavalTweetCarousel = ({ language }: { language: 'CN' | 'EN' }) => {
         )}
 
         {/* Pagination Dots - Hover to switch (macOS Dock style) */}
-        <div className="flex items-center justify-center gap-1.5 mt-6 py-3 px-4 rounded-full bg-slate-200/80 dark:bg-slate-800/30 backdrop-blur-sm mx-auto w-fit">
+        <div className="flex items-center justify-center gap-1.5 mt-6 py-3 px-4 rounded-full bg-white dark:bg-slate-800/30 backdrop-blur-sm mx-auto w-fit border border-slate-200 dark:border-transparent shadow-sm">
           {filteredTweets.slice(0, Math.min(filteredTweets.length, 15)).map((_, idx) => {
             // Calculate scale based on distance from current (Dock magnification effect)
             const distance = Math.abs(idx - currentIndex);
@@ -1831,7 +1831,7 @@ const NavalTweetCarousel = ({ language }: { language: 'CN' | 'EN' }) => {
                 className={`rounded-full cursor-pointer ${
                   idx === currentIndex 
                     ? 'bg-gradient-to-r from-purple-400 to-pink-400 shadow-lg shadow-purple-500/40' 
-                    : 'bg-slate-500/50 hover:bg-purple-400/70'
+                    : 'bg-slate-300 dark:bg-slate-500/50 hover:bg-purple-400/70'
                 }`}
                 style={{
                   width: idx === currentIndex ? '24px' : '8px',
@@ -1851,14 +1851,14 @@ const NavalTweetCarousel = ({ language }: { language: 'CN' | 'EN' }) => {
         <div className="relative mt-8 pt-16 group/carousel">
           {/* Floating Speed Control - Above carousel, only visible on hover */}
           <div className="absolute top-0 left-1/2 -translate-x-1/2 z-20 opacity-0 group-hover/carousel:opacity-100 transition-all duration-500 pointer-events-none group-hover/carousel:pointer-events-auto">
-            <div className="flex items-center gap-3 bg-slate-900/95 backdrop-blur-xl rounded-2xl px-5 py-3 border border-purple-500/30 shadow-2xl shadow-purple-500/20">
+            <div className="flex items-center gap-3 bg-white dark:bg-slate-900/95 backdrop-blur-xl rounded-2xl px-5 py-3 border border-slate-200 dark:border-purple-500/30 shadow-2xl">
               {/* Pause Button */}
               <button
                 onClick={() => setCarouselSpeed(0)}
                 className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300 ${
                   carouselSpeed === 0 
                     ? 'bg-purple-500 text-white shadow-lg shadow-purple-500/30' 
-                    : 'bg-slate-700/50 text-slate-400 hover:bg-slate-700 hover:text-white'
+                    : 'bg-slate-100 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-700 dark:hover:text-white'
                 }`}
                 title={language === 'EN' ? 'Pause' : '暂停'}
               >
@@ -1868,7 +1868,7 @@ const NavalTweetCarousel = ({ language }: { language: 'CN' | 'EN' }) => {
               {/* Speed Slider */}
               <div className="flex flex-col items-center gap-0.5">
                 <div className="relative w-32 h-1.5">
-                  <div className="absolute inset-0 bg-slate-700 rounded-full overflow-hidden">
+                  <div className="absolute inset-0 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
                     <div 
                       className="absolute left-0 top-0 h-full bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500 rounded-full transition-all duration-300"
                       style={{ 
@@ -1892,7 +1892,7 @@ const NavalTweetCarousel = ({ language }: { language: 'CN' | 'EN' }) => {
                     style={{ left: `calc(${((carouselSpeed || 10) - 10) / 50 * 100}% - 6px)` }}
                   />
                 </div>
-                <span className="text-[10px] text-purple-400 font-medium">
+                <span className="text-[10px] text-purple-600 dark:text-purple-400 font-medium">
                   {carouselSpeed === 0 
                     ? (language === 'EN' ? 'Paused' : '暂停')
                     : `${carouselSpeed}s`
@@ -1906,7 +1906,7 @@ const NavalTweetCarousel = ({ language }: { language: 'CN' | 'EN' }) => {
                 className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300 ${
                   carouselSpeed > 0 
                     ? 'bg-purple-500 text-white shadow-lg shadow-purple-500/30' 
-                    : 'bg-slate-700/50 text-slate-400 hover:bg-slate-700 hover:text-white'
+                    : 'bg-slate-100 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-700 dark:hover:text-white'
                 }`}
                 title={language === 'EN' ? 'Play' : '播放'}
               >
@@ -1953,7 +1953,7 @@ const NavalTweetCarousel = ({ language }: { language: 'CN' | 'EN' }) => {
                   <div
                     key={`left-${idx}`}
                     onClick={() => goTo(allTweets.indexOf(tweet))}
-                    className="quote-card flex-shrink-0 w-72 p-5 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800/90 dark:to-slate-900/90 backdrop-blur-sm rounded-2xl border border-slate-300 dark:border-slate-700/50 cursor-pointer group relative overflow-hidden"
+                    className="quote-card flex-shrink-0 w-72 p-5 bg-white dark:bg-gradient-to-br dark:from-slate-800/90 dark:to-slate-900/90 backdrop-blur-sm rounded-2xl border border-slate-200 dark:border-slate-700/50 cursor-pointer group relative overflow-hidden"
                   >
                     {/* Glow Effect */}
                     <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br ${cat?.color} blur-xl`} style={{ transform: 'scale(0.8)' }} />
@@ -1969,7 +1969,7 @@ const NavalTweetCarousel = ({ language }: { language: 'CN' | 'EN' }) => {
                     </p>
                     
                     {/* Footer */}
-                    <div className="relative z-10 flex items-center justify-between mt-3 pt-3 border-t border-slate-300 dark:border-slate-700/50">
+                    <div className="relative z-10 flex items-center justify-between mt-3 pt-3 border-t border-slate-200 dark:border-slate-700/50">
                       <span className="flex items-center gap-1 text-xs text-pink-400">
                         <span>❤️</span> {tweet.likes}
                       </span>
@@ -1998,7 +1998,7 @@ const NavalTweetCarousel = ({ language }: { language: 'CN' | 'EN' }) => {
                   <div
                     key={`right-${idx}`}
                     onClick={() => goTo(allTweets.indexOf(tweet))}
-                    className="quote-card flex-shrink-0 w-72 p-5 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800/90 dark:to-slate-900/90 backdrop-blur-sm rounded-2xl border border-slate-300 dark:border-slate-700/50 cursor-pointer group relative overflow-hidden"
+                    className="quote-card flex-shrink-0 w-72 p-5 bg-white dark:bg-gradient-to-br dark:from-slate-800/90 dark:to-slate-900/90 backdrop-blur-sm rounded-2xl border border-slate-200 dark:border-slate-700/50 cursor-pointer group relative overflow-hidden"
                   >
                     {/* Glow Effect */}
                     <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br ${cat?.color} blur-xl`} style={{ transform: 'scale(0.8)' }} />
@@ -2014,7 +2014,7 @@ const NavalTweetCarousel = ({ language }: { language: 'CN' | 'EN' }) => {
                     </p>
                     
                     {/* Footer */}
-                    <div className="relative z-10 flex items-center justify-between mt-3 pt-3 border-t border-slate-300 dark:border-slate-700/50">
+                    <div className="relative z-10 flex items-center justify-between mt-3 pt-3 border-t border-slate-200 dark:border-slate-700/50">
                       <span className="flex items-center gap-1 text-xs text-pink-400">
                         <span>❤️</span> {tweet.likes}
                       </span>

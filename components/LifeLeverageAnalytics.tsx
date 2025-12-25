@@ -102,30 +102,30 @@ const LifeLeverageAnalytics: React.FC<LifeLeverageAnalyticsProps> = ({ params, l
     return (
         <div className="space-y-6 animate-fade-in p-2 pb-20">
             {/* Header / Summary */}
-            <div className={`p-6 rounded-3xl relative overflow-hidden shadow-2xl ${
-                metrics.summary.totalScore > 80 ? 'bg-gradient-to-br from-indigo-900 via-purple-900 to-slate-900' : 
-                metrics.summary.totalScore > 50 ? 'bg-gradient-to-br from-slate-800 via-slate-900 to-slate-950' : 
-                'bg-gradient-to-br from-slate-900 to-black'
+            <div className={`p-6 rounded-3xl relative overflow-hidden shadow-2xl border border-slate-200 dark:border-transparent bg-white dark:bg-gradient-to-br ${
+                metrics.summary.totalScore > 80 ? 'dark:from-indigo-900 dark:via-purple-900 dark:to-slate-900' : 
+                metrics.summary.totalScore > 50 ? 'dark:from-slate-800 dark:via-slate-900 dark:to-slate-950' : 
+                'dark:from-slate-900 dark:to-black'
             }`}>
                  <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
                  
                  <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                     <div>
-                        <h2 className="text-2xl font-bold text-white flex items-center gap-3">
-                            <Activity className="h-8 w-8 text-indigo-400" />
+                        <h2 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
+                            <Activity className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
                             {t('人生杠杆总指数', 'Life Leverage Index')}
                         </h2>
-                        <div className="mt-2 text-indigo-200/80 max-w-lg">
+                        <div className="mt-2 text-slate-500 dark:text-indigo-200/80 max-w-lg">
                             {t('你是在用命换钱，还是用钱买命？', 'Are you trading life for money, or money for life?')}
                         </div>
                     </div>
                     
-                    <div className="flex items-center gap-4 bg-white/10 p-4 rounded-2xl backdrop-blur-md">
+                    <div className="flex items-center gap-4 bg-slate-50 dark:bg-white/10 p-4 rounded-2xl backdrop-blur-md border border-slate-100 dark:border-transparent">
                         <div className="text-right">
-                             <div className="text-xs text-indigo-300 uppercase tracking-wider">{t('当前段位', 'Current Level')}</div>
-                             <div className="text-xl font-bold text-white">{metrics.summary.level}</div>
+                             <div className="text-xs text-slate-500 dark:text-indigo-300 uppercase tracking-wider">{t('当前段位', 'Current Level')}</div>
+                             <div className="text-xl font-bold text-slate-900 dark:text-white">{metrics.summary.level}</div>
                         </div>
-                        <div className="h-12 w-px bg-white/20"></div>
+                        <div className="h-12 w-px bg-slate-200 dark:bg-white/20"></div>
                         <div className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">
                             {metrics.summary.totalScore}
                         </div>

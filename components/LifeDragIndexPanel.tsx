@@ -72,12 +72,12 @@ const LifeDragIndexPanel: React.FC<LifeDragIndexPanelProps> = ({
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl overflow-hidden border border-slate-200 dark:border-slate-800">
-      <div className="p-6 bg-gradient-to-r from-slate-800 to-slate-900 text-white">
+      <div className="p-6 bg-white dark:bg-gradient-to-r dark:from-slate-800 dark:to-slate-900 text-slate-900 dark:text-white border-b border-slate-200 dark:border-transparent">
         <h2 className="text-xl font-bold flex items-center gap-2">
-          <Lock className="h-6 w-6 text-rose-400" />
+          <Lock className="h-6 w-6 text-rose-600 dark:text-rose-400" />
           {t.lifeDragTitle}
         </h2>
-        <p className="text-slate-400 text-sm mt-1">{t.lifeDragSubTitle}</p>
+        <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">{t.lifeDragSubTitle}</p>
       </div>
 
       <div className="p-6 grid md:grid-cols-2 gap-8">

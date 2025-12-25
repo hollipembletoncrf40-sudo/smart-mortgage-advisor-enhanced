@@ -42,14 +42,14 @@ const FreedomAnalytics: React.FC<FreedomAnalyticsProps> = ({ params, language })
     return (
         <div className="space-y-6 animate-fade-in p-2 pb-20">
             {/* Header */}
-            <div className="bg-gradient-to-br from-indigo-950 via-slate-900 to-slate-950 p-6 rounded-3xl border border-indigo-500/30 shadow-2xl relative overflow-hidden text-white">
-                <div className="absolute top-0 right-0 w-80 h-80 bg-indigo-600/20 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2"></div>
+            <div className="bg-white dark:bg-gradient-to-br dark:from-indigo-950 dark:via-slate-900 dark:to-slate-950 p-6 rounded-3xl border border-slate-200 dark:border-indigo-500/30 shadow-2xl relative overflow-hidden text-slate-900 dark:text-white">
+                <div className="absolute top-0 right-0 w-80 h-80 bg-indigo-100 dark:bg-indigo-600/20 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2"></div>
                 <div className="relative z-10">
                     <h2 className="text-3xl font-black flex items-center gap-3 mb-2">
-                        <Wind className="h-8 w-8 text-indigo-400" />
+                        <Wind className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
                         {language === 'ZH' ? '未来自由度罗盘 (Pro)' : 'Freedom Compass (Pro)'}
                     </h2>
-                    <p className="text-indigo-200/80 max-w-2xl text-sm leading-relaxed">
+                    <p className="text-slate-500 dark:text-indigo-200/80 max-w-2xl text-sm leading-relaxed">
                         {language === 'ZH' 
                             ? '不仅是算账，更是量化你为这套房子让渡的人生可能性。真正的自由，是随时可以说“不”的能力。' 
                             : 'Quantify the life possibilities traded for this property. True freedom is the ability to say "NO" at any time.'}

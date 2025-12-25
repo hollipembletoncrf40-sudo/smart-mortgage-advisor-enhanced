@@ -63,15 +63,15 @@ const SellDecisionDashboard: React.FC<SellDecisionDashboardProps> = ({ t, langua
     <div className="space-y-8 animate-fade-in pb-12">
       
       {/* Header Area */}
-      <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-900 rounded-3xl p-8 text-white shadow-xl relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-80 h-80 bg-indigo-500/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
+      <div className="bg-white dark:bg-gradient-to-br dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900 rounded-3xl p-8 text-slate-900 dark:text-white shadow-xl relative overflow-hidden border border-slate-200 dark:border-transparent">
+        <div className="absolute top-0 right-0 w-80 h-80 bg-indigo-100 dark:bg-indigo-500/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
         <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div>
             <h2 className="text-3xl font-bold mb-3 flex items-center gap-3">
-              <Ghost className="h-8 w-8 text-indigo-400" />
+              <Ghost className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
               {language === 'ZH' ? '卖房决策智舱' : 'Sell Decision Cockpit'}
             </h2>
-            <p className="text-slate-300 max-w-2xl text-sm leading-relaxed opacity-90">
+            <p className="text-slate-500 dark:text-slate-300 max-w-2xl text-sm leading-relaxed opacity-90">
               {language === 'ZH' 
                 ? '这不是一个简单的计算器，而是一个“平行宇宙模拟器”。我们将帮你剥离沉没成本的心理干扰，推演“卖与不卖”在未来 30 年的真实人生分岔路。' 
                 : 'This is not just a calculator, but a "Multiverse Simulator". We help you strip away sunk cost fallacies and simulate the real life divergence of "Sell vs Hold" over the next 30 years.'}
@@ -79,15 +79,15 @@ const SellDecisionDashboard: React.FC<SellDecisionDashboardProps> = ({ t, langua
           </div>
           
           <div className="flex gap-4">
-               <div className="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/10 min-w-[140px]">
-                   <div className="text-xs text-indigo-200 mb-1">{language === 'ZH' ? '未来30年最优' : '30y Optimal'}</div>
-                   <div className={`text-xl font-bold ${result.optimalPath === 'HOLD' ? 'text-indigo-300' : 'text-emerald-400'}`}>
+               <div className="bg-slate-50 dark:bg-white/10 backdrop-blur-md rounded-xl p-4 border border-slate-100 dark:border-white/10 min-w-[140px]">
+                   <div className="text-xs text-slate-500 dark:text-indigo-200 mb-1">{language === 'ZH' ? '未来30年最优' : '30y Optimal'}</div>
+                   <div className={`text-xl font-bold ${result.optimalPath === 'HOLD' ? 'text-indigo-600 dark:text-indigo-300' : 'text-emerald-500 dark:text-emerald-400'}`}>
                        {result.optimalPath === 'HOLD' ? (language === 'ZH' ? '继续持有' : 'HOLD') : (language === 'ZH' ? '建议卖出' : 'SELL NOW')}
                    </div>
                </div>
-               <div className="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/10 min-w-[140px]">
-                   <div className="text-xs text-indigo-200 mb-1">{language === 'ZH' ? '真实盈亏' : 'Real Profit'}</div>
-                   <div className={`text-xl font-bold ${result.illusionBreakdown.realProfit >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+               <div className="bg-slate-50 dark:bg-white/10 backdrop-blur-md rounded-xl p-4 border border-slate-100 dark:border-white/10 min-w-[140px]">
+                   <div className="text-xs text-slate-500 dark:text-indigo-200 mb-1">{language === 'ZH' ? '真实盈亏' : 'Real Profit'}</div>
+                   <div className={`text-xl font-bold ${result.illusionBreakdown.realProfit >= 0 ? 'text-emerald-500 dark:text-emerald-400' : 'text-red-500 dark:text-red-400'}`}>
                        {result.illusionBreakdown.realProfit > 0 ? '+' : ''}{result.illusionBreakdown.realProfit.toFixed(0)}{unit}
                    </div>
                </div>
