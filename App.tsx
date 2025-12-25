@@ -1983,7 +1983,7 @@ function App() {
     setParams(prev => {
       const newParams = {
         ...prev,
-        [field]: typeof value === 'string' && !['method', 'prepaymentStrategy', 'loanType', 'purchaseScenario', 'communityName', 'district', 'floorLevel', 'propertyType', 'decorationStatus'].includes(field) ? Number(value) : value
+        [field]: typeof value === 'string' && !['method', 'prepaymentStrategy', 'loanType', 'purchaseScenario', 'communityName', 'district', 'floorLevel', 'propertyType', 'decorationStatus', 'investmentType'].includes(field) ? Number(value) : value
       };
       
       // Auto-calculate unitPrice when totalPrice or propertyArea changes
@@ -1993,6 +1993,20 @@ function App() {
         if (area > 0) {
           newParams.unitPrice = Math.round((totalPrice * 10000) / area);
         }
+      }
+      
+      // Auto-adjust alternativeReturnRate when investmentType changes
+      if (field === 'investmentType') {
+        const typeRanges: Record<string, { min: number; default: number }> = {
+          'conservative': { min: 2, default: 3 },
+          'balanced': { min: 5, default: 6 },
+          'growth': { min: 8, default: 10 },
+          'aggressive': { min: 12, default: 15 },
+          'custom': { min: 0, default: prev.alternativeReturnRate }
+        };
+        const range = typeRanges[value as string] || typeRanges['custom'];
+        // Set to default value for the selected type
+        newParams.alternativeReturnRate = range.default;
       }
       
       return newParams;
@@ -2599,7 +2613,7 @@ function App() {
                                 <KnowledgeTooltip term={language === 'EN' ? 'Choose your investment strategy to adjust return rate range' : '选择投资策略，自动调整收益率区间'} />
                             </div>
                             <select 
-                                value={params.investmentType || 'custom'}
+                                value={params.investmentType ?? 'balanced'}
                                 onChange={(e) => handleInputChange('investmentType', e.target.value)}
                                 className="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white transition-all"
                             >

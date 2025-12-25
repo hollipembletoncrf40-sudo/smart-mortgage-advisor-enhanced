@@ -87,9 +87,9 @@ const AmortizationMoodBar: React.FC<AmortizationMoodBarProps> = ({ result, param
   };
 
   return (
-    <div className="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 rounded-3xl p-6 shadow-xl border border-slate-200 dark:border-slate-700">
+    <div className="bg-black rounded-3xl p-6 shadow-xl border border-slate-800">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-bold text-slate-700 dark:text-white flex items-center gap-2">
+        <h3 className="text-sm font-bold text-white flex items-center gap-2">
           <TrendingUp className="h-4 w-4 text-indigo-500" />
           {t.amortizationMood || '还款心情条'}
         </h3>
@@ -123,7 +123,7 @@ const AmortizationMoodBar: React.FC<AmortizationMoodBarProps> = ({ result, param
           max={yearlyData.length - 1}
           value={selectedPeriod}
           onChange={(e) => setSelectedPeriod(Number(e.target.value))}
-          className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+          className="w-full h-2 bg-slate-900 rounded-lg appearance-none cursor-pointer accent-indigo-500"
         />
         <div className="flex justify-between mt-1 text-xs text-slate-400">
           <span>{t.year || '年'} 1</span>
@@ -136,7 +136,7 @@ const AmortizationMoodBar: React.FC<AmortizationMoodBarProps> = ({ result, param
 
       {/* Mood Bar */}
       <div className="mb-4">
-        <div className="h-16 w-full rounded-2xl overflow-hidden shadow-inner bg-slate-200 dark:bg-slate-700 flex">
+        <div className="h-16 w-full rounded-2xl overflow-hidden shadow-inner bg-slate-900 flex">
           {/* Principal (Green) */}
           <div 
             className="bg-gradient-to-r from-emerald-400 to-emerald-500 flex items-center justify-center text-white font-bold text-sm transition-all duration-500 relative group"
@@ -168,11 +168,11 @@ const AmortizationMoodBar: React.FC<AmortizationMoodBarProps> = ({ result, param
         <div className="flex justify-between mt-2 text-xs">
           <div className="flex items-center gap-1">
             <div className="w-3 h-3 rounded-full bg-emerald-500"></div>
-            <span className="text-slate-600 dark:text-slate-400">{t.principal || '本金'}</span>
+            <span className="text-slate-300">{t.principal || '本金'}</span>
           </div>
           <div className="flex items-center gap-1">
             <div className="w-3 h-3 rounded-full bg-red-500"></div>
-            <span className="text-slate-600 dark:text-slate-400">{t.interest || '利息'}</span>
+            <span className="text-slate-300">{t.interest || '利息'}</span>
           </div>
         </div>
       </div>
