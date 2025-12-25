@@ -149,7 +149,7 @@ const MarketSentimentSlider: React.FC<MarketSentimentSliderProps> = ({ params, o
           <svg className="w-full h-full -rotate-90">
             <circle
               cx="40" cy="40" r={radius} stroke="currentColor" strokeWidth="4" fill="transparent"
-              className="text-slate-800"
+              className="text-slate-900"
             />
             <circle
               cx="40" cy="40" r={radius} stroke={color} strokeWidth="4" fill="transparent"
@@ -173,12 +173,12 @@ const MarketSentimentSlider: React.FC<MarketSentimentSliderProps> = ({ params, o
 
   return (
     <div 
-      className="bg-slate-900 rounded-2xl border border-slate-800 shadow-2xl overflow-hidden transition-all duration-300"
+      className="bg-black rounded-2xl border border-slate-800/50 shadow-2xl overflow-hidden transition-all duration-300"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* Header - Naval Style */}
-      <div className="relative px-6 py-5 border-b border-slate-800 overflow-hidden">
+      <div className="relative px-6 py-5 border-b border-slate-800/30 overflow-hidden">
         {/* Animated Background */}
         <div className="absolute inset-0 opacity-30">
           <div className={`absolute inset-0 bg-gradient-to-r ${sentimentData.color} transition-all duration-700`} style={{ opacity: 0.2 }} />
@@ -224,7 +224,7 @@ const MarketSentimentSlider: React.FC<MarketSentimentSliderProps> = ({ params, o
             </span>
           </div>
           
-          <div className="relative h-3 bg-slate-800 rounded-full overflow-hidden shadow-inner">
+          <div className="relative h-3 bg-slate-900 rounded-full overflow-hidden shadow-inner">
             {/* Gradient Track */}
             <div className="absolute inset-0 opacity-30 bg-gradient-to-r from-emerald-500 via-amber-400 to-rose-500" />
             
@@ -262,7 +262,7 @@ const MarketSentimentSlider: React.FC<MarketSentimentSliderProps> = ({ params, o
 
         {/* Core Metrics - Naval Style Cards */}
         <div className="grid grid-cols-3 gap-4 mb-6">
-          <div className="bg-slate-800/50 backdrop-blur rounded-xl p-4 border border-slate-700/50 hover:border-indigo-500/50 transition-colors group">
+          <div className="bg-slate-900/80 backdrop-blur rounded-xl p-4 border border-slate-700/30 hover:border-indigo-500/50 transition-colors group">
             <div className="flex items-center gap-2 mb-2">
               <div className="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center">
                 <Home className="w-4 h-4 text-indigo-400" />
@@ -272,7 +272,7 @@ const MarketSentimentSlider: React.FC<MarketSentimentSliderProps> = ({ params, o
             <div className="text-2xl font-black text-white group-hover:text-indigo-400 transition-colors">
               {params.appreciationRate >= 0 ? '+' : ''}{params.appreciationRate.toFixed(1)}%
             </div>
-            <div className="h-1.5 bg-slate-700 rounded-full mt-2 overflow-hidden">
+            <div className="h-1.5 bg-slate-800 rounded-full mt-2 overflow-hidden">
               <div 
                 className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all duration-300"
                 style={{ width: `${Math.min(100, Math.max(0, (params.appreciationRate + 2) / 10 * 100))}%` }}
@@ -280,7 +280,7 @@ const MarketSentimentSlider: React.FC<MarketSentimentSliderProps> = ({ params, o
             </div>
           </div>
 
-          <div className="bg-slate-800/50 backdrop-blur rounded-xl p-4 border border-slate-700/50 hover:border-emerald-500/50 transition-colors group">
+          <div className="bg-slate-900/80 backdrop-blur rounded-xl p-4 border border-slate-700/30 hover:border-emerald-500/50 transition-colors group">
             <div className="flex items-center gap-2 mb-2">
               <div className="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center">
                 <BarChart3 className="w-4 h-4 text-emerald-400" />
@@ -298,7 +298,7 @@ const MarketSentimentSlider: React.FC<MarketSentimentSliderProps> = ({ params, o
             </div>
           </div>
 
-          <div className="bg-slate-800/50 backdrop-blur rounded-xl p-4 border border-slate-700/50 hover:border-amber-500/50 transition-colors group">
+          <div className="bg-slate-900/80 backdrop-blur rounded-xl p-4 border border-slate-700/30 hover:border-amber-500/50 transition-colors group">
             <div className="flex items-center gap-2 mb-2">
               <div className="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center">
                 <Percent className="w-4 h-4 text-amber-400" />
@@ -330,7 +330,7 @@ const MarketSentimentSlider: React.FC<MarketSentimentSliderProps> = ({ params, o
               return (
                 <div 
                   key={index} 
-                  className="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50 hover:border-purple-500/30 transition-all hover:scale-105"
+                  className="bg-slate-900/90 p-4 rounded-xl border border-slate-700/30 hover:border-purple-500/30 transition-all hover:scale-105"
                 >
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
@@ -340,7 +340,7 @@ const MarketSentimentSlider: React.FC<MarketSentimentSliderProps> = ({ params, o
                     <div className={`p-1.5 rounded-lg ${
                       impact.trend === 'up' ? 'bg-rose-500/20' :
                       impact.trend === 'down' ? 'bg-emerald-500/20' :
-                      'bg-slate-700'
+                      'bg-slate-800'
                     }`}>
                       {impact.trend === 'up' ? <TrendingUp className="w-3 h-3 text-rose-400" /> :
                        impact.trend === 'down' ? <TrendingDown className="w-3 h-3 text-emerald-400" /> :
@@ -356,7 +356,7 @@ const MarketSentimentSlider: React.FC<MarketSentimentSliderProps> = ({ params, o
 
         {/* Insight Cards */}
         <div className="grid grid-cols-2 gap-4 mb-6">
-          <div className="bg-slate-800/30 p-4 rounded-xl border border-slate-700/30">
+          <div className="bg-slate-900/80 p-4 rounded-xl border border-slate-700/30">
             <div className="flex items-start gap-3">
               <div className="p-2 bg-purple-500/20 rounded-lg">
                 <Info className="w-4 h-4 text-purple-400" />
@@ -367,7 +367,7 @@ const MarketSentimentSlider: React.FC<MarketSentimentSliderProps> = ({ params, o
               </div>
             </div>
           </div>
-          <div className="bg-slate-800/30 p-4 rounded-xl border border-slate-700/30">
+          <div className="bg-slate-900/80 p-4 rounded-xl border border-slate-700/30">
             <div className="flex items-start gap-3">
               <div className="p-2 bg-amber-500/20 rounded-lg">
                 <Target className="w-4 h-4 text-amber-400" />
