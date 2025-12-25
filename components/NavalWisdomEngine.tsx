@@ -859,7 +859,7 @@ const NavalWisdomEngine: React.FC<NavalWisdomEngineProps> = ({ language, t }) =>
         </div>
 
         {/* 6. Capital Allocation Optimizer */}
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-lg">
+        <div className="bg-white dark:bg-slate-900 rounded-t-2xl rounded-b-none border border-b-0 border-slate-200 dark:border-slate-800 p-6 shadow-lg">
           <div className="flex items-center gap-2 mb-6">
             <div className="p-2 bg-pink-100 dark:bg-pink-900/30 rounded-xl">
               <PieChartIcon className="h-5 w-5 text-pink-600 dark:text-pink-400" />
@@ -903,42 +903,174 @@ const NavalWisdomEngine: React.FC<NavalWisdomEngineProps> = ({ language, t }) =>
                    </div>
                  ))}
                </div>
+               
+               {/* Allocation Donut Chart */}
+               <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 mt-4">
+                 <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">{language === 'EN' ? "Distribution Overview" : "分配预览"}</p>
+                 <div className="flex items-center gap-4">
+                   {/* Donut Chart */}
+                   <div className="relative w-24 h-24">
+                     <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
+                       {(() => {
+                         const total = Object.values(allocationStrategy).reduce((a, b) => a + b, 0) || 1;
+                         let currentAngle = 0;
+                         const colors = { labor: '#64748b', capital: '#f59e0b', code: '#8b5cf6', media: '#ec4899' };
+                         return Object.entries(allocationStrategy).map(([key, val]) => {
+                           const percentage = (val / total) * 100;
+                           const strokeDasharray = `${percentage * 2.51} ${251.2 - percentage * 2.51}`;
+                           const strokeDashoffset = -currentAngle * 2.51;
+                           currentAngle += percentage;
+                           return (
+                             <circle
+                               key={key}
+                               cx="50" cy="50" r="40"
+                               fill="none"
+                               stroke={colors[key as keyof typeof colors]}
+                               strokeWidth="12"
+                               strokeDasharray={strokeDasharray}
+                               strokeDashoffset={strokeDashoffset}
+                               className="transition-all duration-500"
+                             />
+                           );
+                         });
+                       })()}
+                       <circle cx="50" cy="50" r="28" fill="currentColor" className="text-white dark:text-slate-900" />
+                     </svg>
+                     <div className="absolute inset-0 flex items-center justify-center">
+                       <div className="text-center">
+                         <div className="text-lg font-black text-slate-800 dark:text-white">{(totalOutput / (resourceInput || 1)).toFixed(0)}x</div>
+                         <div className="text-[8px] text-slate-400">{language === 'EN' ? 'leverage' : '杠杆'}</div>
+                       </div>
+                     </div>
+                   </div>
+                   
+                   {/* Legend */}
+                   <div className="flex-1 space-y-1.5">
+                     {[
+                       { key: 'labor', label: language === 'EN' ? 'Labor' : '劳动力', color: 'bg-slate-500' },
+                       { key: 'capital', label: language === 'EN' ? 'Capital' : '资本', color: 'bg-amber-500' },
+                       { key: 'code', label: language === 'EN' ? 'Code' : '代码', color: 'bg-purple-500' },
+                       { key: 'media', label: language === 'EN' ? 'Media' : '媒体', color: 'bg-pink-500' }
+                     ].map(item => (
+                       <div key={item.key} className="flex items-center justify-between">
+                         <div className="flex items-center gap-1.5">
+                           <div className={`w-2 h-2 rounded-full ${item.color}`} />
+                           <span className="text-[10px] text-slate-500 dark:text-slate-400">{item.label}</span>
+                         </div>
+                         <span className="text-[10px] font-bold text-slate-600 dark:text-slate-300">{allocationStrategy[item.key as keyof typeof allocationStrategy]}%</span>
+                       </div>
+                     ))}
+                   </div>
+                 </div>
+               </div>
             </div>
 
-            {/* Visual Output */}
-            <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 flex flex-col justify-end min-h-[250px] relative overflow-hidden">
-               <div className="absolute top-4 right-4 text-right">
-                 <div className="text-xs text-slate-400 uppercase tracking-wider">{language === 'EN' ? "Effective Output" : "有效产出"}</div>
-                 <div className="text-3xl font-black text-slate-800 dark:text-white">{totalOutput.toLocaleString()}</div>
-                 <div className="text-[10px] text-slate-400">{language === 'EN' ? "Leverage Multiplier" : "杠杆倍数"}: <span className="text-green-500">{(totalOutput / (resourceInput || 1)).toFixed(1)}x</span></div>
-               </div>
-
-               <div className="flex items-end justify-around gap-2 h-[150px] mt-auto">
+            {/* Visual Output - Enhanced with more data */}
+            <div className="space-y-3">
+              {/* Top Stats - Refined Layout */}
+              <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4">
+                <div className="text-center mb-3">
+                  <div className="text-[10px] text-slate-400 uppercase tracking-wider mb-1">{language === 'EN' ? "Effective Output" : "有效产出"}</div>
+                  <div className="text-3xl font-black text-slate-800 dark:text-white">{totalOutput.toLocaleString()}</div>
+                  <div className="flex items-center justify-center gap-2 mt-2">
+                    <div className="px-3 py-1 bg-green-100 dark:bg-green-900/30 rounded-full">
+                      <span className="text-[10px] text-green-600 dark:text-green-400">{language === 'EN' ? "Leverage" : "杠杆"}: </span>
+                      <span className="text-sm font-bold text-green-600 dark:text-green-400">{(totalOutput / (resourceInput || 1)).toFixed(1)}x</span>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Bar Chart */}
+                <div className="flex items-end justify-around gap-2 h-[100px]">
                   {allocationData.map((item) => {
-                    const heightPct = Math.min((item.output / totalOutput) * 100, 100) || 0;
-                    // Log scale visual for bar to show massive diff
                     const logHeight = Math.log10(item.output + 1) * 20; 
-                    
                     return (
                       <div key={item.name} className="flex-1 flex flex-col items-center group">
                         <div className="relative w-full rounded-t-lg transition-all duration-500 group-hover:opacity-90 flex items-end justify-center" 
-                             style={{ 
-                               height: `${Math.max(logHeight, 5)}%`, 
-                               backgroundColor: item.color 
-                             }}>
-                           <span className="text-[10px] font-bold text-white mb-1 opacity-0 group-hover:opacity-100 transition-opacity">{item.output > 1000 ? (item.output/1000).toFixed(1)+'k' : Math.round(item.output)}</span>
+                             style={{ height: `${Math.max(logHeight, 8)}%`, backgroundColor: item.color }}>
+                          <span className="text-[9px] font-bold text-white mb-0.5 opacity-0 group-hover:opacity-100 transition-opacity">{item.output > 1000 ? (item.output/1000).toFixed(1)+'k' : Math.round(item.output)}</span>
                         </div>
-                        <div className="mt-2 text-[10px] font-bold text-slate-500 dark:text-slate-400 truncate w-full text-center">{item.name}</div>
+                        <div className="mt-1 text-[9px] font-bold text-slate-500 dark:text-slate-400 truncate w-full text-center">{item.name}</div>
                       </div>
                     );
                   })}
-               </div>
+                </div>
+              </div>
+              
+              {/* Income Stream Breakdown */}
+              <div className="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-xl p-3 border border-indigo-100 dark:border-indigo-800/30">
+                <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-2">{language === 'EN' ? "Income Stream" : "收入流分析"}</p>
+                <div className="space-y-1.5">
+                  {allocationData.map(item => {
+                    const pct = totalOutput > 0 ? (item.output / totalOutput) * 100 : 0;
+                    return (
+                      <div key={item.key} className="flex items-center gap-1.5">
+                        <div className="w-12 text-[9px] text-slate-500 truncate">{item.name}</div>
+                        <div className="flex-1 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                          <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct}%`, backgroundColor: item.color }} />
+                        </div>
+                        <div className="w-10 text-right text-[9px] font-bold" style={{ color: item.color }}>{pct.toFixed(0)}%</div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+              
+              {/* Key Metrics Row */}
+              <div className="grid grid-cols-2 gap-2">
+                <div className="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-2 border border-emerald-100 dark:border-emerald-800/30">
+                  <div className="text-[9px] text-emerald-600 dark:text-emerald-400">{language === 'EN' ? "Best ROI" : "最佳ROI"}</div>
+                  <div className="text-sm font-bold text-emerald-700 dark:text-emerald-300">
+                    {allocationData.length > 0 ? allocationData.reduce((a, b) => a.output > b.output ? a : b).name : '-'}
+                  </div>
+                </div>
+                <div className="bg-amber-50 dark:bg-amber-900/20 rounded-lg p-2 border border-amber-100 dark:border-amber-800/30">
+                  <div className="text-[9px] text-amber-600 dark:text-amber-400">{language === 'EN' ? "Passive %" : "被动占比"}</div>
+                  <div className="text-sm font-bold text-amber-700 dark:text-amber-300">
+                    {totalOutput > 0 ? (((allocationData.find(d => d.key === 'capital')?.output || 0) + (allocationData.find(d => d.key === 'code')?.output || 0) + (allocationData.find(d => d.key === 'media')?.output || 0)) / totalOutput * 100).toFixed(0) : 0}%
+                  </div>
+                </div>
+              </div>
+              
+              {/* Time to Freedom - Full Width */}
+              <div className="bg-gradient-to-r from-pink-500 to-purple-600 rounded-xl p-4 text-white">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <div className="text-[10px] opacity-80 mb-1">{language === 'EN' ? "Time to Financial Freedom" : "财务自由预估时间"}</div>
+                    <div className="text-2xl font-black">
+                      {(() => {
+                        // Use allocation strategy percentages directly for more varied results
+                        const { labor, capital, code, media } = allocationStrategy;
+                        
+                        // Labor slows you down, high-leverage activities speed you up
+                        // Score ranges from 0 (all labor) to 100 (all media)
+                        const score = (capital * 0.3) + (code * 0.6) + (media * 1.0) - (labor * 0.4);
+                        
+                        // More granular time ranges
+                        if (score >= 80) return language === 'EN' ? '1-2 years' : '1-2年';
+                        if (score >= 65) return language === 'EN' ? '2-3 years' : '2-3年';
+                        if (score >= 50) return language === 'EN' ? '3-5 years' : '3-5年';
+                        if (score >= 38) return language === 'EN' ? '5-7 years' : '5-7年';
+                        if (score >= 28) return language === 'EN' ? '7-10 years' : '7-10年';
+                        if (score >= 18) return language === 'EN' ? '10-15 years' : '10-15年';
+                        if (score >= 8) return language === 'EN' ? '15-20 years' : '15-20年';
+                        if (score >= 0) return language === 'EN' ? '20-30 years' : '20-30年';
+                        return language === 'EN' ? '30+ years' : '30+年';
+                      })()}
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-center">
+                    <div className="text-3xl">🎯</div>
+                    <div className="text-[8px] opacity-70 mt-1">{language === 'EN' ? "Based on allocation" : "基于分配策略"}</div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* 7. Infinite Game Simulator - Enhanced Professional Design */}
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-lg overflow-hidden relative">
+        {/* 7. Infinite Game Simulator - Merged with Capital Allocation */}
+        <div className="bg-white dark:bg-slate-900 rounded-t-none rounded-b-2xl border border-t border-t-slate-200 dark:border-t-slate-700 border-slate-200 dark:border-slate-800 p-6 shadow-lg overflow-hidden relative">
           {/* Background effects */}
           <div className="absolute -bottom-20 -right-20 w-60 h-60 rounded-full bg-gradient-to-r from-indigo-500/10 to-purple-500/10 blur-3xl" />
           
