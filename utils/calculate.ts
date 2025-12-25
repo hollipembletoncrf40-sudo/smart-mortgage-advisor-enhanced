@@ -357,8 +357,24 @@ export const calculateInvestment = (params: InvestmentParams, t: any): Calculati
   }
 
   // --- Opportunity Cost Logic (Financial Investment Simulation) ---
-  const alternativeRateMonthly = Math.pow(1 + (params.alternativeReturnRate || 4.0) / 100, 1/12) - 1;
+  // Use investment type to adjust return rate if custom not specified
+  let effectiveReturnRate = params.alternativeReturnRate || 4.0;
+  if (params.investmentType && params.investmentType !== 'custom') {
+    switch (params.investmentType) {
+      case 'conservative': effectiveReturnRate = Math.min(effectiveReturnRate, 4); break;
+      case 'balanced': effectiveReturnRate = Math.max(5, Math.min(effectiveReturnRate, 8)); break;
+      case 'growth': effectiveReturnRate = Math.max(8, Math.min(effectiveReturnRate, 12)); break;
+      case 'aggressive': effectiveReturnRate = Math.max(12, Math.min(effectiveReturnRate, 20)); break;
+    }
+  }
+  
+  // Apply investment tax if specified
+  const investmentTaxRate = (params.investmentTaxRate || 0) / 100;
+  const afterTaxReturnRate = effectiveReturnRate * (1 - investmentTaxRate);
+  
+  const alternativeRateMonthly = Math.pow(1 + afterTaxReturnRate / 100, 1/12) - 1;
   const inflationRate = (params.inflationRate || 0) / 100;
+  const riskFreeRate = (params.riskFreeRate || 2.5) / 100; // For Sharpe-like calculations
   
   // Option B starts with Total Initial Cash invested (Down + Tax + Fees + Reno)
   let stockPortfolio = initialTotalCash * 10000; 
