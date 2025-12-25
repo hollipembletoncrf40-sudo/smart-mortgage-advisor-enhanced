@@ -762,6 +762,41 @@ export const TRANSLATIONS = {
     navNegotiation: "谈判助手",
     navLiquidity: "流动性分析",
     navDrag: "房子拖累指数",
+    navNavalWisdom: "Naval智慧引擎",
+
+    // Naval Wisdom Engine
+    wealthEngine: "财富引擎",
+    freedomEngine: "自由引擎",
+    specificKnowledge: "特有知识地图",
+    judgmentEngine: "判断力引擎",
+    leverageAllocation: "杠杆配置",
+    downsideShield: "下行保护盾",
+    lifeGameMode: "人生游戏模式",
+    ethicalWealth: "道德财富层",
+    timeSellingRate: "时间出售率",
+    timeSellingDesc: "被卖掉的不可赎回时间",
+    passiveCoverage: "被动收入覆盖",
+    passiveCoverageDesc: "资产收益覆盖支出的比例",
+    geoFreedom: "地理自由度",
+    geoFreedomDesc: "你在任何地方都能赚钱吗？",
+    mentalBandwidth: "心智带宽",
+    mentalBandwidthDesc: "未被琐事占据的注意力",
+    allocationDesc: "你的生命能量去哪了？",
+    irreplaceability: "不可替代性",
+    aiReplacement: "AI 替代概率",
+    learningCompounding: "学习复利",
+    monetizationMultiplier: "价值乘数",
+    longTermThinking: "长期主义思维",
+    cashBuffer: "现金缓冲",
+    mentalResilience: "心态韧性",
+    singlePointFailure: "单点故障",
+    relationshipCompound: "关系复利",
+    reputationCapital: "声誉资本",
+    netValue: "创造净价值",
+    winWin: "双赢游戏",
+    longTermGame: "长期游戏",
+    ethicsPass: "你在和长期的人玩长期的游戏。财富是必然的。",
+    ethicsFail: "重新审视你的路径。真正的财富来自道德关系的复利。",
 
     // Future Self
     futureTitle: "对话未来的自己 (Future You)",
@@ -940,6 +975,8 @@ export const TRANSLATIONS = {
     navGameMode: "游戏模式",
     navSellDecision: "卖房决策",
     navAIPanel: "AI顾问",
+    navPaymentSchedule: "还款计划",
+    navFAQ: "常见问题",
 
     // Interactive Dashboard
     realTimeViz: "实时决策可视化",
@@ -1236,6 +1273,23 @@ export const TRANSLATIONS = {
     liqTraitInvest: '资金充裕, 看重增值, 长期持有',
     liqTraitDown: '50岁以上, 子女独立, 简化生活',
     liqTraitRare: '特殊需求, 非主流',
+
+
+    
+    // Missing Keys
+    predictAppreciation: "预测升值",
+    viewHousingTrends: "查看房价走势",
+    // Naval Modules
+    lifePathSimulator: "人生路径模拟器",
+    goalCalculator: "财富目标计算器",
+    tokenExchange: "价值交换算子",
+    lifeDragIndex: "生活阻力指数",
+    
+    // Contact
+    contactAuthor: "联系作者",
+    contactAuthorTitle: "联系作者",
+    contactAuthorDesc: "扫码添加微信 ✨",
+    contactClose: "关闭",
   },
   EN: {
     appTitle: "WealthCompass",
@@ -2000,6 +2054,8 @@ export const TRANSLATIONS = {
     navGameMode: "Game Mode",
     navSellDecision: "Sell Decision",
     navAIPanel: "AI Advisor",
+    navPaymentSchedule: "Payment Schedule",
+    navFAQ: "FAQ",
 
     // Interactive Dashboard
     realTimeViz: "Real-time Decision Viz",
@@ -2018,6 +2074,41 @@ export const TRANSLATIONS = {
     navNegotiation: "Negotiation Helper",
     navLiquidity: "Liquidity Analysis",
     navDrag: "House Drag Index",
+    navNavalWisdom: "Naval Wisdom",
+
+    // Naval Wisdom Engine
+    wealthEngine: "Wealth Engine",
+    freedomEngine: "Freedom Engine",
+    specificKnowledge: "Specific Knowledge Map",
+    judgmentEngine: "Judgment Engine",
+    leverageAllocation: "Leverage Allocation",
+    downsideShield: "Downside Shield",
+    lifeGameMode: "Life Game Mode",
+    ethicalWealth: "Ethical Wealth Layer",
+    timeSellingRate: "Time Selling Rate",
+    timeSellingDesc: "Time you don't own",
+    passiveCoverage: "Passive Coverage",
+    passiveCoverageDesc: "Expenses covered by assets",
+    geoFreedom: "Geo Freedom",
+    geoFreedomDesc: "Can you live anywhere?",
+    mentalBandwidth: "Mental Bandwidth",
+    mentalBandwidthDesc: "Free attention span",
+    allocationDesc: "Where is your life energy going?",
+    irreplaceability: "Irreplaceability",
+    aiReplacement: "AI Replacement Prob",
+    learningCompounding: "Learning Compound",
+    monetizationMultiplier: "Value Multiplier",
+    longTermThinking: "Long-term Thinking",
+    cashBuffer: "Cash Buffer",
+    mentalResilience: "Mental Resilience",
+    singlePointFailure: "Single Point Failure",
+    relationshipCompound: "Relationship Compound",
+    reputationCapital: "Reputation Capital",
+    netValue: "Creating Net Value",
+    winWin: "Win-Win Game",
+    longTermGame: "Long-term Game",
+    ethicsPass: "You are playing a long-term game with long-term people. Wealth is inevitable.",
+    ethicsFail: "Review your path. True wealth comes from compounding ethical relationships.",
 
     // Future Self
     futureTitle: "Future You Dialogue",
@@ -2488,6 +2579,35 @@ export const TRANSLATIONS = {
     liqTraitInvest: 'Cash-rich, Appreciation-focused',
     liqTraitDown: '50+yo, Empty nest, Simplified life',
     liqTraitRare: 'Special needs, Non-mainstream',
+
+    // Missing Keys
+    predictAppreciation: "Predict Appreciation",
+    viewHousingTrends: "View Housing Trends",
+
+    // Property Details
+    communityName: "Community Name",
+    district: "District",
+    propertyArea: "Area",
+    unitPrice: "Unit Price",
+    propertyType: "Property Type",
+    floorLevel: "Floor Level",
+    buildingAge: "Building Age",
+    decorationStatus: "Decoration",
+    propertyRightYears: "Property Rights",
+
+    tipPropertyArea: "Gross floor area including shared area",
+    tipUnitPrice: "Price per square meter",
+    tipPropertyType: "Residence, Apartment, Villa, etc.",
+    tipFloorLevel: "Floor level, higher floors usually cost more",
+    tipBuildingAge: "Year built, affects loan terms",
+    tipDecorationStatus: "Rough, Simple or Luxury",
+    tipPropertyRightYears: "Land usage rights, usually 70 years",
+
+    // Naval Modules
+    lifePathSimulator: "Life Path Simulator",
+    goalCalculator: "Goal Calculator",
+    tokenExchange: "Token Exchange",
+    lifeDragIndex: "Life Drag Index",
   },
 };
 // Add Chinese keys manually to match structure (inserting before EN starts)

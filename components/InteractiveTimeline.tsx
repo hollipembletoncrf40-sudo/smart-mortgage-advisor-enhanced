@@ -210,7 +210,7 @@ const InteractiveTimeline: React.FC<InteractiveTimelineProps> = ({ result, langu
               <MetricCard
                 title={language === 'ZH' ? '本年利息' : 'Yearly Interest'}
                 value={`${currentData.interestPaidYearly?.toFixed(1)} ${t.unitWanSimple}`}
-                formula={language === 'Z' ? '当年度支付的贷款利息' : 'Interest Paid This Year'}
+                formula={language === 'ZH' ? '当年度支付的贷款利息' : 'Interest Paid This Year'}
                 bgClass="bg-slate-50 dark:bg-slate-700/50 border-slate-200 dark:border-slate-600"
                 textClass="text-red-600 dark:text-red-400"
                 language={language}

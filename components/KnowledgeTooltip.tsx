@@ -3,18 +3,19 @@ import { HelpCircle } from 'lucide-react';
 import { getTerm } from '../utils/knowledgeBase';
 
 interface KnowledgeTooltipProps {
-  termId: string;
-  children: React.ReactNode;
+  termId?: string;
+  children?: React.ReactNode;
   onTermClick?: (termId: string) => void;
+  term?: string; // Support for legacy usage (text content)
 }
 
-const KnowledgeTooltip: React.FC<KnowledgeTooltipProps> = ({ termId, children, onTermClick }) => {
+const KnowledgeTooltip: React.FC<KnowledgeTooltipProps> = ({ termId, children, onTermClick, term: simpleText }) => {
   const [showTooltip, setShowTooltip] = useState(false);
   const [tooltipPosition, setTooltipPosition] = useState<'top' | 'bottom'>('top');
   const wrapperRef = useRef<HTMLSpanElement>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
 
-  const term = getTerm(termId);
+  const kbTerm = termId ? getTerm(termId) : null;
 
   useEffect(() => {
     if (showTooltip && wrapperRef.current && tooltipRef.current) {
@@ -30,17 +31,28 @@ const KnowledgeTooltip: React.FC<KnowledgeTooltipProps> = ({ termId, children, o
     }
   }, [showTooltip]);
 
-  if (!term) {
+  if (!kbTerm && !simpleText) {
     return <>{children}</>;
   }
 
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (onTermClick) {
+    if (onTermClick && termId) {
       onTermClick(termId);
     }
   };
+
+  const Trigger = children ? (
+    <span
+      onClick={handleClick}
+      className={children ? "border-b border-dotted border-indigo-400 dark:border-indigo-500 cursor-help hover:border-indigo-600 dark:hover:border-indigo-400 transition-colors" : ""}
+    >
+      {children}
+    </span>
+  ) : (
+    <HelpCircle className="h-4 w-4 text-slate-400 hover:text-indigo-500 cursor-help transition-colors" />
+  );
 
   return (
     <span
@@ -49,12 +61,7 @@ const KnowledgeTooltip: React.FC<KnowledgeTooltipProps> = ({ termId, children, o
       onMouseEnter={() => setShowTooltip(true)}
       onMouseLeave={() => setShowTooltip(false)}
     >
-      <span
-        onClick={handleClick}
-        className="border-b border-dotted border-indigo-400 dark:border-indigo-500 cursor-help hover:border-indigo-600 dark:hover:border-indigo-400 transition-colors"
-      >
-        {children}
-      </span>
+      {Trigger}
       
       {showTooltip && (
         <div
@@ -73,14 +80,22 @@ const KnowledgeTooltip: React.FC<KnowledgeTooltipProps> = ({ termId, children, o
               <div className="flex items-start gap-2 mb-2">
                 <HelpCircle className="h-4 w-4 text-indigo-400 flex-shrink-0 mt-0.5" />
                 <div className="flex-1">
-                  <div className="font-bold text-sm text-indigo-300 mb-1">{term.term}</div>
-                  <p className="text-xs text-slate-300 leading-relaxed">{term.shortDesc}</p>
+                  {kbTerm ? (
+                    <>
+                      <div className="font-bold text-sm text-indigo-300 mb-1">{kbTerm.term}</div>
+                      <p className="text-xs text-slate-300 leading-relaxed">{kbTerm.shortDesc}</p>
+                    </>
+                  ) : (
+                    <p className="text-xs text-slate-300 leading-relaxed">{simpleText}</p>
+                  )}
                 </div>
               </div>
               
-              <div className="text-[10px] text-slate-400 mt-2 pt-2 border-t border-slate-700">
-                💡 点击查看详细解释
-              </div>
+              {kbTerm && (
+                <div className="text-[10px] text-slate-400 mt-2 pt-2 border-t border-slate-700">
+                  💡 点击查看详细解释
+                </div>
+              )}
             </div>
           </div>
         </div>

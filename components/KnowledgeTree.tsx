@@ -7,10 +7,11 @@ interface KnowledgeTreeProps {
   isOpen: boolean;
   onClose: () => void;
   selectedTermId?: string;
+  onSelectTerm?: (termId: string) => void;
   t: any;
 }
 
-const KnowledgeTree: React.FC<KnowledgeTreeProps> = ({ isOpen, onClose, selectedTermId, t }) => {
+const KnowledgeTree: React.FC<KnowledgeTreeProps> = ({ isOpen, onClose, selectedTermId, onSelectTerm, t }) => {
   const [userProgress, setUserProgress] = useState<string[]>([]);
   const [selectedTerm, setSelectedTerm] = useState<KnowledgeTerm | null>(null);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);

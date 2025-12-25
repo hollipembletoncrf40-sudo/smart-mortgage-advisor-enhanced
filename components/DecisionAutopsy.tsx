@@ -86,6 +86,40 @@ const DecisionAutopsy: React.FC<DecisionAutopsyProps> = ({ params, language, onP
     // Replay State
     const [replayYear, setReplayYear] = useState(0);
     const [isPlaying, setIsPlaying] = useState(false);
+    
+    // Reflection Modal State
+    const [selectedReflection, setSelectedReflection] = useState<'reconsider' | 'confident' | 'rent' | null>(null);
+    
+    // Reflection content data
+    const reflectionContent = {
+        reconsider: {
+            emoji: '😰',
+            titleZH: '重新审视你的决定',
+            titleEN: 'Reconsidering Your Decision',
+            contentZH: '你的担忧是正确的。30年的房贷不仅仅是一个财务承诺，更是对你生活方式的深刻影响。研究表明，过高的月供压力会导致生活质量下降、职业选择受限、甚至影响家庭关系。建议你花更多时间重新评估：你的收入是否稳定？是否有足够的应急储备？你对未来5年的职业规划是什么？不要因为"别人都在买"就仓促做出决定。记住，房子不是人生的唯一归宿，安心的生活才是。给自己3-6个月的冷静期，再做决定也不迟。',
+            contentEN: 'Your concerns are valid. A 30-year mortgage is not just a financial commitment—it profoundly affects your lifestyle. Studies show that excessive mortgage pressure leads to decreased quality of life, limited career choices, and even strained family relationships. Take time to reassess: Is your income stable? Do you have enough emergency reserves? What are your career plans for the next 5 years? Don\'t rush just because "everyone is buying." Remember, a house isn\'t life\'s only destination—a peaceful life is. Give yourself 3-6 months to cool down before deciding.',
+            adviceZH: ['📊 重新计算月供占收入比例，确保不超过30%', '💰 确保有至少12个月的应急储备金', '🔄 考虑租房观望6-12个月再决定', '💬 与家人深入讨论财务压力的承受能力'],
+            adviceEN: ['📊 Recalculate mortgage-to-income ratio, keep under 30%', '💰 Ensure at least 12 months emergency fund', '🔄 Consider renting for 6-12 months before deciding', '💬 Discuss financial stress tolerance with family']
+        },
+        confident: {
+            emoji: '💪',
+            titleZH: '自信者的风险盲点',
+            titleEN: 'Risk Blindspots of the Confident',
+            contentZH: '自信是好事，但过度自信是投资者最常见的陷阱之一。心理学家称之为"过度自信偏差"——人们普遍高估自己预测未来的能力。你说你的情况不同，但请思考：是什么让你觉得自己能逃脱统计规律？历史上99%自信能控制风险的人，最终都踩过坑。这不是说你一定会失败，而是提醒你：做好最坏打算，准备好Plan B。如果房价下跌20%，你还能承受吗？如果收入减少30%呢？如果利率上涨2%呢？真正的自信不是盲目乐观，而是在充分准备后的从容。',
+            contentEN: 'Confidence is good, but overconfidence is one of the most common traps for investors. Psychologists call it "overconfidence bias"—people consistently overestimate their ability to predict the future. You say your situation is different, but consider: What makes you think you can escape statistical patterns? Historically, 99% of people confident in managing risks eventually face setbacks. This doesn\'t mean you\'ll fail, but rather a reminder: prepare for the worst, have a Plan B. Can you handle a 20% price drop? A 30% income reduction? A 2% rate hike? True confidence isn\'t blind optimism—it\'s composure after thorough preparation.',
+            adviceZH: ['⚠️ 做压力测试：收入减半还能还款吗？', '📉 模拟房价下跌30%的场景', '🔮 考虑未来5年可能发生的黑天鹅事件', '🛡️ 购买适当的房贷保险和失业保险'],
+            adviceEN: ['⚠️ Run stress test: Can you pay if income halves?', '📉 Simulate a 30% price drop scenario', '🔮 Consider black swan events in next 5 years', '🛡️ Get appropriate mortgage and unemployment insurance']
+        },
+        rent: {
+            emoji: '🧘',
+            titleZH: '租房的智慧',
+            titleEN: 'The Wisdom of Renting',
+            contentZH: '选择租房并不代表失败，恰恰相反，它可能是这个阶段最理性的选择。在高房价、高利率的环境下，租房让你保持财务灵活性——你可以随时换工作、换城市，不被房贷捆绑。把本该付首付的钱用于投资，假设年化收益8%，20年后可能积累一笔可观的财富。租房的另一个好处是心理自由：不用担心房价涨跌，不用担心物业维护，不用担心邻里纠纷。人生的幸福不在于拥有多少资产，而在于有多少选择权。租房给你的，正是这种珍贵的自由。等到真正合适的机会出现，再出手也不迟。',
+            contentEN: 'Choosing to rent doesn\'t mean failure—on the contrary, it might be the most rational choice at this stage. In an environment of high prices and rates, renting maintains financial flexibility—you can change jobs or cities anytime without mortgage constraints. Invest the down payment instead: assuming 8% annual returns, you could accumulate significant wealth in 20 years. Renting also offers psychological freedom: no worrying about price fluctuations, property maintenance, or neighbor disputes. Life\'s happiness isn\'t about owning assets, but having choices. Renting gives you that precious freedom. Wait for the right opportunity, then make your move.',
+            adviceZH: ['💵 把首付资金投入指数基金或稳健理财', '🏃 利用租房的灵活性拓展事业机会', '📚 用省下的精力提升自己的赚钱能力', '⏰ 设定一个3-5年后的重新评估节点'],
+            adviceEN: ['💵 Invest down payment in index funds or stable investments', '🏃 Use rental flexibility to explore career opportunities', '📚 Use saved energy to improve earning potential', '⏰ Set a re-evaluation point 3-5 years from now']
+        }
+    };
 
     React.useEffect(() => {
         let interval: any;
@@ -602,73 +636,156 @@ const DecisionAutopsy: React.FC<DecisionAutopsyProps> = ({ params, language, onP
                     </button>
                 </div>
                 
-                {/* Cards Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    {timeline.map((event, idx) => {
-                        const isActive = replayYear >= idx;
-                        const isCurrent = replayYear === idx;
-                        const colors = {
-                            normal: { bg: 'bg-slate-100 dark:bg-slate-800/50', border: 'border-slate-200 dark:border-slate-700', text: 'text-slate-600 dark:text-slate-400', icon: '📝' },
-                            warning: { bg: 'bg-amber-50 dark:bg-amber-900/20', border: 'border-amber-200 dark:border-amber-800/50', text: 'text-amber-600 dark:text-amber-400', icon: '⚠️' },
-                            critical: { bg: 'bg-orange-50 dark:bg-orange-900/20', border: 'border-orange-200 dark:border-orange-800/50', text: 'text-orange-600 dark:text-orange-400', icon: '🔥' },
-                            fatal: { bg: 'bg-red-50 dark:bg-red-900/20', border: 'border-red-200 dark:border-red-800/50', text: 'text-red-600 dark:text-red-400', icon: '💀' }
-                        };
-                        const color = colors[event.type as keyof typeof colors] || colors.normal;
+                {/* Cards Display - Single card during playback, Grid after completion */}
+                {replayYear >= timeline.length - 1 ? (
+                    /* Full Grid View - All cards visible after completion */
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 animate-fade-in">
+                        {timeline.map((event, idx) => {
+                            const colors = {
+                                normal: { bg: 'bg-slate-100 dark:bg-slate-800/50', border: 'border-slate-200 dark:border-slate-700', text: 'text-slate-600 dark:text-slate-400', icon: '📝' },
+                                warning: { bg: 'bg-amber-50 dark:bg-amber-900/20', border: 'border-amber-200 dark:border-amber-800/50', text: 'text-amber-600 dark:text-amber-400', icon: '⚠️' },
+                                critical: { bg: 'bg-orange-50 dark:bg-orange-900/20', border: 'border-orange-200 dark:border-orange-800/50', text: 'text-orange-600 dark:text-orange-400', icon: '🔥' },
+                                fatal: { bg: 'bg-red-50 dark:bg-red-900/20', border: 'border-red-200 dark:border-red-800/50', text: 'text-red-600 dark:text-red-400', icon: '💀' }
+                            };
+                            const color = colors[event.type as keyof typeof colors] || colors.normal;
+                            
+                            return (
+                                <div 
+                                    key={event.year}
+                                    className={`relative p-5 rounded-2xl border-2 transition-all duration-500 ease-out transform hover:scale-105 hover:shadow-xl
+                                        ${color.bg} ${color.border} shadow-md
+                                    `}
+                                    style={{ animationDelay: `${idx * 50}ms` }}
+                                >
+                                    {/* Year Badge */}
+                                    <div className="absolute -top-3 left-4 px-3 py-1 rounded-full text-xs font-bold bg-rose-500 text-white">
+                                        {language === 'ZH' ? `第${event.year}年` : `Year ${event.year}`}
+                                    </div>
+                                    
+                                    {/* Icon */}
+                                    <div className="text-3xl mb-3 mt-2">
+                                        {color.icon}
+                                    </div>
+                                    
+                                    {/* Title */}
+                                    <h4 className={`font-bold mb-2 ${color.text}`}>
+                                        {event.title}
+                                    </h4>
+                                    
+                                    {/* Description */}
+                                    <p className="text-xs leading-relaxed text-slate-600 dark:text-slate-400">
+                                        {event.description}
+                                    </p>
+                                    
+                                    {/* Irreversible Badge */}
+                                    {event.isIrreversible && (
+                                        <div className="mt-3 inline-flex items-center gap-1.5 px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-xs font-bold rounded-full">
+                                            <AlertTriangle className="h-3 w-3" />
+                                            {language === 'ZH' ? '不可逆' : 'No Return'}
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        })}
+                    </div>
+                ) : (
+                    /* Single Card Mystery Mode - During playback */
+                    <div className="relative min-h-[280px] flex items-center justify-center">
+                        {timeline.map((event, idx) => {
+                            const isActive = replayYear >= idx;
+                            const isCurrent = replayYear === idx;
+                            const isPast = replayYear > idx;
+                            const colors = {
+                                normal: { bg: 'bg-slate-100 dark:bg-slate-800/50', border: 'border-slate-200 dark:border-slate-700', text: 'text-slate-600 dark:text-slate-400', icon: '📝' },
+                                warning: { bg: 'bg-amber-50 dark:bg-amber-900/20', border: 'border-amber-200 dark:border-amber-800/50', text: 'text-amber-600 dark:text-amber-400', icon: '⚠️' },
+                                critical: { bg: 'bg-orange-50 dark:bg-orange-900/20', border: 'border-orange-200 dark:border-orange-800/50', text: 'text-orange-600 dark:text-orange-400', icon: '🔥' },
+                                fatal: { bg: 'bg-red-50 dark:bg-red-900/20', border: 'border-red-200 dark:border-red-800/50', text: 'text-red-600 dark:text-red-400', icon: '💀' }
+                            };
+                            const color = colors[event.type as keyof typeof colors] || colors.normal;
+                            
+                            // Only render current and past cards
+                            if (!isActive) return null;
+                            
+                            return (
+                                <div 
+                                    key={event.year}
+                                    className={`absolute inset-0 flex items-center justify-center transition-all duration-700 ease-out
+                                        ${isCurrent ? 'opacity-100 scale-100 z-20' : isPast ? 'opacity-0 scale-75 z-10' : 'opacity-0 scale-50 z-0'}
+                                    `}
+                                >
+                                    <div 
+                                        className={`relative p-8 rounded-3xl border-2 transition-all duration-700 ease-out transform w-full max-w-lg mx-auto
+                                            ${color.bg} ${color.border}
+                                            ${isCurrent ? 'shadow-2xl ring-4 ring-rose-400/50 ring-offset-4 dark:ring-offset-slate-900' : 'shadow-lg'}
+                                        `}
+                                    >
+                                        {/* Year Badge */}
+                                        <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-6 py-2 rounded-full text-sm font-bold bg-rose-500 text-white shadow-lg">
+                                            {language === 'ZH' ? `第${event.year}年` : `Year ${event.year}`}
+                                        </div>
+                                        
+                                        {/* Icon */}
+                                        <div className="text-6xl mb-4 mt-4 text-center animate-pulse">
+                                            {color.icon}
+                                        </div>
+                                        
+                                        {/* Title */}
+                                        <h4 className={`text-2xl font-bold mb-3 text-center ${color.text}`}>
+                                            {event.title}
+                                        </h4>
+                                        
+                                        {/* Description */}
+                                        <p className="text-sm leading-relaxed text-center text-slate-600 dark:text-slate-400 max-w-md mx-auto">
+                                            {event.description}
+                                        </p>
+                                        
+                                        {/* Irreversible Badge */}
+                                        {event.isIrreversible && (
+                                            <div className="mt-4 flex justify-center">
+                                                <div className="inline-flex items-center gap-2 px-4 py-2 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-sm font-bold rounded-full animate-pulse">
+                                                    <AlertTriangle className="h-4 w-4" />
+                                                    {language === 'ZH' ? '⚠️ 不可逆转的节点' : '⚠️ Point of No Return'}
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* Navigation Hint */}
+                                        {idx < timeline.length - 1 && (
+                                            <div className="mt-6 text-center text-xs text-slate-400 flex items-center justify-center gap-2">
+                                                <span>{language === 'ZH' ? '接下来发生什么？点击播放继续...' : 'What happens next? Press play to continue...'}</span>
+                                                <span className="animate-bounce">▼</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            );
+                        })}
                         
-                        return (
-                            <div 
-                                key={event.year}
-                                className={`relative p-5 rounded-2xl border-2 transition-all duration-700 ease-out transform
-                                    ${isActive ? color.bg : 'bg-slate-100/50 dark:bg-slate-800/20'}
-                                    ${isActive ? color.border : 'border-slate-200/50 dark:border-slate-700/30'}
-                                    ${isCurrent ? 'scale-105 shadow-xl ring-2 ring-rose-400 ring-offset-2 dark:ring-offset-slate-900' : isActive ? 'shadow-md' : 'opacity-50'}
-                                    ${isActive ? 'translate-y-0' : 'translate-y-2'}
-                                `}
-                                style={{ 
-                                    transitionDelay: `${idx * 100}ms`,
-                                    animationDelay: `${idx * 150}ms`
-                                }}
-                            >
-                                {/* Year Badge */}
-                                <div className={`absolute -top-3 left-4 px-3 py-1 rounded-full text-xs font-bold transition-all duration-500
-                                    ${isActive ? 'bg-rose-500 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400'}
-                                `}>
-                                    {language === 'ZH' ? `第${event.year}年` : `Year ${event.year}`}
-                                </div>
-                                
-                                {/* Icon */}
-                                <div className={`text-3xl mb-3 mt-2 transition-all duration-500 ${isActive ? 'opacity-100 scale-100' : 'opacity-30 scale-75'}`}>
-                                    {color.icon}
-                                </div>
-                                
-                                {/* Title */}
-                                <h4 className={`font-bold mb-2 transition-all duration-500 ${isActive ? color.text : 'text-slate-400'}`}>
-                                    {event.title}
-                                </h4>
-                                
-                                {/* Description */}
-                                <p className={`text-xs leading-relaxed transition-all duration-500 ${isActive ? 'text-slate-600 dark:text-slate-400' : 'text-slate-300 dark:text-slate-600'}`}>
-                                    {event.description}
-                                </p>
-                                
-                                {/* Irreversible Badge */}
-                                {event.isIrreversible && isActive && (
-                                    <div className="mt-3 inline-flex items-center gap-1.5 px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-xs font-bold rounded-full animate-pulse">
-                                        <AlertTriangle className="h-3 w-3" />
-                                        {language === 'ZH' ? '不可逆' : 'No Return'}
+                        {/* Mystery Cards Behind - Visual effect */}
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                            {[1, 2, 3].map((offset) => {
+                                const futureIdx = replayYear + offset;
+                                if (futureIdx >= timeline.length) return null;
+                                return (
+                                    <div 
+                                        key={offset}
+                                        className="absolute inset-0 flex items-center justify-center"
+                                        style={{ 
+                                            transform: `translateY(${offset * 8}px) scale(${1 - offset * 0.05})`,
+                                            zIndex: 10 - offset
+                                        }}
+                                    >
+                                        <div className={`w-full max-w-lg mx-auto h-48 rounded-3xl bg-slate-200 dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-700`} style={{ opacity: 0.3 - offset * 0.1 }}>
+                                            <div className="h-full flex items-center justify-center">
+                                                <span className="text-4xl opacity-20">❓</span>
+                                            </div>
+                                        </div>
                                     </div>
-                                )}
-                                
-                                {/* Progress Line */}
-                                {idx < timeline.length - 1 && (
-                                    <div className="hidden lg:block absolute top-1/2 -right-4 w-4 h-0.5 z-10">
-                                        <div className={`h-full transition-all duration-700 ${isActive && replayYear > idx ? 'bg-rose-400' : 'bg-slate-200 dark:bg-slate-700'}`} />
-                                    </div>
-                                )}
-                            </div>
-                        );
-                    })}
-                </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                )}
 
                 {/* Progress Bar */}
                 <div className="mt-6 relative h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
@@ -681,7 +798,7 @@ const DecisionAutopsy: React.FC<DecisionAutopsyProps> = ({ params, language, onP
                 {/* Conclusion Cards - Show after reaching the end */}
                 {replayYear >= timeline.length - 1 && (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8 animate-fade-in">
-                        {/* Reflection Card */}
+                        {/* Reflection Card - Clickable Options */}
                         <div className="p-6 rounded-2xl bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-950/30 dark:to-purple-950/30 border-2 border-indigo-200 dark:border-indigo-800/50 shadow-lg transform transition-all duration-700 hover:scale-[1.02]">
                             <div className="flex items-center gap-3 mb-4">
                                 <div className="text-4xl">🤔</div>
@@ -690,26 +807,183 @@ const DecisionAutopsy: React.FC<DecisionAutopsyProps> = ({ params, language, onP
                                 </h4>
                             </div>
                             <div className="space-y-3">
-                                <div className="flex items-start gap-3 p-3 bg-white/60 dark:bg-slate-800/50 rounded-xl">
-                                    <span className="text-xl">😰</span>
-                                    <p className="text-sm text-slate-600 dark:text-slate-400">
-                                        {language === 'ZH' ? '"这30年的轨迹太真实了，我需要重新考虑..."' : '"This 30-year trajectory is too real. I need to reconsider..."'}
-                                    </p>
-                                </div>
-                                <div className="flex items-start gap-3 p-3 bg-white/60 dark:bg-slate-800/50 rounded-xl">
-                                    <span className="text-xl">💪</span>
-                                    <p className="text-sm text-slate-600 dark:text-slate-400">
-                                        {language === 'ZH' ? '"我的情况不同，我有信心控制风险！"' : '"My situation is different. I\'m confident I can manage the risks!"'}
-                                    </p>
-                                </div>
-                                <div className="flex items-start gap-3 p-3 bg-white/60 dark:bg-slate-800/50 rounded-xl">
-                                    <span className="text-xl">🧘</span>
-                                    <p className="text-sm text-slate-600 dark:text-slate-400">
-                                        {language === 'ZH' ? '"也许租房才是现阶段最明智的选择..."' : '"Maybe renting is the wisest choice at this stage..."'}
-                                    </p>
-                                </div>
+                                <button 
+                                    onClick={() => setSelectedReflection('reconsider')}
+                                    className="w-full flex items-start gap-3 p-4 bg-white/60 dark:bg-slate-800/50 rounded-xl hover:bg-white dark:hover:bg-slate-700/50 hover:shadow-lg hover:scale-[1.02] transition-all duration-300 cursor-pointer border-2 border-transparent hover:border-indigo-300 dark:hover:border-indigo-600 text-left"
+                                >
+                                    <span className="text-2xl">😰</span>
+                                    <div>
+                                        <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                                            {language === 'ZH' ? '"这30年的轨迹太真实了，我需要重新考虑..."' : '"This 30-year trajectory is too real. I need to reconsider..."'}
+                                        </p>
+                                        <p className="text-xs text-indigo-500 dark:text-indigo-400 mt-1">{language === 'ZH' ? '点击查看详细分析 →' : 'Click for detailed analysis →'}</p>
+                                    </div>
+                                </button>
+                                <button 
+                                    onClick={() => setSelectedReflection('confident')}
+                                    className="w-full flex items-start gap-3 p-4 bg-white/60 dark:bg-slate-800/50 rounded-xl hover:bg-white dark:hover:bg-slate-700/50 hover:shadow-lg hover:scale-[1.02] transition-all duration-300 cursor-pointer border-2 border-transparent hover:border-amber-300 dark:hover:border-amber-600 text-left"
+                                >
+                                    <span className="text-2xl">💪</span>
+                                    <div>
+                                        <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                                            {language === 'ZH' ? '"我的情况不同，我有信心控制风险！"' : '"My situation is different. I\'m confident I can manage the risks!"'}
+                                        </p>
+                                        <p className="text-xs text-amber-500 dark:text-amber-400 mt-1">{language === 'ZH' ? '点击查看风险提醒 →' : 'Click for risk reminder →'}</p>
+                                    </div>
+                                </button>
+                                <button 
+                                    onClick={() => setSelectedReflection('rent')}
+                                    className="w-full flex items-start gap-3 p-4 bg-white/60 dark:bg-slate-800/50 rounded-xl hover:bg-white dark:hover:bg-slate-700/50 hover:shadow-lg hover:scale-[1.02] transition-all duration-300 cursor-pointer border-2 border-transparent hover:border-emerald-300 dark:hover:border-emerald-600 text-left"
+                                >
+                                    <span className="text-2xl">🧘</span>
+                                    <div>
+                                        <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                                            {language === 'ZH' ? '"也许租房才是现阶段最明智的选择..."' : '"Maybe renting is the wisest choice at this stage..."'}
+                                        </p>
+                                        <p className="text-xs text-emerald-500 dark:text-emerald-400 mt-1">{language === 'ZH' ? '点击查看租房优势 →' : 'Click for rental benefits →'}</p>
+                                    </div>
+                                </button>
                             </div>
                         </div>
+
+                        {/* Reflection Modal Popup - Creative Flowing Design */}
+                        {selectedReflection && (
+                            <div 
+                                className="fixed inset-0 z-50 flex items-center justify-center p-4"
+                                onClick={() => setSelectedReflection(null)}
+                            >
+                                {/* Animated backdrop with flowing colors */}
+                                <div className="absolute inset-0 bg-gradient-to-br from-slate-900/95 via-slate-950/95 to-slate-900/95 backdrop-blur-xl">
+                                    {/* Animated gradient blobs */}
+                                    <div className={`absolute top-1/4 left-1/4 w-96 h-96 rounded-full blur-[120px] animate-pulse ${
+                                        selectedReflection === 'reconsider' ? 'bg-indigo-500/30' : 
+                                        selectedReflection === 'confident' ? 'bg-amber-500/30' : 'bg-emerald-500/30'
+                                    }`} style={{ animation: 'pulse 4s ease-in-out infinite' }} />
+                                    <div className={`absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full blur-[100px] animate-pulse ${
+                                        selectedReflection === 'reconsider' ? 'bg-purple-500/20' : 
+                                        selectedReflection === 'confident' ? 'bg-orange-500/20' : 'bg-teal-500/20'
+                                    }`} style={{ animation: 'pulse 5s ease-in-out infinite', animationDelay: '1s' }} />
+                                    <div className={`absolute top-1/2 right-1/3 w-64 h-64 rounded-full blur-[80px] ${
+                                        selectedReflection === 'reconsider' ? 'bg-pink-500/15' : 
+                                        selectedReflection === 'confident' ? 'bg-yellow-500/15' : 'bg-cyan-500/15'
+                                    }`} style={{ animation: 'pulse 6s ease-in-out infinite', animationDelay: '2s' }} />
+                                </div>
+                                
+                                {/* Modal Content - Asymmetric Design, positioned left */}
+                                <div 
+                                    className="relative w-full max-w-2xl ml-4 md:ml-16 lg:ml-24 mr-auto"
+                                    onClick={(e) => e.stopPropagation()}
+                                >
+                                    {/* Close button - floating */}
+                                    <button 
+                                        onClick={() => setSelectedReflection(null)}
+                                        className="absolute -top-2 -right-2 z-20 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm flex items-center justify-center transition-all hover:scale-110 border border-white/20"
+                                    >
+                                        <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+
+                                    {/* Floating Emoji - Asymmetric position */}
+                                    <div className={`absolute -top-8 -left-4 z-10 text-7xl transform -rotate-12 animate-bounce`} style={{ animationDuration: '3s' }}>
+                                        {reflectionContent[selectedReflection].emoji}
+                                    </div>
+
+                                    {/* Main Card - Glassmorphism */}
+                                    <div className={`relative overflow-hidden rounded-[32px] border border-white/10 shadow-2xl`}>
+                                        {/* Gradient Top Bar */}
+                                        <div className={`h-2 w-full bg-gradient-to-r ${
+                                            selectedReflection === 'reconsider' ? 'from-indigo-400 via-purple-500 to-pink-500' : 
+                                            selectedReflection === 'confident' ? 'from-amber-400 via-orange-500 to-red-500' : 
+                                            'from-emerald-400 via-teal-500 to-cyan-500'
+                                        }`} />
+                                        
+                                        {/* Content Area */}
+                                        <div className="bg-slate-900/80 backdrop-blur-xl p-8 pb-6">
+                                            {/* Title */}
+                                            <h3 className={`text-2xl font-black mb-6 bg-gradient-to-r bg-clip-text text-transparent ${
+                                                selectedReflection === 'reconsider' ? 'from-indigo-300 via-purple-300 to-pink-300' : 
+                                                selectedReflection === 'confident' ? 'from-amber-300 via-orange-300 to-red-300' : 
+                                                'from-emerald-300 via-teal-300 to-cyan-300'
+                                            }`}>
+                                                {language === 'ZH' ? reflectionContent[selectedReflection].titleZH : reflectionContent[selectedReflection].titleEN}
+                                            </h3>
+                                            
+                                            {/* Main Content - Better wrapping */}
+                                            <div className={`relative p-5 rounded-2xl mb-6 border ${
+                                                selectedReflection === 'reconsider' ? 'bg-indigo-950/40 border-indigo-500/30' : 
+                                                selectedReflection === 'confident' ? 'bg-amber-950/40 border-amber-500/30' : 
+                                                'bg-emerald-950/40 border-emerald-500/30'
+                                            }`}>
+                                                {/* Decorative corner */}
+                                                <div className={`absolute top-0 left-0 w-16 h-16 rounded-br-3xl ${
+                                                    selectedReflection === 'reconsider' ? 'bg-indigo-500/10' : 
+                                                    selectedReflection === 'confident' ? 'bg-amber-500/10' : 
+                                                    'bg-emerald-500/10'
+                                                }`} />
+                                                <p className="relative z-10 text-slate-300 leading-relaxed text-sm whitespace-pre-wrap break-words">
+                                                    {language === 'ZH' ? reflectionContent[selectedReflection].contentZH : reflectionContent[selectedReflection].contentEN}
+                                                </p>
+                                            </div>
+                                            
+                                            {/* Action Items - Staggered cards */}
+                                            <div className="space-y-2 mb-6">
+                                                <h4 className={`text-xs font-bold uppercase tracking-widest mb-3 ${
+                                                    selectedReflection === 'reconsider' ? 'text-indigo-400' : 
+                                                    selectedReflection === 'confident' ? 'text-amber-400' : 
+                                                    'text-emerald-400'
+                                                }`}>
+                                                    {language === 'ZH' ? '✨ 行动建议' : '✨ Action Items'}
+                                                </h4>
+                                                {(language === 'ZH' ? reflectionContent[selectedReflection].adviceZH : reflectionContent[selectedReflection].adviceEN).map((item, idx) => (
+                                                    <div 
+                                                        key={idx} 
+                                                        className={`p-3 rounded-xl bg-white/5 border border-white/10 transform transition-all hover:scale-[1.02] hover:bg-white/10`}
+                                                        style={{ marginLeft: `${idx * 8}px` }}
+                                                    >
+                                                        <span className="text-sm text-slate-300">{item}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                            
+                                            {/* Quote - Floating Style */}
+                                            <div className="relative py-4">
+                                                <div className={`absolute left-0 top-1/2 -translate-y-1/2 w-1 h-12 rounded-full ${
+                                                    selectedReflection === 'reconsider' ? 'bg-gradient-to-b from-indigo-400 to-purple-500' : 
+                                                    selectedReflection === 'confident' ? 'bg-gradient-to-b from-amber-400 to-orange-500' : 
+                                                    'bg-gradient-to-b from-emerald-400 to-teal-500'
+                                                }`} />
+                                                <p className="pl-4 text-sm italic text-slate-400">
+                                                    {language === 'ZH' 
+                                                        ? '"明智的决策不在于选择最好的，而在于避开最坏的。"' 
+                                                        : '"Wise decisions aren\'t about choosing the best, but avoiding the worst."'}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        
+                                        {/* Action Button - Gradient border effect */}
+                                        <div className="p-4 bg-slate-950/50">
+                                            <button 
+                                                onClick={() => setSelectedReflection(null)}
+                                                className={`relative w-full py-4 rounded-2xl font-bold text-white overflow-hidden group`}
+                                            >
+                                                {/* Animated gradient background */}
+                                                <div className={`absolute inset-0 bg-gradient-to-r ${
+                                                    selectedReflection === 'reconsider' ? 'from-indigo-600 via-purple-600 to-pink-600' : 
+                                                    selectedReflection === 'confident' ? 'from-amber-600 via-orange-600 to-red-600' : 
+                                                    'from-emerald-600 via-teal-600 to-cyan-600'
+                                                } group-hover:opacity-90 transition-opacity`} />
+                                                {/* Shine effect */}
+                                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                                                <span className="relative z-10 flex items-center justify-center gap-2">
+                                                    {language === 'ZH' ? '✓ 我明白了' : '✓ I Understand'}
+                                                </span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
 
                         {/* Recommendations Card */}
                         <div className="p-6 rounded-2xl bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/30 border-2 border-emerald-200 dark:border-emerald-800/50 shadow-lg transform transition-all duration-700 hover:scale-[1.02]">
