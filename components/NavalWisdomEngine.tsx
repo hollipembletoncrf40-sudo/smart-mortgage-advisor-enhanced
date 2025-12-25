@@ -1096,17 +1096,17 @@ const NavalWisdomEngine: React.FC<NavalWisdomEngineProps> = ({ language, t }) =>
               </div>
             </div>
 
-            {/* Control Cards Row */}
-            <div className="grid grid-cols-3 gap-4 mb-6">
+            {/* Control Cards Row - Connected Design */}
+            <div className="flex mb-6 rounded-xl overflow-hidden border border-slate-700">
               {/* Years Card */}
-              <div className="relative bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 p-4 rounded-xl border border-indigo-100 dark:border-indigo-800/30 h-32">
-                <div className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-2">{language === 'EN' ? "Time Horizon" : "时间跨度"}</div>
-                <div className="flex items-center justify-between mb-3">
-                  <div className="w-10 h-10 rounded-lg bg-indigo-200 dark:bg-indigo-800/50 flex items-center justify-center text-xl flex-shrink-0">⏳</div>
-                  <div className="text-3xl font-black text-indigo-600 whitespace-nowrap" style={{ fontVariantNumeric: 'tabular-nums' }}>{infiniteGame.years}{language === 'EN' ? 'yr' : '年'}</div>
+              <div className="relative flex-1 bg-gradient-to-br from-indigo-900/40 to-purple-900/40 p-3 border-r border-slate-700">
+                <div className="text-[10px] font-bold text-slate-400 mb-2">{language === 'EN' ? "Time Horizon" : "时间跨度"}</div>
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-8 h-8 rounded-lg bg-indigo-800/50 flex items-center justify-center text-lg flex-shrink-0">⏳</div>
+                  <div className="text-xl font-black text-indigo-400">{infiniteGame.years}<span className="text-sm">{language === 'EN' ? 'yr' : '年'}</span></div>
                 </div>
-                <div className="h-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-full overflow-hidden">
-                  <div className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all duration-500 ease-out" style={{ width: `${Math.min(infiniteGame.years * 2.5, 100)}%` }} />
+                <div className="h-1.5 bg-slate-700 rounded-full overflow-hidden">
+                  <div className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full" style={{ width: `${Math.min(infiniteGame.years * 2.5, 100)}%` }} />
                 </div>
                 <input type="range" min="1" max="40" value={infiniteGame.years} 
                   onChange={(e) => setInfiniteGame(prev => ({...prev, years: parseInt(e.target.value)}))}
@@ -1114,14 +1114,14 @@ const NavalWisdomEngine: React.FC<NavalWisdomEngineProps> = ({ language, t }) =>
               </div>
 
               {/* Ethics Card */}
-              <div className="relative bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 p-4 rounded-xl border border-emerald-100 dark:border-emerald-800/30 h-32">
-                <div className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-2">{language === 'EN' ? "Ethics (Safety)" : "诚信度 (安全)"}</div>
-                <div className="flex items-center justify-between mb-3">
-                  <div className="w-10 h-10 rounded-lg bg-emerald-200 dark:bg-emerald-800/50 flex items-center justify-center text-xl flex-shrink-0">🛡️</div>
-                  <div className={`text-3xl font-black ${infiniteGame.ethics >= 80 ? 'text-emerald-600' : 'text-amber-500'}`} style={{ fontVariantNumeric: 'tabular-nums' }}>{infiniteGame.ethics}%</div>
+              <div className="relative flex-1 bg-gradient-to-br from-emerald-900/40 to-teal-900/40 p-3 border-r border-slate-700">
+                <div className="text-[10px] font-bold text-slate-400 mb-2">{language === 'EN' ? "Ethics" : "诚信度"}</div>
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-8 h-8 rounded-lg bg-emerald-800/50 flex items-center justify-center text-lg flex-shrink-0">🛡️</div>
+                  <div className={`text-xl font-black ${infiniteGame.ethics >= 80 ? 'text-emerald-400' : 'text-amber-400'}`}>{infiniteGame.ethics}<span className="text-sm">%</span></div>
                 </div>
-                <div className="h-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-full overflow-hidden">
-                  <div className={`h-full rounded-full transition-all duration-500 ease-out ${infiniteGame.ethics >= 80 ? 'bg-gradient-to-r from-emerald-500 to-teal-500' : 'bg-amber-400'}`} style={{ width: `${infiniteGame.ethics}%` }} />
+                <div className="h-1.5 bg-slate-700 rounded-full overflow-hidden">
+                  <div className={`h-full rounded-full ${infiniteGame.ethics >= 80 ? 'bg-gradient-to-r from-emerald-500 to-teal-500' : 'bg-amber-400'}`} style={{ width: `${infiniteGame.ethics}%` }} />
                 </div>
                 <input type="range" min="0" max="100" value={infiniteGame.ethics}
                   onChange={(e) => setInfiniteGame(prev => ({...prev, ethics: parseInt(e.target.value)}))}
@@ -1129,14 +1129,14 @@ const NavalWisdomEngine: React.FC<NavalWisdomEngineProps> = ({ language, t }) =>
               </div>
 
               {/* Consistency Card */}
-              <div className="relative bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 p-4 rounded-xl border border-blue-100 dark:border-blue-800/30 h-32">
-                <div className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-2">{language === 'EN' ? "Consistency (Growth)" : "一致性 (增长)"}</div>
-                <div className="flex items-center justify-between mb-3">
-                  <div className="w-10 h-10 rounded-lg bg-blue-200 dark:bg-blue-800/50 flex items-center justify-center text-xl flex-shrink-0">📈</div>
-                  <div className="text-3xl font-black text-blue-600" style={{ fontVariantNumeric: 'tabular-nums' }}>{infiniteGame.consistency}%</div>
+              <div className="relative flex-1 bg-gradient-to-br from-blue-900/40 to-cyan-900/40 p-3">
+                <div className="text-[10px] font-bold text-slate-400 mb-2">{language === 'EN' ? "Consistency" : "一致性"}</div>
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-8 h-8 rounded-lg bg-blue-800/50 flex items-center justify-center text-lg flex-shrink-0">📈</div>
+                  <div className="text-xl font-black text-blue-400">{infiniteGame.consistency}<span className="text-sm">%</span></div>
                 </div>
-                <div className="h-2 bg-blue-100 dark:bg-blue-900/30 rounded-full overflow-hidden">
-                  <div className="h-full bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full transition-all duration-500 ease-out" style={{ width: `${infiniteGame.consistency}%` }} />
+                <div className="h-1.5 bg-slate-700 rounded-full overflow-hidden">
+                  <div className="h-full bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full" style={{ width: `${infiniteGame.consistency}%` }} />
                 </div>
                 <input type="range" min="0" max="100" value={infiniteGame.consistency}
                   onChange={(e) => setInfiniteGame(prev => ({...prev, consistency: parseInt(e.target.value)}))}
