@@ -698,7 +698,7 @@ const NavalWisdomEngine: React.FC<NavalWisdomEngineProps> = ({ language, t }) =>
                 </div>
                 <div>
                   <h3 className="text-lg font-bold text-slate-800 dark:text-white">{language === 'EN' ? 'Judgment Engine' : '判断力引擎'}</h3>
-                  <p className="text-[10px] text-slate-400">{language === 'EN' ? "Naval's Decision Razor" : "纳瓦尔决策剃刀"}</p>
+                  <p className="text-[10px] text-slate-500 dark:text-slate-400">{language === 'EN' ? "Naval's Decision Razor" : "纳瓦尔决策剃刀"}</p>
                 </div>
               </div>
               
@@ -738,7 +738,7 @@ const NavalWisdomEngine: React.FC<NavalWisdomEngineProps> = ({ language, t }) =>
                 className={`group cursor-pointer p-4 rounded-xl border-2 transition-all duration-300 ${
                   judgmentParams.isLongTerm 
                     ? 'bg-gradient-to-r from-emerald-50 to-cyan-50 dark:from-emerald-900/20 dark:to-cyan-900/20 border-emerald-400' 
-                    : 'bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 hover:border-slate-300'
+                    : 'bg-white dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 hover:border-slate-300'
                 }`}
               >
                 <div className="flex items-center justify-between">
@@ -750,7 +750,7 @@ const NavalWisdomEngine: React.FC<NavalWisdomEngineProps> = ({ language, t }) =>
                     </div>
                     <div>
                       <div className="font-bold text-slate-700 dark:text-slate-200">{language === 'EN' ? "Long-Term Game" : "长期游戏"}</div>
-                      <div className="text-[11px] text-slate-400">{language === 'EN' ? "Can you play this for 10+ years?" : "你能玩这个游戏10年以上吗?"}</div>
+                      <div className="text-[11px] text-slate-500 dark:text-slate-400">{language === 'EN' ? "Can you play this for 10+ years?" : "你能玩这个游戏10年以上吗?"}</div>
                     </div>
                   </div>
                   <div className={`w-14 h-7 rounded-full p-1 transition-all duration-300 ${judgmentParams.isLongTerm ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-600'}`}>
@@ -765,7 +765,7 @@ const NavalWisdomEngine: React.FC<NavalWisdomEngineProps> = ({ language, t }) =>
                 className={`group cursor-pointer p-4 rounded-xl border-2 transition-all duration-300 ${
                   judgmentParams.isWinWin 
                     ? 'bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border-blue-400' 
-                    : 'bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 hover:border-slate-300'
+                    : 'bg-white dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 hover:border-slate-300'
                 }`}
               >
                 <div className="flex items-center justify-between">
@@ -777,7 +777,7 @@ const NavalWisdomEngine: React.FC<NavalWisdomEngineProps> = ({ language, t }) =>
                     </div>
                     <div>
                       <div className="font-bold text-slate-700 dark:text-slate-200">{language === 'EN' ? "Compounding" : "复利效应"}</div>
-                      <div className="text-[11px] text-slate-400">{language === 'EN' ? "Does effort accumulate over time?" : "努力会随时间累积增长吗?"}</div>
+                      <div className="text-[11px] text-slate-500 dark:text-slate-400">{language === 'EN' ? "Does effort accumulate over time?" : "努力会随时间累积增长吗?"}</div>
                     </div>
                   </div>
                   <div className={`w-14 h-7 rounded-full p-1 transition-all duration-300 ${judgmentParams.isWinWin ? 'bg-blue-500' : 'bg-slate-300 dark:bg-slate-600'}`}>
@@ -792,7 +792,7 @@ const NavalWisdomEngine: React.FC<NavalWisdomEngineProps> = ({ language, t }) =>
                 className={`group cursor-pointer p-4 rounded-xl border-2 transition-all duration-300 ${
                   judgmentParams.isExciting 
                     ? 'bg-gradient-to-r from-pink-50 to-orange-50 dark:from-pink-900/20 dark:to-orange-900/20 border-pink-400' 
-                    : 'bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 hover:border-slate-300'
+                    : 'bg-white dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 hover:border-slate-300'
                 }`}
               >
                 <div className="flex items-center justify-between">
@@ -804,7 +804,7 @@ const NavalWisdomEngine: React.FC<NavalWisdomEngineProps> = ({ language, t }) =>
                     </div>
                     <div>
                       <div className="font-bold text-slate-700 dark:text-slate-200">{language === 'EN' ? "Hell Yeah!" : "非它不可"}</div>
-                      <div className="text-[11px] text-slate-400">{language === 'EN' ? "If it's not a hell yeah, it's a no" : "如果不是'非它不可'，那就是'不'"}</div>
+                      <div className="text-[11px] text-slate-500 dark:text-slate-400">{language === 'EN' ? "If it's not a hell yeah, it's a no" : "如果不是'非它不可'，那就是'不'"}</div>
                     </div>
                   </div>
                   <div className={`w-14 h-7 rounded-full p-1 transition-all duration-300 ${judgmentParams.isExciting ? 'bg-pink-500' : 'bg-slate-300 dark:bg-slate-600'}`}>
@@ -818,7 +818,7 @@ const NavalWisdomEngine: React.FC<NavalWisdomEngineProps> = ({ language, t }) =>
             <div className={`mt-6 p-5 rounded-2xl transition-all duration-700 relative overflow-hidden ${
               judgmentParams.isLongTerm && judgmentParams.isWinWin && judgmentParams.isExciting
                 ? 'bg-gradient-to-r from-emerald-500 to-cyan-500' 
-                : 'bg-gradient-to-r from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-700'
+                : 'bg-white dark:from-slate-800 dark:to-slate-700 dark:bg-gradient-to-r border border-slate-200 dark:border-transparent'
             }`}>
               {/* Animated particles for success state */}
               {judgmentParams.isLongTerm && judgmentParams.isWinWin && judgmentParams.isExciting && (
@@ -835,7 +835,7 @@ const NavalWisdomEngine: React.FC<NavalWisdomEngineProps> = ({ language, t }) =>
                     judgmentParams.isLongTerm && judgmentParams.isWinWin && judgmentParams.isExciting ? 'text-white/80' : 'text-slate-500'
                   }`}>{language === 'EN' ? "DECISION OUTPUT" : "决策结果"}</div>
                   <div className={`text-3xl font-black ${
-                    judgmentParams.isLongTerm && judgmentParams.isWinWin && judgmentParams.isExciting ? 'text-white' : 'text-slate-400'
+                    judgmentParams.isLongTerm && judgmentParams.isWinWin && judgmentParams.isExciting ? 'text-white' : 'text-slate-600 dark:text-slate-400'
                   }`}>
                     {judgmentParams.isLongTerm && judgmentParams.isWinWin && judgmentParams.isExciting
                       ? (language === 'EN' ? "GO ALL IN! 🚀" : "全力以赴! 🚀")
@@ -905,7 +905,7 @@ const NavalWisdomEngine: React.FC<NavalWisdomEngineProps> = ({ language, t }) =>
                </div>
                
                {/* Allocation Donut Chart */}
-               <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 mt-4">
+               <div className="bg-white dark:bg-slate-800/50 rounded-xl p-4 mt-4 border border-slate-200 dark:border-transparent">
                  <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">{language === 'EN' ? "Distribution Overview" : "分配预览"}</p>
                  <div className="flex items-center gap-4">
                    {/* Donut Chart */}
@@ -968,7 +968,7 @@ const NavalWisdomEngine: React.FC<NavalWisdomEngineProps> = ({ language, t }) =>
             {/* Visual Output - Enhanced with more data */}
             <div className="space-y-3">
               {/* Top Stats - Refined Layout */}
-              <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4">
+              <div className="bg-white dark:bg-slate-800/50 rounded-xl p-4 border border-slate-200 dark:border-transparent">
                 <div className="text-center mb-3">
                   <div className="text-[10px] text-slate-400 uppercase tracking-wider mb-1">{language === 'EN' ? "Effective Output" : "有效产出"}</div>
                   <div className="text-3xl font-black text-slate-800 dark:text-white">{totalOutput.toLocaleString()}</div>
@@ -1817,7 +1817,7 @@ const NavalTweetCarousel = ({ language }: { language: 'CN' | 'EN' }) => {
         )}
 
         {/* Pagination Dots - Hover to switch (macOS Dock style) */}
-        <div className="flex items-center justify-center gap-1.5 mt-6 py-3 px-4 rounded-full bg-slate-800/30 backdrop-blur-sm mx-auto w-fit">
+        <div className="flex items-center justify-center gap-1.5 mt-6 py-3 px-4 rounded-full bg-slate-200/80 dark:bg-slate-800/30 backdrop-blur-sm mx-auto w-fit">
           {filteredTweets.slice(0, Math.min(filteredTweets.length, 15)).map((_, idx) => {
             // Calculate scale based on distance from current (Dock magnification effect)
             const distance = Math.abs(idx - currentIndex);
@@ -1953,7 +1953,7 @@ const NavalTweetCarousel = ({ language }: { language: 'CN' | 'EN' }) => {
                   <div
                     key={`left-${idx}`}
                     onClick={() => goTo(allTweets.indexOf(tweet))}
-                    className="quote-card flex-shrink-0 w-72 p-5 bg-gradient-to-br from-slate-800/90 to-slate-900/90 backdrop-blur-sm rounded-2xl border border-slate-700/50 cursor-pointer group relative overflow-hidden"
+                    className="quote-card flex-shrink-0 w-72 p-5 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800/90 dark:to-slate-900/90 backdrop-blur-sm rounded-2xl border border-slate-300 dark:border-slate-700/50 cursor-pointer group relative overflow-hidden"
                   >
                     {/* Glow Effect */}
                     <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br ${cat?.color} blur-xl`} style={{ transform: 'scale(0.8)' }} />
@@ -1964,16 +1964,16 @@ const NavalTweetCarousel = ({ language }: { language: 'CN' | 'EN' }) => {
                     </div>
                     
                     {/* Quote */}
-                    <p className="relative z-10 text-sm text-slate-200 leading-relaxed line-clamp-3 group-hover:text-white transition-colors">
+                    <p className="relative z-10 text-sm text-slate-700 dark:text-slate-200 leading-relaxed line-clamp-3 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
                       "{getTweetText(tweet)}"
                     </p>
                     
                     {/* Footer */}
-                    <div className="relative z-10 flex items-center justify-between mt-3 pt-3 border-t border-slate-700/50">
+                    <div className="relative z-10 flex items-center justify-between mt-3 pt-3 border-t border-slate-300 dark:border-slate-700/50">
                       <span className="flex items-center gap-1 text-xs text-pink-400">
                         <span>❤️</span> {tweet.likes}
                       </span>
-                      <span className="text-xs text-slate-500">{tweet.date}</span>
+                      <span className="text-xs text-slate-500 dark:text-slate-500">{tweet.date}</span>
                     </div>
                   </div>
                 );
@@ -1998,7 +1998,7 @@ const NavalTweetCarousel = ({ language }: { language: 'CN' | 'EN' }) => {
                   <div
                     key={`right-${idx}`}
                     onClick={() => goTo(allTweets.indexOf(tweet))}
-                    className="quote-card flex-shrink-0 w-72 p-5 bg-gradient-to-br from-slate-800/90 to-slate-900/90 backdrop-blur-sm rounded-2xl border border-slate-700/50 cursor-pointer group relative overflow-hidden"
+                    className="quote-card flex-shrink-0 w-72 p-5 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800/90 dark:to-slate-900/90 backdrop-blur-sm rounded-2xl border border-slate-300 dark:border-slate-700/50 cursor-pointer group relative overflow-hidden"
                   >
                     {/* Glow Effect */}
                     <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br ${cat?.color} blur-xl`} style={{ transform: 'scale(0.8)' }} />
@@ -2009,12 +2009,12 @@ const NavalTweetCarousel = ({ language }: { language: 'CN' | 'EN' }) => {
                     </div>
                     
                     {/* Quote */}
-                    <p className="relative z-10 text-sm text-slate-200 leading-relaxed line-clamp-3 group-hover:text-white transition-colors">
+                    <p className="relative z-10 text-sm text-slate-700 dark:text-slate-200 leading-relaxed line-clamp-3 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
                       "{getTweetText(tweet)}"
                     </p>
                     
                     {/* Footer */}
-                    <div className="relative z-10 flex items-center justify-between mt-3 pt-3 border-t border-slate-700/50">
+                    <div className="relative z-10 flex items-center justify-between mt-3 pt-3 border-t border-slate-300 dark:border-slate-700/50">
                       <span className="flex items-center gap-1 text-xs text-pink-400">
                         <span>❤️</span> {tweet.likes}
                       </span>

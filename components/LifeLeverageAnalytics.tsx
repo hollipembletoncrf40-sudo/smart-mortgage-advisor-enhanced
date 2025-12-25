@@ -269,7 +269,7 @@ const LifeLeverageAnalytics: React.FC<LifeLeverageAnalyticsProps> = ({ params, l
 
             {/* Personal IPO & Valuation */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                 <div className="md:col-span-2 bg-gradient-to-r from-slate-900 to-slate-800 rounded-2xl p-6 text-white relative overflow-hidden flex flex-col justify-center border border-slate-700 shadow-xl">
+                 <div className="md:col-span-2 bg-white dark:from-slate-900 dark:to-slate-800 dark:bg-gradient-to-r rounded-2xl p-6 text-slate-800 dark:text-white relative overflow-hidden flex flex-col justify-center border border-slate-200 dark:border-slate-700 shadow-xl">
                     <div className="absolute top-0 right-0 p-8 opacity-5">
                         <TrendingUp size={120} />
                     </div>
@@ -278,13 +278,13 @@ const LifeLeverageAnalytics: React.FC<LifeLeverageAnalyticsProps> = ({ params, l
                         <div>
                             <div className="flex items-center gap-2 mb-2">
                                 <span className="px-2 py-1 bg-indigo-500/20 text-indigo-300 text-[10px] font-bold uppercase rounded tracking-wider border border-indigo-500/30">Personal IPO</span>
-                                <span className="text-slate-400 text-xs">{t('个人上市市值', 'Your Market Cap')}</span>
+                                <span className="text-slate-600 dark:text-slate-400 text-xs">{t('个人上市市值', 'Your Market Cap')}</span>
                             </div>
                             <div className="text-5xl md:text-6xl font-black tracking-tight flex items-baseline gap-2">
-                                <span className="text-2xl text-slate-400">$</span>
+                                <span className="text-2xl text-slate-500 dark:text-slate-400">$</span>
                                 {metrics.personalIPO.valuation.toLocaleString()}
                             </div>
-                            <p className="text-sm text-slate-400 mt-2 max-w-md">
+                            <p className="text-sm text-slate-600 dark:text-slate-400 mt-2 max-w-md">
                                 {t(
                                     '这是基于你的现金流和杠杆率计算的理论市值。想提高身价？提高可复制性，降低折旧率。',
                                     'Theoretical valuation based on your cashflow & leverage. Want to raise stock price? Increase replicability, decrease decay.'
@@ -293,12 +293,12 @@ const LifeLeverageAnalytics: React.FC<LifeLeverageAnalyticsProps> = ({ params, l
                         </div>
 
                         <div className="flex gap-4">
-                            <div className="text-center bg-white/5 p-3 rounded-xl backdrop-blur-sm border border-white/10">
-                                <div className="text-xs text-slate-400 mb-1">P/E Ratio</div>
+                            <div className="text-center bg-slate-200/50 dark:bg-white/5 p-3 rounded-xl backdrop-blur-sm border border-slate-300 dark:border-white/10">
+                                <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">P/E Ratio</div>
                                 <div className="text-xl font-bold text-emerald-400">{metrics.personalIPO.peRatio}x</div>
                             </div>
-                            <div className="text-center bg-white/5 p-3 rounded-xl backdrop-blur-sm border border-white/10">
-                                <div className="text-xs text-slate-400 mb-1">Potential</div>
+                            <div className="text-center bg-slate-200/50 dark:bg-white/5 p-3 rounded-xl backdrop-blur-sm border border-slate-300 dark:border-white/10">
+                                <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">Potential</div>
                                 <div className="text-xl font-bold text-amber-400">{metrics.personalIPO.potential}/100</div>
                             </div>
                         </div>
@@ -306,9 +306,9 @@ const LifeLeverageAnalytics: React.FC<LifeLeverageAnalyticsProps> = ({ params, l
                  </div>
 
                  {/* Naval's Almanac Card */}
-                 <div className="bg-black rounded-2xl p-6 border border-slate-800 flex flex-col relative overflow-hidden group">
+                 <div className="bg-white dark:bg-black rounded-2xl p-6 border border-slate-200 dark:border-slate-800 flex flex-col relative overflow-hidden group">
                     <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop')] opacity-20 bg-cover bg-center mix-blend-overlay transition-opacity duration-700 group-hover:opacity-30"></div>
-                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent"></div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-white dark:from-black via-white/80 dark:via-black/80 to-transparent"></div>
                     
                     <div className="relative z-10 flex-1 flex flex-col justify-between">
                         <div className="flex justify-between items-start">
@@ -319,12 +319,12 @@ const LifeLeverageAnalytics: React.FC<LifeLeverageAnalyticsProps> = ({ params, l
                         </div>
                         
                         <div className="my-4">
-                            <h3 className="text-lg font-serif italic text-slate-200 leading-relaxed">
+                            <h3 className="text-lg font-serif italic text-slate-700 dark:text-slate-200 leading-relaxed">
                                 {language === 'ZH' 
                                  ? '"用头脑赚钱，而不是用时间赚钱。如果你还在出卖时间，你就永远无法获得真正的自由。"'
                                  : '"Earn with your mind, not your time. If you require your time to make money, you will never be truly free."'}
                             </h3>
-                            <div className="mt-3 flex items-center gap-2 text-slate-500 text-xs">
+                            <div className="mt-3 flex items-center gap-2 text-slate-500 dark:text-slate-500 text-xs">
                                 <div className="h-4 w-4 rounded-full bg-slate-700 overflow-hidden">
                                     <img src="https://unavatar.io/twitter/naval" alt="Naval" className="h-full w-full object-cover"/>
                                 </div>
