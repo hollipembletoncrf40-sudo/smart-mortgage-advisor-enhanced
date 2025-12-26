@@ -1026,6 +1026,7 @@ export const TRANSLATIONS = {
     navAIPanel: "AI顾问",
     navPaymentSchedule: "还款计划",
     navFAQ: "常见问题",
+    navFeedback: "反馈与建议",
 
     // Interactive Dashboard
     realTimeViz: "实时决策可视化",
@@ -2134,6 +2135,7 @@ export const TRANSLATIONS = {
     navAIPanel: "AI Advisor",
     navPaymentSchedule: "Payment Schedule",
     navFAQ: "FAQ",
+    navFeedback: "Feedback",
 
     // Interactive Dashboard
     realTimeViz: "Real-time Decision Viz",

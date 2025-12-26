@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { List, BarChart3, Zap, Clock, Gamepad2, TrendingUp, LayoutGrid, Bot, HelpCircle, CalendarDays } from 'lucide-react';
+import { List, BarChart3, Zap, Clock, Gamepad2, TrendingUp, LayoutGrid, Bot, HelpCircle, CalendarDays, MessageSquare } from 'lucide-react';
 
 interface SectionNavProps {
   t: any;
@@ -26,6 +26,7 @@ const NAV_ITEMS: NavItem[] = [
 
   { id: 'payment-schedule', icon: CalendarDays, labelKey: 'navPaymentSchedule', fallbackLabel: '还款计划', fallbackLabelEN: 'Payment Schedule', targetTab: 'repayment_detail' },
   { id: 'faq-section', icon: HelpCircle, labelKey: 'navFAQ', fallbackLabel: '常见问题', fallbackLabelEN: 'FAQ' },
+  { id: 'feedback-trigger-btn', icon: MessageSquare, labelKey: 'navFeedback', fallbackLabel: '反馈与建议', fallbackLabelEN: 'Feedback' },
 ];
 
 const SectionNav: React.FC<SectionNavProps> = ({ t, onTabChange }) => {
@@ -60,6 +61,8 @@ const SectionNav: React.FC<SectionNavProps> = ({ t, onTabChange }) => {
     );
 
     NAV_ITEMS.forEach((item) => {
+      // For feedback button, we don't need to observe it for active state strictly, 
+      // but if it exists we can observe it.
       const element = document.getElementById(item.id);
       if (element) observer.observe(element);
     });
@@ -89,8 +92,17 @@ const SectionNav: React.FC<SectionNavProps> = ({ t, onTabChange }) => {
 
     const element = document.getElementById(id);
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' }); // Use center for button visibility
       setActiveSection(id);
+      
+      // Special animation for feedback button
+      if (id === 'feedback-trigger-btn') {
+        element.classList.add('ring-4', 'ring-indigo-500', 'ring-offset-2', 'transition-all', 'duration-500', 'scale-110');
+        setTimeout(() => {
+           element.classList.remove('ring-4', 'ring-indigo-500', 'ring-offset-2', 'scale-110');
+        }, 1500);
+      }
+
       // Collapse on mobile after clicking
       if (isMobile) setIsExpanded(false);
     }

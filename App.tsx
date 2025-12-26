@@ -3596,6 +3596,7 @@ function App() {
               </h3>
               <div className="space-y-2">
                 <button 
+                  id="feedback-trigger-btn"
                   onClick={() => setShowFeedback(true)} 
                   className="w-full flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:border-indigo-300 dark:hover:border-indigo-600 rounded-lg text-xs font-medium transition-all"
                 >
