@@ -4,6 +4,7 @@ import { TrendingUp, LogIn, Calendar, ArrowRight } from 'lucide-react';
 import AmortizationMoodBar from './AmortizationMoodBar';
 import DetailedPaymentTable from './DetailedPaymentTable'; // Check import path
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
+import RepaymentCalendar from './RepaymentCalendar';
 
 interface Props {
   t: any;
@@ -31,7 +32,7 @@ const DetailedRepaymentTab: React.FC<Props> = ({
   darkMode
 }) => {
   return (
-    <div className="w-full space-y-6 animate-fade-in pb-8">
+    <div className="w-full space-y-6 animate-fade-in pb-8" id="repayment-report-content">
        {/* Visual Header & Chart Section */}
        <div className="bg-white dark:bg-slate-900/60 backdrop-blur-xl rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-800/50 overflow-hidden relative group">
         <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
@@ -54,19 +55,22 @@ const DetailedRepaymentTab: React.FC<Props> = ({
                </p>
             </div>
             
-            <div className="flex bg-slate-100 dark:bg-slate-800 rounded-xl p-1.5 self-start md:self-center">
-              <button 
-                onClick={() => setChartGranularity('year')} 
-                className={`px-6 py-2 text-sm font-bold rounded-lg transition-all shadow-sm ${chartGranularity === 'year' ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-white shadow-md transform scale-105' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
-              >
-                {t.viewYear}
-              </button>
-              <button 
-                onClick={() => setChartGranularity('month')} 
-                className={`px-6 py-2 text-sm font-bold rounded-lg transition-all shadow-sm ${chartGranularity === 'month' ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-white shadow-md transform scale-105' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
-              >
-                {t.viewMonth}
-              </button>
+            <div className="flex flex-col gap-3 self-start md:self-center items-end">
+              {/* Granularity Toggle */}
+              <div className="flex bg-slate-100 dark:bg-slate-800 rounded-xl p-1.5">
+                <button 
+                  onClick={() => setChartGranularity('year')} 
+                  className={`px-6 py-2 text-sm font-bold rounded-lg transition-all shadow-sm ${chartGranularity === 'year' ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-white shadow-md transform scale-105' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
+                >
+                  {t.viewYear}
+                </button>
+                <button 
+                  onClick={() => setChartGranularity('month')} 
+                  className={`px-6 py-2 text-sm font-bold rounded-lg transition-all shadow-sm ${chartGranularity === 'month' ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-white shadow-md transform scale-105' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
+                >
+                  {t.viewMonth}
+                </button>
+              </div>
             </div>
           </div>
 
@@ -134,10 +138,18 @@ const DetailedRepaymentTab: React.FC<Props> = ({
         </div>
         
         {/* Amortization Mood Bar (Scale-up) */}
-        <div className="p-8 pt-2">
-          <div className="bg-slate-50 dark:bg-slate-950/50 rounded-2xl p-6 border border-slate-100 dark:border-slate-800">
-             <AmortizationMoodBar result={result} params={params} t={t} />
-          </div>
+        <div className="bg-slate-50 dark:bg-slate-950/50 rounded-2xl p-6 border border-slate-100 dark:border-slate-800 mx-8 mb-8">
+           <AmortizationMoodBar result={result} params={params} t={t} />
+        </div>
+
+        {/* Repayment Calendar Section */}
+        <div className="px-8 pb-8">
+          <RepaymentCalendar 
+            monthlyPayment={result.monthlyPayment} 
+            t={t} 
+            language={language}
+            darkMode={darkMode}
+          />
         </div>
         
         {/* Detailed Table Section */}
