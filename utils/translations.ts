@@ -1337,7 +1337,7 @@ export const TRANSLATIONS = {
     // Contact
     contactAuthor: "联系作者",
     contactAuthorTitle: "联系作者",
-    contactAuthorDesc: "扫码添加微信 ✨",
+    contactAuthorDesc: "扫码添加QQ ✨",
     contactClose: "关闭",
   },
   EN: {
@@ -1357,7 +1357,7 @@ export const TRANSLATIONS = {
     headerSave: "Save & Review",
     contactAuthor: "Contact Author",
     contactAuthorTitle: "Contact Author",
-    contactAuthorDesc: "Scan QR code to add WeChat ✨",
+    contactAuthorDesc: "Scan QR code to add QQ ✨",
     contactClose: "Close",
     
     // Auth Modal

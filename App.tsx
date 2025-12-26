@@ -3526,11 +3526,11 @@ function App() {
               {t.contactAuthorTitle || '联系作者'}
             </h3>
             <p className="text-slate-500 dark:text-slate-400 text-xs mb-6">
-              {t.contactAuthorDesc || '扫码添加微信，期待与你交流 ✨'}
+              {t.contactAuthorDesc || '扫码添加QQ，期待与你交流 ✨'}
             </p>
-            <div className="bg-gradient-to-r from-green-500 to-emerald-500 p-4 rounded-xl inline-block mb-4 shadow-lg shadow-green-500/30">
+            <div className="bg-gradient-to-r from-sky-400 to-blue-600 p-4 rounded-xl inline-block mb-4 shadow-lg shadow-blue-500/30">
               <div style={{ backgroundColor: '#ffffff' }} className="p-3 rounded-lg">
-                <img src="/4e357b455c718f917a05a611ec1efd8f.jpg" alt="WeChat QR" className="w-48 h-48 object-contain rounded" style={{ backgroundColor: '#ffffff' }}/>
+                <img src="/a7f844cc6254feb575a96988a2f98e90.jpg" alt="QQ QR" className="w-48 h-48 object-contain rounded" style={{ backgroundColor: '#ffffff' }}/>
               </div>
             </div>
             <button onClick={() => setShowWeChat(false)} className="block w-full text-sm text-slate-400 hover:text-slate-600 mt-2">
