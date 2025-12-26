@@ -653,9 +653,11 @@ const FeedbackModal = ({ onClose, t, user }: { onClose: () => void, t: any, user
   const [category, setCategory] = useState("suggestion");
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async () => { 
     setIsSubmitting(true);
+    setError(null);
     try {
       await submitFeedback({
         rating,
@@ -665,9 +667,14 @@ const FeedbackModal = ({ onClose, t, user }: { onClose: () => void, t: any, user
         userEmail: user?.email || undefined
       });
       setSubmitted(true);
-    } catch (e) {
-      console.error(e);
-      // Optional: show error state
+    } catch (e: any) {
+      console.error("Feedback submit error:", e);
+      // Simplify error message for user
+      if (e.code === 'permission-denied') {
+        setError(t.feedbackErrorPermission || '提交失败：权限被拒绝，请检查网络或联系管理员。');
+      } else {
+        setError(t.feedbackErrorGeneral || '提交失败，请稍后重试。');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -757,6 +764,13 @@ const FeedbackModal = ({ onClose, t, user }: { onClose: () => void, t: any, user
                   className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none dark:text-white h-32 resize-none transition-all placeholder:text-slate-400" 
                 />
               </div>
+
+              {error && (
+                <div className="flex items-center gap-2 p-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-xs rounded-xl animate-in fade-in slide-in-from-top-1">
+                  <AlertTriangle className="h-4 w-4 shrink-0" />
+                  {error}
+                </div>
+              )}
 
               <button 
                 onClick={handleSubmit} 
