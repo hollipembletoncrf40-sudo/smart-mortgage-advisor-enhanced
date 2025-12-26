@@ -15,14 +15,14 @@ const HousingTrendsPanel = ({ t }: { t: any }) => {
   const chartData = topCities.map(city => ({
     name: city.name,
     price: city.price,
-    newPrice: city.newPrice
+    newPrice: typeof city.newPrice === 'number' ? city.newPrice : 0
   }));
 
   // Prepare scatter data
   const scatterData = topCities.map(city => ({
     name: city.name,
     secondHand: city.price,
-    newHouse: city.newPrice,
+    newHouse: typeof city.newPrice === 'number' ? city.newPrice : 0,
     yoy: parseFloat(city.yoy.replace('%', '').replace('+', '')) || 0
   }));
 
@@ -283,7 +283,7 @@ const HousingTrendsPanel = ({ t }: { t: any }) => {
                       </div>
                     </td>
                     <td className="px-6 py-4 font-mono text-slate-600 dark:text-slate-300">
-                      {city.newPrice.toLocaleString()}
+                      {typeof city.newPrice === 'number' ? city.newPrice.toLocaleString() : city.newPrice}
                     </td>
                   </tr>
                 );
