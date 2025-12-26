@@ -155,18 +155,40 @@ const DonationModal: React.FC<DonationModalProps> = ({ isOpen, onClose, t, qrCod
               {t.donationEmotionalDesc || '你的每一份支持，都是我继续创作的动力。一杯咖啡的温度，足以温暖一颗创作者的心 ☕✨'}
             </p>
 
-            {/* QR Code with decorative border */}
-            <div className="relative inline-block mb-6">
-              {/* Gradient border */}
-              <div className="absolute -inset-1 bg-gradient-to-r from-rose-400 via-pink-500 to-purple-500 rounded-2xl blur opacity-75" />
-              <div className="relative bg-gradient-to-br from-rose-500 to-purple-600 p-4 rounded-2xl">
-                <div className="bg-white p-3 rounded-xl">
-                  <img 
-                    src={qrCodeSrc} 
-                    alt="Payment QR" 
-                    className="w-52 h-52 object-contain"
-                  />
+            {/* QR Codes with decorative border - WeChat & Alipay */}
+            <div className="flex gap-4 justify-center mb-6">
+              {/* WeChat QR */}
+              <div className="flex flex-col items-center">
+                <div className="relative">
+                  <div className="absolute -inset-1 bg-gradient-to-r from-green-400 to-green-600 rounded-xl blur opacity-75" />
+                  <div className="relative bg-gradient-to-br from-green-500 to-green-600 p-2 rounded-xl">
+                    <div className="bg-white p-2 rounded-lg">
+                      <img 
+                        src="/ad88ddc9ecdef607de5d09ef28e17af7.png" 
+                        alt="WeChat Pay" 
+                        className="w-32 h-32 object-contain"
+                      />
+                    </div>
+                  </div>
                 </div>
+                <span className="mt-2 text-xs font-medium text-green-500">微信支付</span>
+              </div>
+
+              {/* Alipay QR */}
+              <div className="flex flex-col items-center">
+                <div className="relative">
+                  <div className="absolute -inset-1 bg-gradient-to-r from-blue-400 to-blue-600 rounded-xl blur opacity-75" />
+                  <div className="relative bg-gradient-to-br from-blue-500 to-blue-600 p-2 rounded-xl">
+                    <div className="bg-white p-2 rounded-lg">
+                      <img 
+                        src="/httpsqr.alipay.comfkx19665ghh0z6cyvf6ut4c.png" 
+                        alt="Alipay" 
+                        className="w-32 h-32 object-contain"
+                      />
+                    </div>
+                  </div>
+                </div>
+                <span className="mt-2 text-xs font-medium text-blue-500">支付宝</span>
               </div>
             </div>
 
