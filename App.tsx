@@ -658,6 +658,7 @@ const FeedbackModal = ({ onClose, t, user }: { onClose: () => void, t: any, user
   const handleSubmit = async () => { 
     setIsSubmitting(true);
     setError(null);
+    let success = false;
     try {
       await submitFeedback({
         rating,
@@ -666,7 +667,7 @@ const FeedbackModal = ({ onClose, t, user }: { onClose: () => void, t: any, user
         userId: user?.uid,
         userEmail: user?.email || undefined
       });
-      setSubmitted(true);
+      success = true; // Mark as success immediately after Firestore write
     } catch (e: any) {
       console.error("Feedback submit error:", e);
       // Simplify error message for user
@@ -677,6 +678,9 @@ const FeedbackModal = ({ onClose, t, user }: { onClose: () => void, t: any, user
       }
     } finally {
       setIsSubmitting(false);
+      if (success) {
+        setSubmitted(true); // Show success UI
+      }
     }
   };
 
