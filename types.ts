@@ -46,7 +46,8 @@ export interface LocationScore {
 export interface InvestmentParams {
   // 基本房产信息
   totalPrice: number; // 万元
-  propertyArea: number; // 平方米 (房屋面积)
+  propertyArea: number; // 平方米 (房屋面积/建筑面积)
+  sharedAreaRatio: number; // % (公摊比例, 默认25%)
   unitPrice: number; // 元/平米 (单价，自动计算)
   communityName: string; // 小区名称
   district: string; // 所在区域

@@ -2064,6 +2064,7 @@ function App() {
   const [params, setParams] = useState<InvestmentParams>({
     totalPrice: 300,
     propertyArea: 90,
+    sharedAreaRatio: 25, // 公摊比例默认25%
     unitPrice: 33333,
     communityName: "",
     district: "",
@@ -2715,9 +2716,26 @@ function App() {
                                 </div>
                             </div>
                             
-                            {/* Area & Unit Price & Total Price */}
-                            <div className="grid grid-cols-3 gap-2">
+                            {/* Area & Shared Area & Unit Price & Total Price */}
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                                 <InputGroup label={t.propertyArea} value={params.propertyArea} onChange={v => handleInputChange('propertyArea', v)} tooltip={t.tipPropertyArea} />
+                                <div className="flex flex-col gap-1.5">
+                                    <div className="flex items-center gap-1">
+                                        <label className="text-xs font-medium text-slate-500 dark:text-slate-400">{t.sharedAreaRatio || '公摊比例 (%)'}</label>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <input 
+                                            type="number"
+                                            step="1"
+                                            value={params.sharedAreaRatio}
+                                            onChange={(e) => handleInputChange('sharedAreaRatio', parseFloat(e.target.value) || 0)}
+                                            className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white transition-all hover:border-indigo-300 dark:hover:border-indigo-700"
+                                        />
+                                    </div>
+                                    <div className="text-[10px] text-emerald-600 dark:text-emerald-400">
+                                        {t.usableArea || '实际使用面积'}: {(params.propertyArea * (1 - params.sharedAreaRatio / 100)).toFixed(1)}㎡
+                                    </div>
+                                </div>
                                 <div className="flex flex-col gap-1.5">
                                     <div className="flex items-center gap-1">
                                         <label className="text-xs font-medium text-slate-500 dark:text-slate-400">{t.unitPrice}</label>
