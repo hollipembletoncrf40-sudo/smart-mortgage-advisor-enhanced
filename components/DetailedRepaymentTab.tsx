@@ -168,11 +168,11 @@ const DetailedRepaymentTab: React.FC<Props> = ({
                 <div className="mt-6 flex justify-center gap-6">
                    <div className="flex items-center gap-1.5 text-xs text-slate-400">
                       <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></div>
-                      SSL Secure
+                      {language === 'ZH' ? 'SSL 安全加密' : 'SSL Secure'}
                    </div>
                     <div className="flex items-center gap-1.5 text-xs text-slate-400">
                       <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
-                      Privracy First
+                      {language === 'ZH' ? '隐私优先保护' : 'Privacy First'}
                    </div>
                 </div>
               </div>
