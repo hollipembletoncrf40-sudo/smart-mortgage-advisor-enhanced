@@ -310,20 +310,6 @@ export const AuthModal = ({ isOpen, onClose, t = {}, darkMode = true }: AuthModa
                         <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-6 text-zinc-400 text-sm max-h-[60vh] border border-zinc-800 rounded-2xl p-6 bg-zinc-950">
                             <p className="text-zinc-500 text-xs">最后更新日期：2025年10月</p>
                             
-                            <h3 className="text-white font-semibold text-lg pt-2">创作初衷</h3>
-                            <div className="bg-gradient-to-br from-indigo-500/10 to-emerald-500/10 border border-indigo-500/20 rounded-xl p-4 space-y-3">
-                                <p>作为一名独立开发者，我深知在当今复杂的房地产市场中，做出明智的购房决策是多么困难。</p>
-                                <p>我曾目睹身边的朋友和家人在购房时面临的种种困惑：月供压力如何评估？投资回报率怎么计算？首付和贷款如何平衡？这些问题往往需要专业的财务知识，但普通购房者很难获得。</p>
-                                <p>因此，我创建了 <strong className="text-emerald-400">WealthCompass（财富罗盘）</strong>，希望能够：</p>
-                                <ul className="list-disc list-inside space-y-1 pl-2 text-zinc-300">
-                                    <li>用<strong className="text-indigo-400">数据</strong>代替直觉，让购房决策更加理性</li>
-                                    <li>用<strong className="text-indigo-400">可视化</strong>呈现复杂的财务信息，让普通人也能轻松理解</li>
-                                    <li>用<strong className="text-indigo-400">AI</strong>辅助分析，提供个性化的建议而非千篇一律的模板</li>
-                                    <li>让每一位购房者都能像专业投资者一样，全面评估自己的财务状况</li>
-                                </ul>
-                                <p className="text-zinc-500 text-xs pt-2">本平台由个人独立开发和运营，坚持用户至上、数据安全的原则，持续迭代优化，致力于成为您身边最值得信赖的房产决策助手。</p>
-                            </div>
-                            
                             <h3 className="text-white font-semibold text-lg pt-4">1. 服务说明与接受条款</h3>
                             <p>欢迎使用 WealthCompass（以下简称"本平台"或"我们"）。本平台由独立开发者个人运营，致力于为用户提供基于大数据分析的房产价值评估、投资回报预测、贷款计算、以及 AI 辅助决策建议服务。</p>
                             <p>当您访问或使用本平台时，即表示您已阅读、理解并同意受本服务条款（以下简称"条款"）的约束。如果您不同意本条款的任何部分，请勿使用本平台。</p>
