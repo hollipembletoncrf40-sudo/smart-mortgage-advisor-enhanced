@@ -323,9 +323,12 @@ export const TRANSLATIONS = {
     settingsClear: "清除并恢复默认",
     settingsSave: "保存设置",
 
-    donationTitle: "感谢您的支持",
-    donationDesc: "开发不易，您的支持是我持续更新的动力",
-    donationClose: "关闭",
+    donationTitle: "请作者喝杯咖啡",
+    donationDesc: "你的支持是我前进的动力！",
+    donationHeartMessage: "感谢你的温暖 💕",
+    donationEmotionalDesc: "你的每一份支持，都是我继续创作的动力。一杯咖啡的温度，足以温暖一颗创作者的心 ☕✨",
+    donationThanks: '"无论金额大小，都是对我最大的认可"',
+    donationClose: "点击关闭",
 
     methodologyTitle: "计算原理说明书",
     methodologyContent: `

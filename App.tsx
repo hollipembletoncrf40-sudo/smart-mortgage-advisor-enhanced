@@ -48,6 +48,7 @@ import CommunityDataPanel from './components/CommunityDataPanel';
 import IncomeRequirementPanel from './components/IncomeRequirementPanel';
 import SellDecisionDashboard from './components/SellDecisionDashboard';
 import BuyDecisionDashboard from './components/BuyDecisionDashboard';
+import DonationModal from './components/DonationModal';
 import DecisionAutopsy from './components/DecisionAutopsy';
 import FreedomAnalytics from './components/FreedomAnalytics';
 import LifeLeverageAnalytics from './components/LifeLeverageAnalytics';
@@ -3677,7 +3678,7 @@ function App() {
       </footer>
       
       <AISettingsModal isOpen={showSettings} onClose={() => { setShowSettings(false); setAIConfig(loadAIConfig()); }} t={t} />
-      {showDonation && <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setShowDonation(false)}><div className="bg-white dark:bg-slate-900 rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl relative" onClick={e => e.stopPropagation()}><h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">{t.donationTitle}</h3><p className="text-slate-500 dark:text-slate-400 text-xs mb-6">{t.donationDesc}</p><div className="bg-emerald-500 p-4 rounded-xl inline-block mb-4 shadow-lg shadow-emerald-500/30"><div className="bg-white p-2 rounded-lg"><img src="/mm_reward_qrcode_1764664984491.png" alt="Payment QR" className="w-48 h-48 object-contain"/></div></div><button onClick={() => setShowDonation(false)} className="block w-full text-sm text-slate-400 hover:text-slate-600 mt-2">{t.donationClose}</button></div></div>}
+      <DonationModal isOpen={showDonation} onClose={() => setShowDonation(false)} t={t} qrCodeSrc="/mm_reward_qrcode_1764664984491.png" />
       
       {/* Contact Author WeChat Modal */}
       {showWeChat && (
