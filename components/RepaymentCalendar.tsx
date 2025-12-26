@@ -84,25 +84,30 @@ const RepaymentCalendar: React.FC<Props> = ({ monthlyPayment, t, language, darkM
     return `${viewDate.getFullYear()}-${String(viewDate.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
   };
 
-  const getHourlyFeedback = (cost: number) => {
-    if (cost < 50) return {
-       text: language === 'ZH' ? "游刃有余！您的时薪负担很轻，去享受生活吧☕️" : "Smooth sailing! Light burden, enjoy your coffee ☕️",
+  const getHourlyFeedback = (cost: number, hours: number) => {
+    // High Hourly Value -> Efficient -> Light Burden
+    if (cost >= 100) return {
+       text: language === 'ZH' ? "卓越的效能！您用高时薪轻松驾驭房贷，这是智慧与能力的体现�" : "Elite Efficiency! Your high value time masters the mortgage easily �",
        color: "text-emerald-500",
        bg: "bg-emerald-50 dark:bg-emerald-900/20"
     };
-    if (cost < 100) return {
-       text: language === 'ZH' ? "稳扎稳打！每一小时都在为未来添砖加瓦🏗️" : "Steady progress! Building your future hour by hour 🏗️",
+
+    // Medium Hourly Value -> Balanced
+    if (cost >= 50) return {
+       text: language === 'ZH' ? "稳健的步伐！您在工作与生活之间找到了完美平衡，未来可期⚖️" : "Steady Pace! Perfectly balancing life and duty, the future is bright ⚖️",
        color: "text-indigo-500",
        bg: "bg-indigo-50 dark:bg-indigo-900/20"
     };
+
+    // Low Hourly Value (Long Hours) -> Hardworking -> Heavy Burden (Encouragement needed)
     return {
-       text: language === 'ZH' ? "披荆斩棘！您是家庭的英雄，记得对自己好一点🛡️" : "Heroic effort! You're carrying the torch, take care 🛡️",
+       text: language === 'ZH' ? "致敬奋斗者！每一小时的辛勤耕耘，都是为家筑起的坚实堡垒，您辛苦了🛡️" : "Salute to the Striver! Every hour of hard work builds a fortress for your home 🛡️",
        color: "text-rose-500",
        bg: "bg-rose-50 dark:bg-rose-900/20"
     };
   };
 
-  const hourlyFeedback = getHourlyFeedback(workHourlyPayment);
+  const hourlyFeedback = getHourlyFeedback(workHourlyPayment, workHours);
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 overflow-visible shadow-xl relative z-0">
