@@ -795,17 +795,106 @@ const FeedbackModal = ({ onClose, t, user }: { onClose: () => void, t: any, user
               </button>
             </div>
           ) : (
-            <div className="text-center py-12 animate-in zoom-in duration-300">
-              <div className="w-20 h-20 bg-gradient-to-tr from-emerald-400 to-teal-500 rounded-full flex items-center justify-center mx-auto mb-6 text-white shadow-lg shadow-emerald-500/30">
-                <CheckCircle2 className="h-10 w-10" />
+            <div className="text-center py-8 relative overflow-hidden">
+              {/* Custom CSS for feedback success animations */}
+              <style>{`
+                @keyframes confetti-fall {
+                  0% { transform: translateY(-100%) rotate(0deg); opacity: 1; }
+                  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+                }
+                @keyframes fly-up {
+                  0% { transform: translateY(100px) rotate(15deg) scale(0); opacity: 0; }
+                  50% { opacity: 1; }
+                  100% { transform: translateY(-200px) rotate(-10deg) scale(1.2); opacity: 0; }
+                }
+                @keyframes pulse-glow {
+                  0%, 100% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.4); }
+                  50% { box-shadow: 0 0 40px rgba(16, 185, 129, 0.8), 0 0 60px rgba(16, 185, 129, 0.4); }
+                }
+                @keyframes bounce-in {
+                  0% { transform: scale(0) rotate(-10deg); }
+                  50% { transform: scale(1.2) rotate(5deg); }
+                  100% { transform: scale(1) rotate(0deg); }
+                }
+                @keyframes text-reveal {
+                  from { opacity: 0; transform: translateY(20px); }
+                  to { opacity: 1; transform: translateY(0); }
+                }
+                .animate-confetti { animation: confetti-fall 3s ease-in-out forwards; }
+                .animate-fly-up { animation: fly-up 2s ease-out forwards; }
+                .animate-pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
+                .animate-bounce-in { animation: bounce-in 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards; }
+                .animate-text-reveal { animation: text-reveal 0.5s ease-out forwards; }
+              `}</style>
+
+              {/* Confetti particles */}
+              {[...Array(20)].map((_, i) => (
+                <div
+                  key={i}
+                  className="absolute animate-confetti"
+                  style={{
+                    left: `${Math.random() * 100}%`,
+                    top: '-20px',
+                    animationDelay: `${Math.random() * 1}s`,
+                    animationDuration: `${2 + Math.random() * 2}s`,
+                  }}
+                >
+                  <div
+                    className="w-2 h-2 rounded-full"
+                    style={{
+                      backgroundColor: ['#10b981', '#6366f1', '#f59e0b', '#ec4899', '#8b5cf6'][Math.floor(Math.random() * 5)],
+                    }}
+                  />
+                </div>
+              ))}
+
+              {/* Flying paper planes */}
+              {[...Array(3)].map((_, i) => (
+                <div
+                  key={`plane-${i}`}
+                  className="absolute animate-fly-up text-indigo-400"
+                  style={{
+                    left: `${20 + i * 30}%`,
+                    bottom: '-30px',
+                    animationDelay: `${i * 0.3}s`,
+                    fontSize: '1.5rem',
+                  }}
+                >
+                  ✈️
+                </div>
+              ))}
+
+              {/* Success icon with glow */}
+              <div className="w-24 h-24 bg-gradient-to-tr from-emerald-400 to-teal-500 rounded-full flex items-center justify-center mx-auto mb-6 text-white shadow-xl animate-bounce-in animate-pulse-glow">
+                <CheckCircle2 className="h-12 w-12" />
               </div>
-              <h3 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">{t.feedbackSuccessTitle || '感谢您的反馈'}</h3>
-              <p className="text-slate-500 dark:text-slate-400 text-sm mb-6 max-w-[240px] mx-auto leading-relaxed">
-                {t.feedbackSuccessDesc || '我们要么在读书，要么在写代码，要么在去写代码的路上... 会尽快回复您的！'}
+
+              {/* Thank you message */}
+              <h3 className="text-2xl font-bold text-slate-800 dark:text-white mb-3 animate-text-reveal" style={{ animationDelay: '0.3s', opacity: 0 }}>
+                {t.feedbackSuccessTitle || '感谢您的反馈！🎉'}
+              </h3>
+
+              {/* Emotional message */}
+              <p className="text-slate-500 dark:text-slate-400 text-sm mb-4 max-w-[280px] mx-auto leading-relaxed animate-text-reveal" style={{ animationDelay: '0.5s', opacity: 0 }}>
+                {t.feedbackSuccessEmotional || '您的每一条建议都像一盏明灯，照亮我们前进的方向。我们会认真阅读并尽快回复！'}
               </p>
-              <div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-3 inline-block">
-                 <p className="text-slate-400 dark:text-slate-500 text-xs font-mono">{t.feedbackContact || 'Contact: support@example.com'}</p>
+
+              {/* Developer promise */}
+              <div className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-2xl p-4 mb-4 animate-text-reveal" style={{ animationDelay: '0.7s', opacity: 0 }}>
+                <p className="text-indigo-600 dark:text-indigo-400 text-xs font-medium italic">
+                  {t.feedbackPromise || '"我们要么在读书，要么在写代码，要么在回复您的路上..."'}
+                </p>
+                <p className="text-slate-400 dark:text-slate-500 text-xs mt-1">— Josephine ✨</p>
               </div>
+
+              {/* Close button */}
+              <button 
+                onClick={onClose}
+                className="text-sm text-slate-400 hover:text-indigo-500 transition-colors animate-text-reveal" 
+                style={{ animationDelay: '1s', opacity: 0 }}
+              >
+                {t.feedbackClose || '关闭'}
+              </button>
             </div>
           )}
         </div>

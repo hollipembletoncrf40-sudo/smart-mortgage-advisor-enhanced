@@ -225,9 +225,12 @@ export const TRANSLATIONS = {
     submitFeedback: '提交反馈',
     thanksFeedback: '感谢您的反馈!',
     feedbackPlaceholder: '请描述您的问题或建议...',
-    feedbackSuccessTitle: '感谢您的反馈!',
-    feedbackSuccessDesc: '我们会认真阅读您的建议。',
-    feedbackContact: '联系邮箱📮：hollipembletoncrf40@gmail.com',
+    feedbackSuccessTitle: "感谢您的反馈！🎉",
+    feedbackSuccessDesc: "您的建议将帮助我们持续改进",
+    feedbackSuccessEmotional: "您的每一条建议都像一盏明灯，照亮我们前进的方向。我们会认真阅读并尽快回复！",
+    feedbackPromise: '"我们要么在读书，要么在写代码，要么在回复您的路上..."',
+    feedbackClose: "关闭",
+    feedbackContact: "hollipembletoncrf40@gmail.com",
     
     // Chart Legends
     propertyValue: "房产名义价值",
