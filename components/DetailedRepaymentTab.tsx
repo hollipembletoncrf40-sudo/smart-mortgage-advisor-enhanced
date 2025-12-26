@@ -5,6 +5,7 @@ import AmortizationMoodBar from './AmortizationMoodBar';
 import DetailedPaymentTable from './DetailedPaymentTable'; // Check import path
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import RepaymentCalendar from './RepaymentCalendar';
+import InflationProjection from './InflationProjection';
 
 interface Props {
   t: any;
@@ -142,6 +143,16 @@ const DetailedRepaymentTab: React.FC<Props> = ({
            <AmortizationMoodBar result={result} params={params} t={t} />
         </div>
 
+        {/* Inflation Projection */}
+        <div className="mx-8 mb-8">
+          <InflationProjection 
+            monthlyPayment={result.monthlyPayment}
+            t={t}
+            language={language}
+            darkMode={darkMode}
+          />
+        </div>
+
         {/* Repayment Calendar Section */}
         <div className="px-8 pb-8">
           <RepaymentCalendar 
@@ -149,6 +160,7 @@ const DetailedRepaymentTab: React.FC<Props> = ({
             t={t} 
             language={language}
             darkMode={darkMode}
+            params={params}
           />
         </div>
         
