@@ -1003,11 +1003,15 @@ const TaxCalculatorModal = ({ isOpen, onClose, t, initialPrice }: { isOpen: bool
   );
 };
 
-const AppreciationPredictorModal = ({ isOpen, onClose, t }: { isOpen: boolean; onClose: () => void; t: any }) => {
+const AppreciationPredictorModal = ({ isOpen, onClose, t, language }: { isOpen: boolean; onClose: () => void; t: any; language: string }) => {
   const [params, setParams] = useState<AppreciationPredictorParams>({
     cityTier: '新一线',
     district: '近郊',
     propertyType: '住宅',
+    schoolDistrict: '重点学区',
+    propertyAge: '次新(5年内)',
+    developerBrand: '知名国企',
+    propertyManagement: '一级资质',
     policyEnvironment: '中性',
     infrastructurePlan: '一般规划',
     populationTrend: '稳定',
@@ -1017,7 +1021,20 @@ const AppreciationPredictorModal = ({ isOpen, onClose, t }: { isOpen: boolean; o
   const [prediction, setPrediction] = useState<AppreciationPrediction | null>(null);
 
   const handlePredict = () => {
-    const result = predictAppreciation(params);
+    // Pass current language to predictor
+    // Use the global language state passed in (if available) or read from params/context
+    // Since language is not passed to the modal prop, we need to ensure it uses the correct context
+    // Ideally, the modal should receive the language prop.
+    // However, looking at the previous code, `language` was used directly in `handlePredict` in `App.tsx`.
+    // In `AppreciationPredictorModal` scope, `language` might not be defined if it's not a prop or global.
+    // Let's assume `t` contains everything or we need to pass `language`.
+    // Wait, the user said "click predict has no reaction".
+    // If 'language' variable is not available in this scope, it throws an error.
+    // I need to check if `language` is passed to `AppreciationPredictorModal`.
+    // It is NOT passed in the props: `({ isOpen, onClose, t }: ...)`
+    // I must update the component signature to include `language`.
+     
+    const result = predictAppreciation(params, language as any);
     setPrediction(result);
   };
 
@@ -1026,16 +1043,16 @@ const AppreciationPredictorModal = ({ isOpen, onClose, t }: { isOpen: boolean; o
   const darkMode = document.documentElement.classList.contains('dark');
 
   const radarData = prediction ? [
-    { dimension: t.cityTier, value: prediction.breakdown.cityTierScore, fullMark: 35 },
+    { dimension: t.cityTier, value: prediction.breakdown.cityTierScore, fullMark: 20 },
     { dimension: t.district, value: prediction.breakdown.districtScore, fullMark: 20 },
-    { dimension: t.policyEnv, value: prediction.breakdown.policyScore, fullMark: 15 },
-    { dimension: t.infrastructure, value: prediction.breakdown.infrastructureScore, fullMark: 15 },
-    { dimension: t.populationTrend, value: prediction.breakdown.populationScore, fullMark: 10 },
-    { dimension: t.industryDev, value: prediction.breakdown.industryScore, fullMark: 10 },
+    { dimension: t.dimensionSchool || '教育', value: prediction.breakdown.schoolScore, fullMark: 15 },
+    { dimension: t.dimensionProduct || '品质', value: prediction.breakdown.productScore, fullMark: 20 },
+    { dimension: t.policyEnv, value: prediction.breakdown.policyScore, fullMark: 8 },
+    { dimension: t.industryDev, value: prediction.breakdown.industryScore, fullMark: 5 },
   ] : [];
 
   const trendData = prediction ? prediction.yearlyRate.map((rate, idx) => ({
-    year: `第${idx + 1}年`,
+    year: `Year ${idx + 1}`,
     rate: rate
   })) : [];
 
@@ -1063,7 +1080,7 @@ const AppreciationPredictorModal = ({ isOpen, onClose, t }: { isOpen: boolean; o
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={onClose}>
-      <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-4xl w-full shadow-2xl overflow-hidden max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
+      <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-5xl w-full shadow-2xl overflow-hidden max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
         <div className="p-6 border-b border-slate-100 dark:border-slate-800 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20">
           <div className="flex justify-between items-center">
             <h3 className="text-xl font-bold dark:text-white flex items-center gap-2">
@@ -1075,71 +1092,132 @@ const AppreciationPredictorModal = ({ isOpen, onClose, t }: { isOpen: boolean; o
         </div>
 
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t.cityTier}</label>
-              <select value={params.cityTier} onChange={e => setParams({...params, cityTier: e.target.value as any})} className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white">
-                <option value="一线">{t.predTier1}</option>
-                <option value="新一线">{t.predTierNew1}</option>
-                <option value="二线">{t.predTier2}</option>
-                <option value="三线及以下">{t.predTier3}</option>
-              </select>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            {/* Section 1: Location & Macro */}
+            <div className="space-y-4">
+              <h4 className="flex items-center gap-2 text-sm font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest border-b border-slate-200 dark:border-slate-700 pb-2">
+                <MapPin className="h-4 w-4"/> {t.sectionLocation || '城市与区域'}
+              </h4>
+              <div className="grid grid-cols-1 gap-3">
+                 <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-500">{t.cityTier}</label>
+                  <select value={params.cityTier} onChange={e => setParams({...params, cityTier: e.target.value as any})} className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white">
+                    <option value="一线">{t.predTier1}</option>
+                    <option value="新一线">{t.predTierNew1}</option>
+                    <option value="二线">{t.predTier2}</option>
+                    <option value="三线及以下">{t.predTier3}</option>
+                  </select>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-500">{t.district}</label>
+                  <select value={params.district} onChange={e => setParams({...params, district: e.target.value as any})} className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white">
+                    <option value="核心区">{t.districtCore}</option>
+                    <option value="近郊">{t.districtNear}</option>
+                    <option value="远郊">{t.districtFar}</option>
+                  </select>
+                </div>
+                 <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-500">{t.schoolDistrict || '学区配套'}</label>
+                  <select value={params.schoolDistrict} onChange={e => setParams({...params, schoolDistrict: e.target.value as any})} className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white">
+                    <option value="顶级名校">{t.schoolTop || '顶级名校'}</option>
+                    <option value="重点学区">{t.schoolKey || '重点学区'}</option>
+                    <option value="普通学区">{t.schoolNormal || '普通学区'}</option>
+                    <option value="无学区">{t.schoolNone || '无学区'}</option>
+                  </select>
+                </div>
+              </div>
             </div>
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t.district}</label>
-              <select value={params.district} onChange={e => setParams({...params, district: e.target.value as any})} className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white">
-                <option value="核心区">{t.districtCore}</option>
-                <option value="近郊">{t.districtNear}</option>
-                <option value="远郊">{t.districtFar}</option>
-              </select>
+
+            {/* Section 2: Property Quality */}
+            <div className="space-y-4">
+               <h4 className="flex items-center gap-2 text-sm font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest border-b border-slate-200 dark:border-slate-700 pb-2">
+                <Home className="h-4 w-4"/> {t.sectionProperty || '房产与品质'}
+              </h4>
+              <div className="grid grid-cols-1 gap-3">
+                 <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-500">{t.propertyTypeLabel}</label>
+                      <select value={params.propertyType} onChange={e => setParams({...params, propertyType: e.target.value as any})} className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white">
+                        <option value="住宅">{t.propertyResidential}</option>
+                        <option value="公寓">{t.propertyApartment}</option>
+                        <option value="别墅">{t.propertyVilla}</option>
+                      </select>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-500">{t.propertyAgeLabel || '房龄'}</label>
+                      <select value={params.propertyAge} onChange={e => setParams({...params, propertyAge: e.target.value as any})} className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white">
+                        <option value="新房">{t.ageNew || '新房'}</option>
+                        <option value="次新(5年内)">{t.ageSubNew || '次新'}</option>
+                        <option value="10-20年">{t.ageOld || '10-20年'}</option>
+                        <option value="20年以上">{t.ageVeryOld || '20年以上'}</option>
+                      </select>
+                    </div>
+                 </div>
+                 <div className="space-y-1">
+                    <label className="text-xs font-bold text-slate-500">{t.developerLabel || '开发商'}</label>
+                    <select value={params.developerBrand} onChange={e => setParams({...params, developerBrand: e.target.value as any})} className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white">
+                      <option value="头部品牌">{t.devTop || '头部品牌'}</option>
+                      <option value="知名国企">{t.devSoe || '知名国企'}</option>
+                      <option value="普通开发商">{t.devNormal || '普通开发商'}</option>
+                    </select>
+                 </div>
+                 <div className="space-y-1">
+                    <label className="text-xs font-bold text-slate-500">{t.pmLabel || '物业'}</label>
+                    <select value={params.propertyManagement} onChange={e => setParams({...params, propertyManagement: e.target.value as any})} className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white">
+                      <option value="一级资质">{t.pmLevel1 || '一级资质'}</option>
+                      <option value="普通物业">{t.pmNormal || '普通物业'}</option>
+                      <option value="无物业">{t.pmNone || '无物业'}</option>
+                    </select>
+                 </div>
+              </div>
             </div>
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t.propertyTypeLabel}</label>
-              <select value={params.propertyType} onChange={e => setParams({...params, propertyType: e.target.value as any})} className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white">
-                <option value="住宅">{t.propertyResidential}</option>
-                <option value="公寓">{t.propertyApartment}</option>
-                <option value="别墅">{t.propertyVilla}</option>
-              </select>
+
+            {/* Section 3: Macro Environment */}
+            <div className="space-y-4">
+               <h4 className="flex items-center gap-2 text-sm font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest border-b border-slate-200 dark:border-slate-700 pb-2">
+                <BarChart3 className="h-4 w-4"/> {t.sectionMacro || '宏观环境'}
+              </h4>
+              <div className="grid grid-cols-1 gap-3">
+                 <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-500">{t.policyEnv}</label>
+                      <select value={params.policyEnvironment} onChange={e => setParams({...params, policyEnvironment: e.target.value as any})} className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white">
+                        <option value="宽松">{t.policyLoose}</option>
+                        <option value="中性">{t.policyNeutral}</option>
+                        <option value="严格">{t.policyStrict}</option>
+                      </select>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-500">{t.infrastructure}</label>
+                      <select value={params.infrastructurePlan} onChange={e => setParams({...params, infrastructurePlan: e.target.value as any})} className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white">
+                        <option value="重大规划">{t.infraMajor}</option>
+                        <option value="一般规划">{t.infraNormal}</option>
+                        <option value="无规划">{t.infraNone}</option>
+                      </select>
+                    </div>
+                 </div>
+                 <div className="space-y-1">
+                    <label className="text-xs font-bold text-slate-500">{t.populationTrend}</label>
+                    <select value={params.populationTrend} onChange={e => setParams({...params, populationTrend: e.target.value as any})} className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white">
+                      <option value="持续流入">{t.popInflow}</option>
+                      <option value="稳定">{t.popStable}</option>
+                      <option value="流出">{t.popOutflow}</option>
+                    </select>
+                 </div>
+                 <div className="space-y-1">
+                    <label className="text-xs font-bold text-slate-500">{t.industryDev}</label>
+                    <select value={params.industryDevelopment} onChange={e => setParams({...params, industryDevelopment: e.target.value as any})} className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white">
+                      <option value="强劲">{t.industryStrong}</option>
+                      <option value="中等">{t.industryMedium}</option>
+                      <option value="疲软">{t.industryWeak}</option>
+                    </select>
+                 </div>
+              </div>
             </div>
+
           </div>
-          
-          <div className="space-y-3 pt-2">
-             <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest">{t.macroFactors}</h4>
-             <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1">
-                   <label className="text-[10px] bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-slate-500">{t.policyEnv}</label>
-                   <select value={params.policyEnvironment} onChange={e => setParams({...params, policyEnvironment: e.target.value as any})} className="w-full text-xs p-2 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 dark:text-white">
-                     <option value="宽松">{t.policyLoose}</option>
-                     <option value="中性">{t.policyNeutral}</option>
-                     <option value="严格">{t.policyStrict}</option>
-                   </select>
-                </div>
-                <div className="space-y-1">
-                   <label className="text-[10px] bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-slate-500">{t.infrastructure}</label>
-                   <select value={params.infrastructurePlan} onChange={e => setParams({...params, infrastructurePlan: e.target.value as any})} className="w-full text-xs p-2 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 dark:text-white">
-                     <option value="重大规划">{t.infraMajor}</option>
-                     <option value="一般规划">{t.infraNormal}</option>
-                     <option value="无规划">{t.infraNone}</option>
-                   </select>
-                </div>
-                <div className="space-y-1">
-                   <label className="text-[10px] bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-slate-500">{t.populationTrend}</label>
-                   <select value={params.populationTrend} onChange={e => setParams({...params, populationTrend: e.target.value as any})} className="w-full text-xs p-2 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 dark:text-white">
-                     <option value="持续流入">{t.popInflow}</option>
-                     <option value="稳定">{t.popStable}</option>
-                     <option value="流出">{t.popOutflow}</option>
-                   </select>
-                </div>
-                <div className="space-y-1">
-                   <label className="text-[10px] bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-slate-500">{t.industryDev}</label>
-                   <select value={params.industryDevelopment} onChange={e => setParams({...params, industryDevelopment: e.target.value as any})} className="w-full text-xs p-2 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 dark:text-white">
-                     <option value="强劲">{t.industryStrong}</option>
-                     <option value="中等">{t.industryMedium}</option>
-                     <option value="疲软">{t.industryWeak}</option>
-                   </select>
-                </div>
-             </div>
-          </div>
+
           <button onClick={handlePredict} className="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-xl font-bold shadow-lg shadow-indigo-500/30 transition-all active:scale-[0.98]">
             {t.predictBtn}
           </button>
@@ -2175,7 +2253,14 @@ function App() {
       {showLocationGuide && <LocationGuideModal onClose={() => setShowLocationGuide(false)} onApply={handleApplyLocationScore} t={t} />}
       {showBuyingProcess && <BuyingProcessModal onClose={() => setShowBuyingProcess(false)} t={t} />}
       {showTaxCalculator && <TaxCalculatorModal isOpen={showTaxCalculator} onClose={() => setShowTaxCalculator(false)} t={t} initialPrice={params.totalPrice} />}
-      {showAppreciationPredictor && <AppreciationPredictorModal isOpen={showAppreciationPredictor} onClose={() => setShowAppreciationPredictor(false)} t={t} />}
+      {showAppreciationPredictor && (
+        <AppreciationPredictorModal 
+          isOpen={showAppreciationPredictor} 
+          onClose={() => setShowAppreciationPredictor(false)} 
+          t={t} 
+          language={language}
+        />
+      )}
       {showCustomStressTest && (
         <CustomStressTestModal 
           isOpen={showCustomStressTest} 
@@ -2202,7 +2287,7 @@ function App() {
             {/* New Button for Buying Process */}
             <button 
                 onClick={() => setShowBuyingProcess(true)}
-                className="hidden md:flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                className="hidden md:flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors whitespace-nowrap"
             >
                 <ClipboardCheck className="h-3.5 w-3.5" /> {t.buyingProcess}
             </button>
@@ -2210,7 +2295,7 @@ function App() {
             {/* New Button for Location Guide */}
             <button 
                 onClick={() => setShowLocationGuide(true)}
-                className="hidden md:flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-lg hover:bg-emerald-100 transition-colors border border-emerald-100 dark:border-emerald-900/30"
+                className="hidden md:flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-lg hover:bg-emerald-100 transition-colors border border-emerald-100 dark:border-emerald-900/30 whitespace-nowrap"
             >
                 <MapPin className="h-3.5 w-3.5" /> {t.locationGuide}
             </button>
@@ -2218,21 +2303,21 @@ function App() {
             {/* New Button for Appreciation Predictor */}
             <button 
               onClick={() => setShowAppreciationPredictor(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-purple-50 dark:bg-purple-900/20 hover:bg-purple-100 dark:hover:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-xl transition-all text-sm font-medium border border-purple-100 dark:border-purple-900/30"
+              className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-purple-50 dark:bg-purple-900/20 hover:bg-purple-100 dark:hover:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-lg transition-all border border-purple-100 dark:border-purple-900/30 whitespace-nowrap"
             >
-              <TrendingUp className="h-4 w-4" />
+              <TrendingUp className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">{t.predictAppreciation}</span>
             </button>
             <button 
               onClick={() => setShowHousingTrends(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-emerald-50 dark:bg-emerald-900/20 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-xl transition-all text-sm font-medium border border-emerald-100 dark:border-emerald-900/30"
+              className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-emerald-50 dark:bg-emerald-900/20 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-lg transition-all border border-emerald-100 dark:border-emerald-900/30 whitespace-nowrap"
             >
-              <Building2 className="h-4 w-4" />
+              <Building2 className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">{t.viewHousingTrends}</span>
             </button>
 
-            <button onClick={() => setShowMethodology(true)} className="hidden md:flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"><BookOpen className="h-3.5 w-3.5" /> {t.methodology}</button>
-            <button onClick={toggleLanguage} className="px-3 py-1.5 text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">{language === 'ZH' ? 'EN' : '中文'}</button>
+            <button onClick={() => setShowMethodology(true)} className="hidden md:flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors whitespace-nowrap"><BookOpen className="h-3.5 w-3.5" /> {t.methodology}</button>
+            <button onClick={toggleLanguage} className="px-3 py-1.5 text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors whitespace-nowrap">{language === 'ZH' ? 'EN' : '中文'}</button>
             
             {/* Preset Selector */}
             <div className="relative">
@@ -2241,7 +2326,7 @@ function App() {
                 className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition-colors border border-indigo-100 dark:border-indigo-900/30"
               >
                 <Zap className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">{t.headerPreset || '快速预设'}</span>
+                <span className="hidden sm:inline whitespace-nowrap">{t.headerPreset || '快速预设'}</span>
               </button>
               
               {showPresetMenu && (
@@ -2346,7 +2431,7 @@ function App() {
             
             <button 
               onClick={handleSaveSnapshot}
-              className="hidden md:flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-colors border border-emerald-100 dark:border-emerald-900/30"
+              className="hidden md:flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-colors border border-emerald-100 dark:border-emerald-900/30 whitespace-nowrap"
             >
               <History className="h-3.5 w-3.5" /> {t.headerSave || '保存决策与复盘'}
             </button>

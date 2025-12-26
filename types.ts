@@ -433,6 +433,10 @@ export interface AppreciationPredictorParams {
   cityTier: '一线' | '新一线' | '二线' | '三线及以下';
   district: '核心区' | '近郊' | '远郊';
   propertyType: '住宅' | '公寓' | '别墅';
+  schoolDistrict: '顶级名校' | '重点学区' | '普通学区' | '无学区';
+  propertyAge: '新房' | '次新(5年内)' | '10-20年' | '20年以上';
+  developerBrand: '头部品牌' | '知名国企' | '普通开发商';
+  propertyManagement: '一级资质' | '普通物业' | '无物业';
   policyEnvironment: '宽松' | '中性' | '严格';
   infrastructurePlan: '重大规划' | '一般规划' | '无规划';
   populationTrend: '持续流入' | '稳定' | '流出';
@@ -449,6 +453,8 @@ export interface AppreciationPrediction {
   breakdown: {
     cityTierScore: number;
     districtScore: number;
+    schoolScore: number;
+    productScore: number; // Includes type, age, developer, management
     policyScore: number;
     infrastructureScore: number;
     populationScore: number;

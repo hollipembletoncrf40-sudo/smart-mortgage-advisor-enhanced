@@ -778,58 +778,105 @@ export const calculateTaxes = (params: TaxParams): TaxResult => {
   };
 };
 
-export const predictAppreciation = (params: AppreciationPredictorParams): AppreciationPrediction => {
-  // 1. 城市等级评分 (30%)
+export const predictAppreciation = (params: AppreciationPredictorParams, language: 'CN' | 'SC' | 'EN' | 'ZH' = 'CN'): AppreciationPrediction => {
+  // 1. City Tier (20%)
   let cityTierScore = 0;
   switch (params.cityTier) {
-    case '一线': cityTierScore = 35; break;
-    case '新一线': cityTierScore = 30; break;
-    case '二线': cityTierScore = 20; break;
-    case '三线及以下': cityTierScore = 10; break;
+    case '一线城市': cityTierScore = 20; break;
+    case '新一线': cityTierScore = 18; break;
+    case '二线城市': cityTierScore = 12; break;
+    case '三四线': cityTierScore = 5; break;
+    default: cityTierScore = 5;
   }
 
-  // 2. 区域位置评分 (20%)
+  // 2. District Location (20%)
   let districtScore = 0;
   switch (params.district) {
-    case '核心区': districtScore = 20; break;
-    case '近郊': districtScore = 15; break;
-    case '远郊': districtScore = 8; break;
+    case '核心区': districtScore = 15; break;
+    case '近郊': districtScore = 10; break;
+    case '远郊': districtScore = 5; break;
+    default: districtScore = 5;
   }
 
-  // 3. 政策环境评分 (15%)
+  // 3. School District (15%)
+  let schoolScore = 0;
+  switch (params.schoolDistrict) {
+    case '顶级名校': schoolScore = 15; break;
+    case '重点学区': schoolScore = 12; break;
+    case '普通学区': schoolScore = 8; break;
+    case '无学区': schoolScore = 3; break;
+    default: schoolScore = 3;
+  }
+
+  // 4. Product Quality (Age + Type + Brand + PM) (20%)
+  let productScore = 0;
+  // Type Base
+  let typeScore = 0;
+  switch (params.propertyType) {
+    case '住宅': typeScore = 5; break;
+    case '别墅': typeScore = 4; break;
+    case '公寓': typeScore = 2; break;
+  }
+  // Age
+  let ageScore = 0;
+  switch (params.propertyAge) {
+    case '新房': ageScore = 5; break;
+    case '次新(5年内)': ageScore = 5; break;
+    case '10-20年': ageScore = 3; break;
+    case '20年以上': ageScore = 1; break;
+    default: ageScore = 3;
+  }
+  // Brand
+  let brandScore = 0;
+  switch (params.developerBrand) {
+    case '头部品牌': brandScore = 5; break;
+    case '知名国企': brandScore = 5; break;
+    case '普通开发商': brandScore = 2; break;
+    default: brandScore = 2;
+  }
+  // PM
+  let pmScore = 0;
+  switch (params.propertyManagement) {
+    case '一级资质': pmScore = 5; break;
+    case '普通物业': pmScore = 3; break;
+    case '无物业': pmScore = 0; break;
+    default: pmScore = 3;
+  }
+  productScore = typeScore + ageScore + brandScore + pmScore;
+
+  // 5. Macro Environment (Policy + Infra + Pop + Industry) (25%)
+  // Policy
   let policyScore = 0;
   switch (params.policyEnvironment) {
-    case '宽松': policyScore = 15; break;
-    case '中性': policyScore = 10; break;
-    case '严格': policyScore = 5; break;
+    case '宽松': policyScore = 8; break;
+    case '中性': policyScore = 5; break;
+    case '严格': policyScore = 2; break;
   }
-
-  // 4. 基建规划评分 (15%)
+  // Infra
   let infrastructureScore = 0;
   switch (params.infrastructurePlan) {
-    case '重大规划': infrastructureScore = 15; break;
-    case '一般规划': infrastructureScore = 10; break;
-    case '无规划': infrastructureScore = 5; break;
+    case '重大规划': infrastructureScore = 7; break;
+    case '一般规划': infrastructureScore = 4; break;
+    case '无规划': infrastructureScore = 2; break;
   }
-
-  // 5. 人口趋势评分 (10%)
+  // Pop
   let populationScore = 0;
   switch (params.populationTrend) {
-    case '持续流入': populationScore = 10; break;
-    case '稳定': populationScore = 7; break;
-    case '流出': populationScore = 3; break;
+    case '持续流入': populationScore = 5; break;
+    case '稳定': populationScore = 3; break;
+    case '流出': populationScore = 0; break;
   }
-
-  // 6. 产业发展评分 (10%)
+  // Industry
   let industryScore = 0;
   switch (params.industryDevelopment) {
-    case '强劲': industryScore = 10; break;
-    case '中等': industryScore = 7; break;
-    case '疲软': industryScore = 3; break;
+    case '强劲': industryScore = 5; break;
+    case '中等': industryScore = 3; break;
+    case '疲软': industryScore = 1; break;
   }
 
-  // 总分计算
-  const score = cityTierScore + districtScore + policyScore + infrastructureScore + populationScore + industryScore;
+  // Total Score (Max 100)
+  const score = cityTierScore + districtScore + schoolScore + productScore + policyScore + infrastructureScore + populationScore + industryScore;
+
 
   // 等级判定和增长率预测
   let level: 'S' | 'A' | 'B' | 'C' | 'D';
@@ -838,63 +885,94 @@ export const predictAppreciation = (params: AppreciationPredictorParams): Apprec
   let risks: string[];
   let opportunities: string[];
 
+  const isEn = language === 'EN';
+
   if (score >= 85) {
     level = 'S';
     baseRate = 6.5;
-    recommendation = '该区域具有极高的增值潜力，建议优先考虑投资。未来5年预计年均增长5-8%，适合长期持有。';
-    risks = ['市场过热风险', '政策调控可能收紧', '高位接盘风险'];
-    opportunities = ['核心地段稀缺性', '人口持续流入', '产业升级带动', '基建完善提升价值'];
+    recommendation = isEn 
+      ? 'This area has extremely high appreciation potential. Recommended for priority investment. Expected annual growth of 5-8% over the next 5 years, suitable for long-term holding.'
+      : '该区域具有极高的增值潜力，建议优先考虑投资。未来5年预计年均增长5-8%，适合长期持有。';
+    risks = isEn 
+      ? ['Market overheating risk', 'Policy tightening risk', 'Risk of buying at peak']
+      : ['市场过热风险', '政策调控可能收紧', '高位接盘风险'];
+    opportunities = isEn 
+      ? ['Scarcity of core location', 'Premium on education resources', 'Product quality assurance', 'Continuous population inflow', 'Industrial upgrade drive']
+      : ['核心地段稀缺性', '教育资源溢价', '产品品质保障', '人口持续流入', '产业升级带动'];
   } else if (score >= 70) {
     level = 'A';
     baseRate = 4;
-    recommendation = '该区域具有较高的增值潜力，投资价值良好。未来5年预计年均增长3-5%，适合中长期持有。';
-    risks = ['区域竞争加剧', '供应量增加压力', '政策不确定性'];
-    opportunities = ['城市发展红利', '配套逐步完善', '新兴产业聚集'];
-  } else if (score >= 50) {
+    recommendation = isEn 
+      ? 'This area has high appreciation potential and good investment value. Expected annual growth of 3-5% over the next 5 years, suitable for medium to long-term holding.'
+      : '该区域具有较高的增值潜力，投资价值良好。未来5年预计年均增长3-5%，适合中长期持有。';
+    risks = isEn 
+      ? ['Policy fluctuation risk', 'Moderate market liquidity']
+      : ['政策波动风险', '市场流动性一般'];
+    opportunities = isEn 
+      ? ['Regional development bonus', 'Support from upgrade demand', 'Good school/amenities']
+      : ['区域发展红利', '改善型需求支撑', '学区/配套完善'];
+  } else if (score >= 55) {
     level = 'B';
     baseRate = 2;
-    recommendation = '该区域具有中等增值潜力，建议谨慎投资。未来5年预计年均增长1-3%，需关注市场变化。';
-    risks = ['增长动力不足', '人口流入放缓', '竞争激烈'];
-    opportunities = ['政策支持可能性', '基建改善空间', '价格相对合理'];
-  } else if (score >= 30) {
+    recommendation = isEn 
+      ? 'This area has both potential and risks, invest with caution. Expected annual growth of 1-3% over the next 5 years, mainly for self-use.'
+      : '该区域潜力和风险并存，建议谨慎投资。未来5年预计年均增长1-3%，主要满足自住需求。';
+    risks = isEn 
+      ? ['Long inventory absorption cycle', 'Slowing population growth', 'Amenities need improvement']
+      : ['库存去化周期长', '人口增长放缓', '配套设施待完善'];
+    opportunities = isEn 
+      ? ['Price depression', 'Local planning benefits']
+      : ['价格洼地', '局部规划利好'];
+  } else if (score >= 40) {
     level = 'C';
-    baseRate = 0.5;
-    recommendation = '该区域增值潜力较低，不建议作为投资首选。未来5年预计年均增长0-1%，更适合自住。';
-    risks = ['市场需求疲软', '人口流出压力', '产业空心化', '政策限制'];
-    opportunities = ['价格低位', '政策转向可能', '长期自住价值'];
+    baseRate = 0;
+    recommendation = isEn 
+      ? 'Weak appreciation potential, recommended for rigid demand self-use only. Not recommended for pure investment. Expected flat prices or slight increase.'
+      : '该区域增值潜力较弱，仅建议刚需自住，不建议作为纯投资标的。预计未来价格持平或微涨。';
+    risks = isEn 
+      ? ['Population outflow risk', 'Insufficient industrial support', 'Poor second-hand liquidity']
+      : ['人口流出风险', '产业支撑不足', '二手房流动性差'];
+    opportunities = isEn 
+      ? ['Low barrier to entry', 'Decent rental yield']
+      : ['低门槛上车', '租金回报率尚可'];
   } else {
     level = 'D';
-    baseRate = -0.5;
-    recommendation = '该区域存在较高投资风险，强烈不建议投资。未来5年可能面临价格下跌，建议避开。';
-    risks = ['市场严重过剩', '人口大量流出', '产业衰退', '政策严格限制', '流动性风险'];
-    opportunities = ['极低价抄底机会（高风险）', '政策大幅转向可能性（低概率）'];
+    baseRate = -2;
+    recommendation = isEn 
+      ? 'Depreciation risk exists, avoid if possible. May face price decline or liquidity dry-up.'
+      : '该区域存在贬值风险，建议回避。未来可能面临价格阴跌或流动性枯竭。';
+    risks = isEn 
+      ? ['Long-term depreciation risk', 'Price exists but no market', 'Serious aging/hollowing out']
+      : ['长期贬值风险', '有价无市', '老龄化/空心化严重'];
+    opportunities = isEn 
+      ? ['No obvious investment opportunities']
+      : ['无明显投资机会'];
   }
 
-  // 生成未来5年增长率（带随机波动）
-  const yearlyRate: number[] = [];
-  for (let i = 0; i < 5; i++) {
-    // 基础增长率 + 年份衰减 + 随机波动
-    const yearDecay = i * 0.1; // 逐年递减
-    const randomFactor = (Math.random() - 0.5) * 0.5; // ±0.25%随机波动
-    const rate = Math.max(-2, Math.min(10, baseRate - yearDecay + randomFactor));
-    yearlyRate.push(Number(rate.toFixed(2)));
-  }
+  // Generate 5-year trend
+  const yearlyRate = Array.from({ length: 5 }, (_, i) => {
+    // Add some random fluctuation
+    const fluctuation = (Math.random() - 0.5) * 1;
+    return Number((baseRate + fluctuation).toFixed(1));
+  });
 
   return {
     score,
     level,
-    yearlyRate,
-    recommendation,
-    risks,
-    opportunities,
     breakdown: {
       cityTierScore,
       districtScore,
+      schoolScore,
+      productScore,
       policyScore,
       infrastructureScore,
       populationScore,
       industryScore
-    }
+    },
+    yearlyRate,
+    recommendation,
+    risks,
+    opportunities
   };
 };
 // Comprehensive Risk Assessment
