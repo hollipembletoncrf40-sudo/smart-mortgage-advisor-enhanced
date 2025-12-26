@@ -1712,6 +1712,9 @@ export const TRANSLATIONS = {
 
     donationTitle: "Support Development",
     donationDesc: "Your support keeps the updates coming!",
+    donationHeartMessage: "Thank you for your warmth 💕",
+    donationEmotionalDesc: "Every bit of support fuels my passion to create. A cup of coffee's warmth is enough to warm a creator's heart ☕✨",
+    donationThanks: '"No matter the amount, it means the world to me"',
     donationClose: "Close",
 
     methodologyTitle: "Calculation Methodology",
