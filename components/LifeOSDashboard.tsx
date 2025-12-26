@@ -218,22 +218,22 @@ const LifeOSDashboard: React.FC<Props> = ({ language, t }) => {
     <div className="space-y-6 animate-fade-in pb-24">
       
       {/* Top Bar - Header with Total Score */}
-      <div className="bg-slate-900 text-white rounded-3xl p-6 relative overflow-hidden shadow-2xl">
-         <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-600/20 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
+      <div className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white rounded-3xl p-6 relative overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800">
+         <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-600/10 dark:bg-indigo-600/20 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
          <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-4">
             <div>
                <h2 className="text-2xl font-black flex items-center gap-3">
-                  <LayoutDashboard className="h-7 w-7 text-indigo-400" />
-                  Life OS <span className="text-indigo-400">2.0</span>
+                  <LayoutDashboard className="h-7 w-7 text-indigo-600 dark:text-indigo-400" />
+                  Life OS <span className="text-indigo-600 dark:text-indigo-400">2.0</span>
                </h2>
-               <p className="text-slate-400 mt-1 text-sm">
+               <p className="text-slate-500 dark:text-slate-400 mt-1 text-sm">
                   {language === 'ZH' ? '个人操作系统：全维度量化人生健康度。' : 'Your Personal Operating System: Quantify life health.'}
                </p>
             </div>
             
-            <div className="text-center bg-white/10 backdrop-blur-md rounded-2xl p-4 min-w-[120px]">
-               <div className="text-xs text-slate-400 uppercase tracking-wider mb-1">{language === 'ZH' ? '综合评分' : 'Total Score'}</div>
-               <div className={`text-4xl font-black transition-all duration-300 ${totalScore >= 75 ? 'text-emerald-400' : totalScore >= 50 ? 'text-amber-400' : 'text-rose-400'}`}>
+            <div className="text-center bg-slate-50 dark:bg-white/10 backdrop-blur-md rounded-2xl p-4 min-w-[120px]">
+               <div className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">{language === 'ZH' ? '综合评分' : 'Total Score'}</div>
+               <div className={`text-4xl font-black transition-all duration-300 ${totalScore >= 75 ? 'text-emerald-500 dark:text-emerald-400' : totalScore >= 50 ? 'text-amber-500 dark:text-amber-400' : 'text-rose-500 dark:text-rose-400'}`}>
                   {totalScore}
                </div>
             </div>

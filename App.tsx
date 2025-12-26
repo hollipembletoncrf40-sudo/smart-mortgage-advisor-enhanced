@@ -11,10 +11,11 @@ import {
   Wallet, ShieldAlert, BadgeCheck, Coffee, Send, User, Bot, BarChart3,
   List, X, History, BadgePercent, Settings, Key, Info, BookOpen, ArrowRightLeft,
   Landmark, Loader, Download, FileText, Image as ImageIcon, FileType2, Share2, ChevronDown, CheckCircle2, XCircle, PieChart as PieChartIcon, Coins, Building2, MapPin, Globe2, Lightbulb, ClipboardCheck, ArrowDown, Home, PiggyBank, DollarSign, Droplets, Target, Zap,
-  Compass, ChevronRight, Database, MessageCircle, ExternalLink, LogIn, LogOut
+  Compass, ChevronRight, Database, MessageCircle, ExternalLink, LogIn, LogOut, Star
 } from 'lucide-react';
 import { User as FirebaseUser } from 'firebase/auth';
 import { onAuthChange, logout } from './services/authService';
+import { submitFeedback } from './services/feedbackService';
 import { AuthModal } from './components/AuthModal';
 import HousingTrendsPanel from './components/HousingTrendsPanel';
 import AffordabilityPanel from './components/AffordabilityPanel';
@@ -646,25 +647,149 @@ const TourGuide = ({ onComplete, t }: { onComplete: () => void, t: any }) => {
   );
 };
 
-const FeedbackModal = ({ onClose, t }: { onClose: () => void, t: any }) => {
+const FeedbackModal = ({ onClose, t, user }: { onClose: () => void, t: any, user: FirebaseUser | null }) => {
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
+  const [category, setCategory] = useState("suggestion");
   const [submitted, setSubmitted] = useState(false);
-  const handleSubmit = () => { console.log("User Feedback:", { rating, comment }); setSubmitted(true); };
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async () => { 
+    setIsSubmitting(true);
+    try {
+      await submitFeedback({
+        rating,
+        comment,
+        category,
+        userId: user?.uid,
+        userEmail: user?.email || undefined
+      });
+      setSubmitted(true);
+    } catch (e) {
+      console.error(e);
+      // Optional: show error state
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const categories = [
+    { id: 'suggestion', label: t.feedbackCatSuggestion || '💡 产品建议' },
+    { id: 'bug', label: t.feedbackCatBug || '🐞 问题反馈' },
+    { id: 'inquiry', label: t.feedbackCatInquiry || '💬 咨询' },
+    { id: 'other', label: t.feedbackCatOther || '✨ 其他' }
+  ];
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={onClose}>
-      <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 max-w-sm w-full shadow-2xl relative" onClick={e => e.stopPropagation()}>
-        <button onClick={onClose} className="absolute top-4 right-4 text-slate-400 hover:text-slate-600"><X className="h-5 w-5"/></button>
-        {!submitted ? (
-          <>
-            <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-4">{t.feedbackTitle}</h3>
-            <div className="flex gap-2 justify-center mb-6">{[1, 2, 3, 4, 5].map((star) => (<button key={star} onClick={() => setRating(star)} className="focus:outline-none transition-transform hover:scale-110"><Coins className={`h-8 w-8 ${star <= rating ? 'text-amber-400 fill-amber-400' : 'text-slate-300 dark:text-slate-700'}`} /></button>))}</div>
-            <textarea value={comment} onChange={(e) => setComment(e.target.value)} placeholder={t.feedbackPlaceholder} className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white mb-4 h-32 resize-none" />
-            <button onClick={handleSubmit} disabled={rating === 0} className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 dark:disabled:bg-slate-800 disabled:cursor-not-allowed text-white rounded-xl text-sm font-bold shadow-lg shadow-indigo-500/20 transition-all">{t.submitFeedback}</button>
-          </>
-        ) : (
-          <div className="text-center py-8 animate-fade-in"><div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center mx-auto mb-4 text-emerald-500"><CheckCircle2 className="h-8 w-8" /></div><h3 className="text-lg font-bold text-slate-800 dark:text-white mb-2">{t.feedbackSuccessTitle}</h3><p className="text-slate-500 dark:text-slate-400 text-sm mb-2">{t.feedbackSuccessDesc}</p><p className="text-slate-400 dark:text-slate-500 text-xs">{t.feedbackContact}</p></div>
-        )}
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-200" onClick={onClose}>
+      <div className="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-md shadow-2xl relative overflow-hidden ring-1 ring-slate-900/5" onClick={e => e.stopPropagation()}>
+        
+        {/* Header decoration */}
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
+        
+        <button onClick={onClose} className="absolute top-4 right-4 p-2 rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors z-10">
+          <X className="h-5 w-5"/>
+        </button>
+
+        <div className="p-8">
+          {!submitted ? (
+            <div className="space-y-6">
+              <div className="text-center">
+                <div className="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/30 rounded-2xl flex items-center justify-center mx-auto mb-4 text-indigo-600 dark:text-indigo-400 transform rotate-3">
+                   <MessageCircle className="h-6 w-6" />
+                </div>
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">{t.feedbackTitle || '意见反馈'}</h3>
+                <p className="text-slate-500 dark:text-slate-400 text-sm">{t.feedbackSubtitle || '您的每一条建议都是我们进步的动力'}</p>
+              </div>
+
+              {/* Categories */}
+              <div className="flex flex-wrap gap-2 justify-center">
+                {categories.map(cat => (
+                  <button
+                    key={cat.id}
+                    onClick={() => setCategory(cat.id)}
+                    className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${
+                      category === cat.id 
+                        ? 'bg-indigo-600 text-white border-indigo-600 shadow-lg shadow-indigo-500/20' 
+                        : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-indigo-300 dark:hover:border-indigo-700'
+                    }`}
+                  >
+                    {cat.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Rating */}
+              <div className="flex flex-col items-center gap-2">
+                 <div className="flex gap-1">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button 
+                        key={star} 
+                        onClick={() => setRating(star)} 
+                        onMouseEnter={() => setRating(star)} // Interactive hover preview (simplified)
+                        className="p-1 focus:outline-none transition-transform hover:scale-110 active:scale-95 group"
+                      >
+                        <Star 
+                          className={`h-8 w-8 transition-colors ${
+                            star <= rating 
+                              ? 'text-amber-400 fill-amber-400 drop-shadow-sm' 
+                              : 'text-slate-200 dark:text-slate-700'
+                          }`} 
+                        />
+                      </button>
+                    ))}
+                 </div>
+                 <span className="text-xs font-medium text-slate-400 h-4">
+                    {rating === 1 && '需要改进 😢'}
+                    {rating === 2 && '勉强及格 😐'}
+                    {rating === 3 && '中规中矩 🙂'}
+                    {rating === 4 && '比较满意 😊'}
+                    {rating === 5 && '非常棒 🤩'}
+                 </span>
+              </div>
+
+              {/* Comment */}
+              <div className="relative">
+                <textarea 
+                  value={comment} 
+                  onChange={(e) => setComment(e.target.value)} 
+                  placeholder={t.feedbackPlaceholder || "请详细描述您遇到的问题或建议..."} 
+                  className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none dark:text-white h-32 resize-none transition-all placeholder:text-slate-400" 
+                />
+              </div>
+
+              <button 
+                onClick={handleSubmit} 
+                disabled={rating === 0 || isSubmitting} 
+                className={`w-full py-3.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-2xl text-sm font-bold shadow-xl shadow-indigo-500/20 transition-all transform active:scale-[0.98] flex items-center justify-center gap-2 ${
+                  (rating === 0 || isSubmitting) ? 'opacity-50 cursor-not-allowed grayscale' : ''
+                }`}
+              >
+                {isSubmitting ? (
+                  <Loader className="h-5 w-5 animate-spin" />
+                ) : (
+                  <>
+                    <Send className="h-4 w-4" />
+                    {t.submitFeedback || '提交反馈'}
+                  </>
+                )}
+              </button>
+            </div>
+          ) : (
+            <div className="text-center py-12 animate-in zoom-in duration-300">
+              <div className="w-20 h-20 bg-gradient-to-tr from-emerald-400 to-teal-500 rounded-full flex items-center justify-center mx-auto mb-6 text-white shadow-lg shadow-emerald-500/30">
+                <CheckCircle2 className="h-10 w-10" />
+              </div>
+              <h3 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">{t.feedbackSuccessTitle || '感谢您的反馈'}</h3>
+              <p className="text-slate-500 dark:text-slate-400 text-sm mb-6 max-w-[240px] mx-auto leading-relaxed">
+                {t.feedbackSuccessDesc || '我们要么在读书，要么在写代码，要么在去写代码的路上... 会尽快回复您的！'}
+              </p>
+              <div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-3 inline-block">
+                 <p className="text-slate-400 dark:text-slate-500 text-xs font-mono">{t.feedbackContact || 'Contact: support@example.com'}</p>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -2247,7 +2372,7 @@ function App() {
     <div className={`min-h-screen font-sans transition-colors duration-300 ${darkMode ? 'bg-slate-950 text-slate-100' : 'bg-indigo-50/30 text-slate-900'}`}>
       
       {showTour && <TourGuide onComplete={() => { setShowTour(false); localStorage.setItem('has_seen_tour', 'true'); }} t={t} />}
-      {showFeedback && <FeedbackModal onClose={() => setShowFeedback(false)} t={t} />}
+      {showFeedback && <FeedbackModal onClose={() => setShowFeedback(false)} t={t} user={user} />}
       
       {/* New Modal */}
       {showLocationGuide && <LocationGuideModal onClose={() => setShowLocationGuide(false)} onApply={handleApplyLocationScore} t={t} />}
