@@ -2357,45 +2357,81 @@ function App() {
       {/* Main Container: Expanded width to 1600px */}
       <main id="main-report" className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
-        {/* WealthCompass Branding Header */}
-        {/* WealthCompass Branding Header */}
-        <div className="text-center mb-12 mt-4 relative z-10">
+        {/* WealthCompass Branding Header - Professional Dynamic */}
+        <div className="text-center mb-12 mt-4 relative z-10 group/header select-none">
           <style>
             {`
-              @keyframes liquid-flow {
+              @keyframes shimmer-fast {
                 0% { background-position: 0% 50%; }
-                50% { background-position: 100% 50%; }
-                100% { background-position: 0% 50%; }
+                100% { background-position: 200% 50%; }
               }
-              .liquid-block-text {
-                background-image: 
-                  repeating-linear-gradient(45deg, rgba(255,255,255,0.1) 0px, rgba(255,255,255,0.1) 2px, transparent 2px, transparent 6px),
-                  linear-gradient(90deg, #4f46e5, #9333ea, #db2777, #f59e0b, #4f46e5);
-                background-size: 200% auto;
-                background-clip: text;
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-                animation: liquid-flow 6s linear infinite;
+              .pro-dynamic-text {
+                background-size: 300% 100%;
+                animation: shimmer-fast 3s linear infinite;
               }
             `}
           </style>
-          <h1 className="liquid-block-text text-4xl md:text-8xl font-black mb-4 tracking-tighter relative z-10 select-none drop-shadow-2xl" 
-              style={{ 
-                WebkitTextStroke: '1px rgba(255,255,255,0.2)',
-                filter: 'drop-shadow(0 0 15px rgba(99, 102, 241, 0.4))'
-              }}>
-            WealthCompass
-          </h1>
+          
+          {/* Main Title - WealthCompass */}
+          <div className="flex flex-wrap justify-center items-end gap-[1px] md:gap-[2px] mb-4">
+            {"WealthCompass".split("").map((char, index) => {
+              // High-contrast, professional tech gradients
+              const gradients = [
+                "from-blue-600 via-indigo-500 to-violet-600",
+                "from-indigo-600 via-purple-500 to-fuchsia-600",
+                "from-emerald-500 via-teal-500 to-cyan-600",
+                "from-orange-500 via-amber-500 to-yellow-500",
+                "from-rose-600 via-pink-600 to-purple-600",
+                "from-cyan-600 via-blue-600 to-indigo-600",
+              ];
+              
+              return (
+                <span 
+                  key={`en-${index}`}
+                  className={`
+                    pro-dynamic-text inline-block text-6xl md:text-8xl font-[900] tracking-tighter
+                    bg-gradient-to-r ${gradients[index % gradients.length]}
+                    bg-clip-text text-transparent
+                    transform transition-all duration-300
+                    hover:-translate-y-2 hover:scale-110 hover:brightness-125
+                    cursor-default filter drop-shadow-md
+                  `}
+                  style={{
+                    fontFamily: '"SF Pro Display", "Inter", system-ui, -apple-system, sans-serif',
+                    textShadow: '0 0 30px rgba(79, 70, 229, 0.15)', // Professional glow
+                    WebkitTextStroke: '0px', // Clean edges
+                  }}
+                >
+                  {char}
+                </span>
+              )
+            })}
+          </div>
+
+          {/* Subtitle - Professional Tech Style */}
           <div className="flex items-center justify-center gap-4 opacity-90">
-            <div className="h-[2px] w-16 bg-gradient-to-r from-transparent via-indigo-500 to-purple-500 rounded-full opacity-50"></div>
-            <p className="liquid-block-text text-lg md:text-2xl font-bold tracking-[0.2em] uppercase" 
-               style={{ 
-                 WebkitTextStroke: '0.5px rgba(255,255,255,0.15)',
-                 filter: 'drop-shadow(0 0 8px rgba(99, 102, 241, 0.3))'
-               }}>
-              财富罗盘终极决策系统
-            </p>
-            <div className="h-[2px] w-16 bg-gradient-to-l from-transparent via-indigo-500 to-purple-500 rounded-full opacity-50"></div>
+            <div className="h-[1px] w-12 md:w-32 bg-gradient-to-r from-transparent via-slate-400 to-transparent"></div>
+            
+            <div className="flex gap-1 md:gap-2">
+              {"财富罗盘终极决策系统".split("").map((char, index) => (
+                <span 
+                  key={`cn-${index}`}
+                  className={`
+                    pro-dynamic-text inline-block text-lg md:text-2xl font-bold
+                    bg-gradient-to-r from-slate-600 via-indigo-600 to-slate-600 dark:from-slate-300 dark:via-indigo-400 dark:to-slate-300
+                    bg-clip-text text-transparent
+                    hover:scale-110 transition-transform duration-200 cursor-default
+                  `}
+                  style={{ 
+                    animationDuration: '4s'
+                  }}
+                >
+                  {char}
+                </span>
+              ))}
+            </div>
+
+            <div className="h-[1px] w-12 md:w-32 bg-gradient-to-r from-transparent via-slate-400 to-transparent"></div>
           </div>
         </div>
 
