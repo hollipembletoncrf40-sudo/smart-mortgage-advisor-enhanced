@@ -885,7 +885,7 @@ const FeedbackModal = ({ onClose, t, user }: { onClose: () => void, t: any, user
                 <p className="text-indigo-600 dark:text-indigo-400 text-xs font-medium italic">
                   {t.feedbackPromise || '"我们要么在读书，要么在写代码，要么在回复您的路上..."'}
                 </p>
-                <p className="text-slate-400 dark:text-slate-500 text-xs mt-1">— Josephine ✨</p>
+
               </div>
 
               {/* Close button */}
