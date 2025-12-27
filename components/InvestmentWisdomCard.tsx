@@ -46,7 +46,7 @@ const InvestmentWisdomCard: React.FC<InvestmentWisdomCardProps> = ({ language = 
   };
 
   return (
-    <div className="perspective-1000 w-full max-w-5xl mx-auto mt-8 mb-16">
+    <div className="perspective-1000 w-full max-w-7xl mx-auto mt-8 mb-16 px-4">
       <div 
         onClick={handleNextQuote}
         className={`
@@ -79,7 +79,7 @@ const InvestmentWisdomCard: React.FC<InvestmentWisdomCardProps> = ({ language = 
               ${isAnimating ? 'rotate-x-90 opacity-0' : 'rotate-x-0 opacity-100'}
             `}
           >
-            <h3 className="text-3xl md:text-5xl font-black text-slate-800 dark:text-slate-100 mb-8 drop-shadow-sm dark:drop-shadow-md tracking-wide leading-relaxed whitespace-pre-line" style={{ fontFamily: 'serif' }}>
+            <h3 className="text-3xl md:text-5xl font-black text-slate-800 dark:text-slate-100 mb-8 drop-shadow-sm dark:drop-shadow-md tracking-wide leading-relaxed whitespace-pre-line" style={{ fontFamily: 'serif', textWrap: 'pretty' }}>
               {formatQuote(language === 'EN' ? currentQuote.textEn : currentQuote.text, language !== 'EN')}
             </h3>
             
