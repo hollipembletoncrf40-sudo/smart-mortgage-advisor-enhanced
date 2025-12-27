@@ -475,9 +475,9 @@ const LifeControlPanel: React.FC<LifeControlPanelProps> = ({ language }) => {
                  <div className="absolute top-8 left-0 w-full h-1 bg-slate-800 rounded-full"></div>
                  <div className="flex justify-between relative z-10 mx-4">
                     {[
-                        { age: 40, label: 'Health', color: 'bg-red-500' },
-                        { age: 60, label: 'Career', color: 'bg-amber-500' },
-                        { age: 80, label: 'Soul', color: 'bg-slate-500' }
+                        { age: 40, label: 'Health', labelZh: '健康', color: 'bg-red-500', score: 65 },
+                        { age: 60, label: 'Career', labelZh: '事业', color: 'bg-amber-500', score: 45 },
+                        { age: 80, label: 'Soul', labelZh: '灵魂', color: 'bg-slate-500', score: 15 }
                     ].map(p => (
                         <div key={p.age} 
                              onClick={() => setSimAge(p.age as any)}
@@ -485,10 +485,28 @@ const LifeControlPanel: React.FC<LifeControlPanelProps> = ({ language }) => {
                         >
                             <div className={`w-4 h-4 rounded-full ${p.color} border-4 border-slate-900 shadow-lg`}></div>
                             <div className="text-xs font-bold text-slate-300">{p.age}</div>
+                            <div className="text-[10px] text-slate-500 uppercase tracking-wider">{language === 'ZH' ? p.labelZh : p.label}</div>
                         </div>
                     ))}
                  </div>
-                 <div className="mt-8 p-3 bg-slate-950/50 border border-slate-800 rounded-lg text-xs text-slate-300 italic text-center h-16 flex items-center justify-center">
+                 
+                 {/* Visual Data Feedback */}
+                 <div className="mt-6 flex flex-col gap-2">
+                    <div className="flex justify-between text-xs text-slate-400">
+                        <span>{language === 'ZH' ? '人生满意度指数' : 'Life Satisfaction Index'}</span>
+                        <span className="font-mono text-slate-200">
+                            {simAge === 40 ? 65 : (simAge === 60 ? 45 : 15)}%
+                        </span>
+                    </div>
+                    <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden">
+                        <div 
+                            className={`h-full transition-all duration-500 ease-out ${simAge === 40 ? 'bg-red-500' : (simAge === 60 ? 'bg-amber-500' : 'bg-slate-500')}`}
+                            style={{ width: `${simAge === 40 ? 65 : (simAge === 60 ? 45 : 15)}%` }}
+                        ></div>
+                    </div>
+                 </div>
+
+                 <div className="mt-4 p-3 bg-slate-950/50 border border-slate-800 rounded-lg text-xs text-slate-300 italic text-center h-16 flex items-center justify-center">
                      {simAge === 40 && (language === 'ZH' ? "“以为身体永远扛得住，直到这张体检单。”" : "\"Thought I was invincible, until this diagnosis.\"")}
                      {simAge === 60 && (language === 'ZH' ? "“为了那点退休金，忍受了30年不爱的工作。”" : "\"Endured 30 years of a job I hated for safety.\"")}
                      {simAge === 80 && (language === 'ZH' ? "“我从没去过想去的地方，也从没爱过想爱的人。”" : "\"I never went where I wanted, never loved who I wanted.\"")}
