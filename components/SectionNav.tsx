@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { List, BarChart3, Zap, Clock, Gamepad2, TrendingUp, LayoutGrid, Bot, HelpCircle, CalendarDays, MessageSquare, Coffee } from 'lucide-react';
+import { List, BarChart3, Zap, Clock, Gamepad2, TrendingUp, LayoutGrid, Bot, HelpCircle, CalendarDays, MessageSquare, Coffee, ArrowUp } from 'lucide-react';
 
 interface SectionNavProps {
   t: any;
@@ -44,6 +44,9 @@ const SectionNav: React.FC<SectionNavProps> = ({ t, onTabChange }) => {
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
+
+  // Detect English by checking appTitle
+  const isEN = t.appTitle === 'WealthCompass';
 
   // Intersection Observer for active section
   useEffect(() => {
@@ -122,11 +125,28 @@ const SectionNav: React.FC<SectionNavProps> = ({ t, onTabChange }) => {
         }`}
       >
         <div className="p-2 space-y-1">
+          {/* Scroll to Top Button */}
+          <button
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            className="w-full flex items-center gap-3 px-2 py-2 rounded-xl transition-all text-left group text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-indigo-600 dark:hover:text-indigo-400"
+            title={isEN ? 'Back to Top' : '回到顶部'}
+          >
+            <ArrowUp className="h-4 w-4 flex-shrink-0 group-hover:-translate-y-0.5 transition-transform" />
+            <span 
+              className={`text-xs font-medium whitespace-nowrap transition-all duration-300 ${
+                isExpanded ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-2 absolute'
+              }`}
+            >
+              {isEN ? 'Back to Top' : '回到顶部'}
+            </span>
+          </button>
+          
+          {/* Separator */}
+          <div className="h-px bg-slate-100 dark:bg-slate-800 my-1 mx-2" />
+
           {NAV_ITEMS.map((item) => {
             const Icon = item.icon;
             const isActive = activeSection === item.id;
-            // Detect if language is English by checking appTitle
-            const isEN = t.appTitle === 'WealthCompass';
             const fallback = isEN ? item.fallbackLabelEN : item.fallbackLabel;
             return (
               <button
