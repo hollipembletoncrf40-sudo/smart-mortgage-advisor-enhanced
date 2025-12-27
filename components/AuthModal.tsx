@@ -178,119 +178,91 @@ export const AuthModal = ({ isOpen, onClose, t = {}, darkMode = true }: AuthModa
             <X className="h-6 w-6" />
         </button>
 
-        {/* Left Panel - Liquid Glass Branding */}
-        <div className="hidden md:flex w-[45%] h-full relative overflow-hidden">
-            {/* Liquid Glass Background */}
-            <div className={`absolute inset-0 z-0 ${darkMode ? 'bg-gradient-to-br from-zinc-900 via-zinc-950 to-black' : 'bg-gradient-to-br from-slate-50 via-white to-slate-100'}`}>
-                {/* Animated gradient orbs */}
-                <div className={`absolute top-[-30%] left-[-20%] w-[70%] h-[70%] blur-[100px] rounded-full animate-pulse ${darkMode ? 'bg-indigo-900/30' : 'bg-indigo-200/60'}`}></div>
-                <div className={`absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] blur-[100px] rounded-full animate-pulse ${darkMode ? 'bg-emerald-900/20' : 'bg-emerald-200/50'}`} style={{ animationDelay: '1s' }}></div>
-                <div className={`absolute top-[40%] left-[30%] w-[40%] h-[40%] blur-[80px] rounded-full animate-pulse ${darkMode ? 'bg-purple-900/20' : 'bg-purple-200/40'}`} style={{ animationDelay: '2s' }}></div>
+        {/* Left Panel - Premium Liquid Glass Branding */}
+        <div className="hidden md:flex w-[45%] h-full relative overflow-hidden group">
+            {/* Deep Cosmic Background */}
+            <div className={`absolute inset-0 z-0 ${darkMode ? 'bg-[radial-gradient(circle_at_top_left,_var(--tw-gradient-stops))] from-indigo-950/40 via-[#020617] to-black' : 'bg-gradient-to-br from-indigo-50 via-white to-slate-50'}`}>
+                {/* Animated Aurora Orbs */}
+                <div className={`absolute top-[-20%] left-[-20%] w-[80%] h-[80%] blur-[120px] rounded-full animate-pulse ${darkMode ? 'bg-indigo-600/20' : 'bg-indigo-300/40'}`}></div>
+                <div className={`absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] blur-[100px] rounded-full animate-pulse ${darkMode ? 'bg-purple-600/10' : 'bg-purple-300/40'}`} style={{ animationDelay: '2s' }}></div>
+                <div className={`absolute top-[40%] right-[-20%] w-[50%] h-[50%] blur-[90px] rounded-full animate-pulse ${darkMode ? 'bg-blue-600/10' : 'bg-blue-300/30'}`} style={{ animationDelay: '4s' }}></div>
                 
-                {/* Glass noise texture overlay */}
-                <div className="absolute inset-0 opacity-[0.03]" 
+                {/* Premium Noise Texture */}
+                <div className="absolute inset-0 opacity-[0.04]" 
                      style={{ 
-                         backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 256 256\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noise\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noise)\'/%3E%3C/svg%3E")',
+                         backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noiseFilter\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.65\' numOctaves=\'3\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noiseFilter)\'/%3E%3C/svg%3E")',
                      }}>
                 </div>
                 
-                {/* Subtle grid lines */}
-                <div className={`absolute inset-0 ${darkMode ? 'opacity-[0.02]' : 'opacity-[0.05]'}`}
+                {/* Tech Grid Overlay */}
+                <div className={`absolute inset-0 ${darkMode ? 'opacity-[0.03]' : 'opacity-[0.05]'}`}
                      style={{
-                         backgroundImage: `linear-gradient(to right, ${darkMode ? 'white' : 'black'} 1px, transparent 1px), linear-gradient(to bottom, ${darkMode ? 'white' : 'black'} 1px, transparent 1px)`,
-                         backgroundSize: '40px 40px'
+                         backgroundImage: `linear-gradient(to right, ${darkMode ? '#a5b4fc' : '#000'} 1px, transparent 1px), linear-gradient(to bottom, ${darkMode ? '#a5b4fc' : '#000'} 1px, transparent 1px)`,
+                         backgroundSize: '60px 60px',
+                         maskImage: 'linear-gradient(to bottom, black 40%, transparent 100%)'
                      }}>
                 </div>
             </div>
 
-            {/* Content */}
+            {/* Content Container */}
             <div className="relative z-10 flex flex-col justify-between p-12 h-full w-full">
-                {/* Logo */}
-                <div className="flex items-center gap-2">
-                    <div className={`text-xl font-bold tracking-tighter flex items-center gap-2 ${darkMode ? 'text-white' : 'text-slate-900'}`}>
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-emerald-500 flex items-center justify-center">
-                            <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <circle cx="12" cy="12" r="10" strokeWidth="2" />
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16.24 7.76l-2.12 6.36-6.36 2.12 2.12-6.36 6.36-2.12z" />
-                            </svg>
-                        </div>
-                        <span>WealthCompass</span>
+                {/* Logo Area */}
+                <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                        <Camera className="w-5 h-5 text-white" />
                     </div>
+                    <span className={`text-xl font-bold tracking-tight ${darkMode ? 'text-white' : 'text-slate-900'}`}>WealthCompass</span>
                 </div>
 
-                {/* Main Title & Features */}
-                <div className="space-y-8">
+                {/* Main Hero Text */}
+                <div className="space-y-10">
                     <div className="space-y-4">
-                        <h1 className={`text-4xl font-bold leading-tight ${darkMode ? 'text-white' : 'text-slate-900'}`}>
+                        <h1 className={`text-5xl font-bold leading-[1.1] tracking-tight ${darkMode ? 'text-white' : 'text-slate-900'}`}>
                             <span className="block">智能财富决策</span>
-                            <span className={`block text-transparent bg-clip-text mt-2 ${darkMode ? 'bg-gradient-to-r from-indigo-400 via-purple-400 to-emerald-400' : 'bg-gradient-to-r from-indigo-600 via-purple-600 to-emerald-600'}`}>AI驱动的投资分析</span>
+                            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-blue-400 animate-gradient-x">AI驱动的未来</span>
                         </h1>
-                        <p className={`text-base max-w-sm leading-relaxed ${darkMode ? 'text-zinc-400' : 'text-slate-600'}`}>
-                            深度大数据分析与 AI 智能建议，为您的房产投资决策保驾护航。
+                        <p className={`text-lg max-w-sm leading-relaxed ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
+                            DeepEstate 深度决策引擎，为您提供超乎想象的房产投资洞察。
                         </p>
                     </div>
 
-                    {/* Feature Highlights */}
+                    {/* Feature Cards - Floating Effect */}
                     <div className="space-y-4">
-                        <div className={`flex items-start gap-4 p-4 rounded-2xl backdrop-blur-sm transition-all ${darkMode ? 'bg-white/5 border border-white/10 hover:bg-white/10' : 'bg-black/5 border border-black/5 hover:bg-black/10'}`}>
-                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${darkMode ? 'bg-indigo-500/20' : 'bg-indigo-500/10'}`}>
-                                <svg className={`w-5 h-5 ${darkMode ? 'text-indigo-400' : 'text-indigo-600'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                                </svg>
+                        {[
+                            { title: '智能财富规划', desc: '个性化资产配置，精准预测', icon: <FileText className="w-5 h-5" />, color: 'from-blue-500 to-indigo-500' },
+                            { title: '风险压力测试', desc: '全维度评估，规避潜在风险', icon: <CheckCircle className="w-5 h-5" />, color: 'from-emerald-500 to-teal-500' },
+                            { title: 'AI 决策建议', desc: '大模型深度分析，量身定制', icon: <div className="text-xs font-bold px-1">AI</div>, color: 'from-purple-500 to-pink-500' }
+                        ].map((item, idx) => (
+                            <div key={idx} className={`group/card flex items-center gap-4 p-4 rounded-xl border transition-all duration-300 hover:translate-x-1 ${darkMode ? 'bg-white/5 border-white/5 hover:bg-white/10 hover:border-white/10' : 'bg-white/50 border-black/5 hover:bg-white/80'}`}>
+                                <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${item.color} flex items-center justify-center text-white shadow-lg opacity-80 group-hover/card:opacity-100 transition-opacity`}>
+                                    {item.icon}
+                                </div>
+                                <div>
+                                    <h3 className={`font-semibold text-sm ${darkMode ? 'text-slate-200' : 'text-slate-900'}`}>{item.title}</h3>
+                                    <p className={`text-xs mt-0.5 ${darkMode ? 'text-slate-500 group-hover/card:text-slate-400' : 'text-slate-500'}`}>{item.desc}</p>
+                                </div>
                             </div>
-                            <div>
-                                <h3 className={`font-medium text-sm ${darkMode ? 'text-white' : 'text-slate-900'}`}>智能财富规划</h3>
-                                <p className={`text-xs mt-0.5 ${darkMode ? 'text-zinc-500' : 'text-slate-500'}`}>个性化资产配置，精准投资回报预测</p>
-                            </div>
-                        </div>
-
-                        <div className={`flex items-start gap-4 p-4 rounded-2xl backdrop-blur-sm transition-all ${darkMode ? 'bg-white/5 border border-white/10 hover:bg-white/10' : 'bg-black/5 border border-black/5 hover:bg-black/10'}`}>
-                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${darkMode ? 'bg-emerald-500/20' : 'bg-emerald-500/10'}`}>
-                                <svg className={`w-5 h-5 ${darkMode ? 'text-emerald-400' : 'text-emerald-600'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                                </svg>
-                            </div>
-                            <div>
-                                <h3 className={`font-medium text-sm ${darkMode ? 'text-white' : 'text-slate-900'}`}>风险压力测试</h3>
-                                <p className={`text-xs mt-0.5 ${darkMode ? 'text-zinc-500' : 'text-slate-500'}`}>全面评估月供压力，规避还款风险</p>
-                            </div>
-                        </div>
-
-                        <div className={`flex items-start gap-4 p-4 rounded-2xl backdrop-blur-sm transition-all ${darkMode ? 'bg-white/5 border border-white/10 hover:bg-white/10' : 'bg-black/5 border border-black/5 hover:bg-black/10'}`}>
-                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${darkMode ? 'bg-purple-500/20' : 'bg-purple-500/10'}`}>
-                                <svg className={`w-5 h-5 ${darkMode ? 'text-purple-400' : 'text-purple-600'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                                </svg>
-                            </div>
-                            <div>
-                                <h3 className={`font-medium text-sm ${darkMode ? 'text-white' : 'text-slate-900'}`}>AI 决策建议</h3>
-                                <p className={`text-xs mt-0.5 ${darkMode ? 'text-zinc-500' : 'text-slate-500'}`}>大模型智能分析，量身定制投资方案</p>
-                            </div>
-                        </div>
+                        ))}
                     </div>
                 </div>
 
-                {/* Bottom Stats */}
-                <div className="flex items-center gap-6 pt-4">
-                    <div className="text-center">
-                        <div className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-slate-900'}`}>50K+</div>
-                        <div className={`text-xs ${darkMode ? 'text-zinc-500' : 'text-slate-500'}`}>用户信赖</div>
-                    </div>
-                    <div className={`w-px h-10 ${darkMode ? 'bg-zinc-800' : 'bg-slate-200'}`}></div>
-                    <div className="text-center">
-                        <div className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-slate-900'}`}>¥2B+</div>
-                        <div className={`text-xs ${darkMode ? 'text-zinc-500' : 'text-slate-500'}`}>分析资产</div>
-                    </div>
-                    <div className={`w-px h-10 ${darkMode ? 'bg-zinc-800' : 'bg-slate-200'}`}></div>
-                    <div className="text-center">
-                        <div className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-slate-900'}`}>98%</div>
-                        <div className={`text-xs ${darkMode ? 'text-zinc-500' : 'text-slate-500'}`}>满意度</div>
-                    </div>
+                {/* Bottom Stats - Glass Strip */}
+                <div className={`flex items-center justify-between py-4 px-6 rounded-2xl border backdrop-blur-md ${darkMode ? 'bg-white/5 border-white/5' : 'bg-white/40 border-black/5'}`}>
+                    {[
+                        { val: '50K+', label: '用户信赖' },
+                        { val: '¥2B+', label: '分析资产' },
+                        { val: '98%', label: '五星好评' }
+                    ].map((stat, idx) => (
+                        <div key={idx} className="text-center">
+                            <div className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-slate-900'}`}>{stat.val}</div>
+                            <div className={`text-[10px] uppercase tracking-wider font-medium ${darkMode ? 'text-slate-500' : 'text-slate-500'}`}>{stat.label}</div>
+                        </div>
+                    ))}
                 </div>
             </div>
 
-            {/* Glass border effect on right edge */}
-            <div className={`absolute right-0 top-0 bottom-0 w-px bg-gradient-to-b from-transparent to-transparent ${darkMode ? 'via-zinc-700' : 'via-slate-300'}`}></div>
+            {/* Cinematic Edge Lighting */}
+            <div className={`absolute right-0 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-indigo-500/50 to-transparent opacity-50`}></div>
         </div>
 
         {/* Right Panel - Dynamic Content */}
