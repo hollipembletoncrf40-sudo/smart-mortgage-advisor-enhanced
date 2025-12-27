@@ -25,7 +25,12 @@ export const TRANSLATIONS = {
     sharedAreaRatio: "公摊比例 (%)",
     usableArea: "实际使用面积",
     unitPrice: "单价 (元/㎡)",
-    communityName: "小区名称",
+    communityName: "小区档次", // Previously "小区名称"
+    propertyGrade: "小区档次",
+    gradeLuxury: "豪宅 / 别墅",
+    gradeHighEnd: "中高端 / 品质",
+    gradeOrdinary: "普通 / 刚需",
+    gradeResettlement: "老破小 / 安置房",
     district: "所在区域",
     floorLevel: "楼层",
     propertyType: "房屋类型",
@@ -1392,6 +1397,13 @@ export const TRANSLATIONS = {
     downPaymentRatio: "Down Payment (%)",
     netDownPayment: "Net Down Payment",
     oneTimeCost: "One-time Costs",
+    unitPrice: "Unit Price ($/sqm)",
+    communityName: "Property Grade", // Reuse or deprecate
+    propertyGrade: "Property Grade",
+    gradeLuxury: "Luxury / Villa",
+    gradeHighEnd: "High-End / Quality",
+    gradeOrdinary: "Ordinary / Rigid Demand",
+    gradeResettlement: "Old / Resettlement",
     deedTax: "Deed Tax (%)",
     agencyFee: "Agency Fee (%)",
     renovationCost: "Renovation ($k)",
@@ -2739,9 +2751,7 @@ export const TRANSLATIONS = {
     predictAppreciation: "Predict Appreciation",
 
     // Property Details
-    communityName: "Community Name",
     propertyArea: "Property Area (㎡)",
-    unitPrice: "Unit Price",
     sharedAreaRatio: "Shared Area Ratio (%)",
     usableArea: "Usable Area",
     floorLevel: "Floor Level",

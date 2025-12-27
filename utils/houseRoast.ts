@@ -196,6 +196,65 @@ function detectLifestyleMismatch(params: InvestmentParams, language: Language): 
   return null;
 }
 
+// Detect Property Grade Mismatch / Feedback
+function detectPropertyGradeMismatch(params: InvestmentParams, language: Language): RoastResult | null {
+  const grade = params.propertyGrade;
+  
+  if (grade === 'luxury') {
+    return {
+      category: 'lifestyle',
+      severity: 'serious',
+      roastMessage: language === 'EN'
+        ? "Luxury Villa? Make sure your wallet is ready for the maintenance and liquidity trap."
+        : "豪宅别墅？你准备好面对每年几十万的维护费和卖不掉的流动性陷阱了吗？",
+      realityCheck: language === 'EN'
+        ? "Luxury homes have very low liquidity. Selling can take 1-2 years."
+        : "豪宅的流动性通常只有普通住宅的1/5，卖周期可能长达1-2年。",
+      suggestion: language === 'EN'
+        ? "Consider this a consumption, not an investment. Diversify assets."
+        : "把这当成消费而非投资。确保你有足够的现金流养房，不要指望它快速变现。",
+      emoji: '🏰'
+    };
+  }
+  
+  if (grade === 'resettlement') {
+    return {
+      category: 'location',
+      severity: 'mild',
+      roastMessage: language === 'EN'
+        ? "Targeting old resettlement housing? Bargain hunting is risky."
+        : "看中老破小或者安置房？你这是想赌拆迁还是单纯图便宜？",
+      realityCheck: language === 'EN'
+        ? "Appreciation potential is limited, and demolition is uncertain."
+        : "老破小的居住体验较差，且未来的接盘侠越来越少（年轻人不喜欢）。",
+      suggestion: language === 'EN'
+        ? "Ensure good location/school district, otherwise avoid."
+        : "除非有顶级学区加持或确定性极高的拆迁规划，否则建议谨慎接盘。",
+      emoji: '🏚'
+    };
+  }
+
+  if (grade === 'high_end') {
+     // Positive reinforcement or mild check
+     return {
+      category: 'lifestyle',
+      severity: 'mild',
+      roastMessage: language === 'EN'
+        ? "High-end quality home. Nice taste, but don't overpay for the 'premium'."
+        : "中高端品质盘，眼光不错。但要注意别为所谓的'溢价'买单太多。",
+      realityCheck: language === 'EN'
+        ? "Quality homes hold value, but verify the developer's reputation."
+        : "品质楼盘抗跌性较好，但要警惕期房烂尾风险，确认开发商口碑。",
+      suggestion: language === 'EN'
+        ? "Focus on unit layout and view."
+        : "重点关注户型和楼层视野，这是高端盘的核心溢价点。",
+      emoji: '✨'
+    };
+  }
+
+  return null;
+}
+
 // 主函数：生成所有吐槽
 export function generateHouseRoasts(params: InvestmentParams, result: CalculationResult, language: Language = 'ZH'): RoastResult[] {
   const roasts: RoastResult[] = [];
@@ -217,6 +276,9 @@ export function generateHouseRoasts(params: InvestmentParams, result: Calculatio
 
   const lifestyleRoast = detectLifestyleMismatch(params, language);
   if (lifestyleRoast) roasts.push(lifestyleRoast);
+
+  const gradeRoast = detectPropertyGradeMismatch(params, language);
+  if (gradeRoast) roasts.push(gradeRoast);
 
   // 按严重程度排序
   roasts.sort((a, b) => {

@@ -2160,6 +2160,7 @@ function App() {
     sharedAreaRatio: 25, // 公摊比例默认25%
     unitPrice: 33333,
     communityName: "",
+    propertyGrade: "ordinary",
     district: "",
     floorLevel: "中楼层",
     propertyType: "普通住宅",
@@ -2789,24 +2790,37 @@ function App() {
                             {/* Community & District */}
                             <div className="grid grid-cols-2 gap-2">
                                 <div className="flex flex-col gap-1.5">
-                                    <label className="text-xs font-medium text-slate-500 dark:text-slate-400">{t.communityName}</label>
-                                    <input 
-                                        type="text"
-                                        value={params.communityName}
-                                        onChange={(e) => handleInputChange('communityName', e.target.value)}
-                                        placeholder={language === 'EN' ? 'Enter community name' : '请输入小区名称'}
-                                        className="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white transition-all"
-                                    />
+                                    <label className="text-xs font-medium text-slate-500 dark:text-slate-400">{t.propertyGrade || '小区档次'}</label>
+                                    <div className="relative">
+                                        <select 
+                                            value={params.propertyGrade || 'ordinary'}
+                                            onChange={(e) => handleInputChange('propertyGrade', e.target.value)}
+                                            className="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg pl-3 pr-8 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white transition-all appearance-none cursor-pointer"
+                                        >
+                                            <option value="luxury">{t.gradeLuxury || (language === 'EN' ? 'Luxury / Villa' : '豪宅 / 别墅')}</option>
+                                            <option value="high_end">{t.gradeHighEnd || (language === 'EN' ? 'High-End / Quality' : '中高端 / 品质')}</option>
+                                            <option value="ordinary">{t.gradeOrdinary || (language === 'EN' ? 'Ordinary / Rigid Demand' : '普通 / 刚需')}</option>
+                                            <option value="resettlement">{t.gradeResettlement || (language === 'EN' ? 'Old / Resettlement' : '老破小 / 安置房')}</option>
+                                        </select>
+                                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+                                    </div>
                                 </div>
                                 <div className="flex flex-col gap-1.5">
                                     <label className="text-xs font-medium text-slate-500 dark:text-slate-400">{t.district}</label>
-                                    <input 
-                                        type="text"
-                                        value={params.district}
-                                        onChange={(e) => handleInputChange('district', e.target.value)}
-                                        placeholder={language === 'EN' ? 'Enter district' : '请输入所在区域'}
-                                        className="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white transition-all"
-                                    />
+                                    <div className="relative">
+                                        <select 
+                                            value={params.district}
+                                            onChange={(e) => handleInputChange('district', e.target.value)}
+                                            className="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg pl-3 pr-8 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white transition-all appearance-none cursor-pointer"
+                                        >
+                                            <option value={language === 'EN' ? 'National' : '全国'}>{language === 'EN' ? 'National (All Regions)' : '全国 (所有区域)'}</option>
+                                            <option value={language === 'EN' ? 'Tier 1' : '一线城市'}>{language === 'EN' ? 'Tier 1 Cities' : '一线城市 (北上广深)'}</option>
+                                            <option value={language === 'EN' ? 'New Tier 1' : '新一线'}>{language === 'EN' ? 'New Tier 1 Cities' : '新一线城市 (杭蓉武等)'}</option>
+                                            <option value={language === 'EN' ? 'Tier 2' : '二线城市'}>{language === 'EN' ? 'Tier 2 Cities' : '二线城市'}</option>
+                                            <option value={language === 'EN' ? 'Tier 3/4' : '三四线'}>{language === 'EN' ? 'Tier 3 & 4 Cities' : '三四线城市'}</option>
+                                        </select>
+                                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+                                    </div>
                                 </div>
                             </div>
                             

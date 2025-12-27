@@ -49,7 +49,8 @@ export interface InvestmentParams {
   propertyArea: number; // 平方米 (房屋面积/建筑面积)
   sharedAreaRatio: number; // % (公摊比例, 默认25%)
   unitPrice: number; // 元/平米 (单价，自动计算)
-  communityName: string; // 小区名称
+  communityName: string; // 小区名称 - Now reused for Property Grade effectively or just kept for legacy
+  propertyGrade: 'luxury' | 'high_end' | 'ordinary' | 'resettlement'; // 小区档次
   district: string; // 所在区域
   floorLevel: string; // 楼层 ("低楼层"|"中楼层"|"高楼层")
   propertyType: string; // 房屋类型 ("普通住宅"|"公寓"|"别墅"|"loft"|"其他")
