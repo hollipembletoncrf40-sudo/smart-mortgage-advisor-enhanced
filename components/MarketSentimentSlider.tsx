@@ -335,7 +335,7 @@ const MarketSentimentSlider: React.FC<MarketSentimentSliderProps> = ({ params, o
               return (
                 <div 
                   key={index} 
-                  className="bg-white dark:bg-slate-100/90 p-4 rounded-xl border border-slate-200 dark:border-slate-700/30 hover:border-purple-500/30 transition-all hover:scale-105"
+                  className="bg-white dark:bg-slate-900/80 backdrop-blur p-4 rounded-xl border border-slate-200 dark:border-slate-700/50 hover:border-purple-500/30 transition-all hover:scale-105"
                 >
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
