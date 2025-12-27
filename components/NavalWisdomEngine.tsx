@@ -13,7 +13,7 @@ import {
 import { navalTweets } from '../data/navalTweets';
 
 interface NavalWisdomEngineProps {
-  language: 'CN' | 'EN';
+  language: 'ZH' | 'EN';
   t: any;
 }
 
@@ -1623,7 +1623,7 @@ const CircularMetric = ({ label, value, color, icon, subLabel }: any) => {
 
 
 // Naval Tweet Carousel Component
-const NavalTweetCarousel = ({ language }: { language: 'CN' | 'EN' }) => {
+const NavalTweetCarousel = ({ language }: { language: 'ZH' | 'EN' }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [isAutoPlay, setIsAutoPlay] = useState(true);

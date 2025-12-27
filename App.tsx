@@ -56,6 +56,7 @@ import NavalWisdomEngine from './components/NavalWisdomEngine';
 import DetailedRepaymentTab from './components/DetailedRepaymentTab';
 import LifeOSDashboard from './components/LifeOSDashboard';
 import SectionNav from './components/SectionNav';
+import LifeControlPanel from './components/LifeControlPanel';
 import { loadAIConfig, sendAIMessage, AIMessage, getProviderName } from './utils/aiProvider';
 import { AestheticTimeHeader } from './components/AestheticTimeHeader';
 import { InvestmentParams, RepaymentMethod, CalculationResult, PrepaymentStrategy, StressTestResult, LoanType, PurchaseScenario, LocationFactors, LocationScore, AssetComparisonItem, KnowledgeCardData, Language, Currency, TaxParams, TaxResult, AppreciationPredictorParams, AppreciationPrediction, MonthlyCashFlow, CustomStressTestParams, DecisionSnapshot, BuyTargetParams } from './types';
@@ -2199,7 +2200,7 @@ function App() {
   });
 
 
-  const [activeTab, setActiveTab] = useState<'chart' | 'table' | 'rentVsBuy' | 'stress' | 'risk' | 'affordability' | 'lifePath' | 'goal' | 'token' | 'knowledge' | 'opportunity' | 'journal' | 'negotiation' | 'liquidity' | 'life_drag' | 'community_data' | 'income_threshold' | 'car_analysis' | 'asset_allocation' | 'sell_decision' | 'autopsy' | 'freedom' | 'leverage' | 'naval' | 'life_os' | 'repayment_detail'>('chart');
+  const [activeTab, setActiveTab] = useState<'chart' | 'table' | 'rentVsBuy' | 'stress' | 'risk' | 'affordability' | 'lifePath' | 'goal' | 'token' | 'knowledge' | 'opportunity' | 'journal' | 'negotiation' | 'liquidity' | 'life_drag' | 'community_data' | 'income_threshold' | 'car_analysis' | 'asset_allocation' | 'sell_decision' | 'autopsy' | 'freedom' | 'leverage' | 'naval' | 'life_control_panel' | 'life_os' | 'repayment_detail'>('chart');
   const [rentMentalCost, setRentMentalCost] = useState(0);
   const [showKnowledgeTree, setShowKnowledgeTree] = useState(false);
   const [selectedKnowledgeTerm, setSelectedKnowledgeTerm] = useState<string | undefined>();
@@ -3231,6 +3232,7 @@ function App() {
                    <button onClick={() => setActiveTab('freedom')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'freedom' ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{language === 'EN' ? 'Freedom Analytics' : '未来自由度'}</button>
                    <button onClick={() => setActiveTab('leverage')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'leverage' ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{language === 'EN' ? 'Life Leverage' : '人生杠杆'}</button>
                    <button onClick={() => setActiveTab('naval')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'naval' ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{t.navNavalWisdom || 'Naval智慧引擎'}</button>
+                   <button onClick={() => setActiveTab('life_control_panel')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'life_control_panel' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{language === 'ZH' ? '🧭 人生控制面板' : '🧭 Life Control Panel'}</button>
                    <button onClick={() => setActiveTab('life_os')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'life_os' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>Life OS</button>
 
                 </div>
@@ -3306,6 +3308,11 @@ function App() {
                  {activeTab === 'naval' && (
                    <div id="naval-wisdom" className="animate-fade-in">
                      <NavalWisdomEngine language={language} t={t} />
+                   </div>
+                 )}
+                 {activeTab === 'life_control_panel' && (
+                   <div id="life-control-panel" className="animate-fade-in">
+                     <LifeControlPanel language={language} />
                    </div>
                  )}
                  {activeTab === 'life_os' && (
