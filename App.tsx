@@ -11,7 +11,8 @@ import {
   Wallet, ShieldAlert, BadgeCheck, Coffee, Send, User, Bot, BarChart3,
   List, X, History, BadgePercent, Settings, Key, Info, BookOpen, ArrowRightLeft,
   Landmark, Loader, Download, FileText, Image as ImageIcon, FileType2, Share2, ChevronDown, CheckCircle2, XCircle, PieChart as PieChartIcon, Coins, Building2, MapPin, Globe2, Lightbulb, ClipboardCheck, ArrowDown, Home, PiggyBank, DollarSign, Droplets, Target, Zap,
-  Compass, ChevronRight, Database, MessageCircle, ExternalLink, LogIn, LogOut, Star
+  Compass, ChevronRight, Database, MessageCircle, ExternalLink, LogIn, LogOut, Star,
+  Activity, Car, Skull, Gamepad2, Cpu
 } from 'lucide-react';
 import { User as FirebaseUser } from 'firebase/auth';
 import { onAuthChange, logout } from './services/authService';
@@ -3082,7 +3083,7 @@ function App() {
                <MetricCard label={t.metricCashOnCash} value={`${result.cashOnCashReturn.toFixed(2)}%`} sub={t.subActualInvest} color="indigo" tooltip={t.tipCashOnCash} />
                <MetricCard label={t.metricComprehensive} value={`${result.comprehensiveReturn.toFixed(2)}%`} sub={t.subIncAppreciation} color="violet" tooltip={t.tipComprehensive} />
                <MetricCard label={t.metricFirstPayment} value={`${t.currencySymbol}${result.monthlyPaymentText}`} sub={`${t.subCoverage}: ${result.monthlyCoverageRatio.toFixed(2)}`} color="slate" tooltip={t.tipFirstPayment} />
-               <MetricCard label={t.metricTotalRevenue} value={`${result.totalRevenue.toFixed(1)}${t.unitWanSimple}`} sub={result.breakEvenYear ? t.subBreakEven.replace('{year}', result.breakEvenYear) : t.subNotBreakEven} color="emerald" tooltip={t.tipTotalRevenue} />
+               <MetricCard label={t.metricTotalRevenue} value={`${result.totalRevenue.toFixed(1)}${t.unitWanSimple}`} sub={result.breakEvenYear ? t.subBreakEven.replace('{year}', result.breakEvenYear.toString()) : t.subNotBreakEven} color="emerald" tooltip={t.tipTotalRevenue} />
             </div>
 
             {/* Asset Comparison & Cost */}
@@ -3204,37 +3205,59 @@ function App() {
             </div>
 
             {/* Wealth Chart */}
-            {/* Wealth Chart & Analysis Tabs */}
+             {/* Wealth Chart & Analysis Tabs - Premium Refactor */}
             <div id="tabs-section" className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-xl border border-slate-100 dark:border-slate-800/50">
-               <div className="flex flex-wrap gap-2 mb-6">
-                   <button onClick={() => setActiveTab('repayment_detail')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'repayment_detail' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{language === 'EN' ? 'Payment Schedule' : '详细还款计划'}</button>
-                   <button onClick={() => setActiveTab('chart')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'chart' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{t.wealthCurve}</button>
-                   <button onClick={() => setActiveTab('rentVsBuy')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'rentVsBuy' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{t.rentVsBuyAnalysis}</button>
-                   <button onClick={() => setActiveTab('stress')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'stress' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{t.stressTest}</button>
-                   <button onClick={() => setActiveTab('risk')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'risk' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{t.riskAssessment}</button>
-                   <button onClick={() => setActiveTab('affordability')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'affordability' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{language === 'EN' ? 'Affordability' : '购买力分析'}</button>
-                   <button onClick={() => setActiveTab('lifePath')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'lifePath' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{t.lifePathSimulator || '人生路径模拟'}</button>
-                   <button onClick={() => setActiveTab('goal')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'goal' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{t.goalCalculator || '买房倒计时'}</button>
-                   <button onClick={() => setActiveTab('token')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'token' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{t.tokenExchange || '财富兑换'}</button>
-                   <button onClick={() => setActiveTab('knowledge')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'knowledge' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{t.navKnowledgeTree || '知识树'}</button>
-                   <button onClick={() => setActiveTab('opportunity')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'opportunity' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{t.navOpportunity || '机会成本&股市'}</button>
-                   <button onClick={() => setActiveTab('journal')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'journal' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{t.navReview || '决策复盘'}</button>
-                   <button onClick={() => setActiveTab('negotiation')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'negotiation' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{t.navNegotiation || '谈判助手'}</button>
-                   <button onClick={() => setActiveTab('liquidity')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'liquidity' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{t.navLiquidity || '流动性分析'}</button>
-                   <button onClick={() => setActiveTab('life_drag')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'life_drag' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{t.lifeDragIndex || '房子拖累指数'}</button>
-                   <button onClick={() => setActiveTab('community_data')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'community_data' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{language === 'EN' ? 'Community Data' : '小区数据'}</button>
-                   <button onClick={() => setActiveTab('income_threshold')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'income_threshold' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{language === 'EN' ? 'Income Threshold' : '收入门槛'}</button>
-                   <button onClick={() => setActiveTab('car_analysis')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'car_analysis' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{language === 'EN' ? 'Car Analysis' : '买车分析'}</button>
-                   <button onClick={() => setActiveTab('asset_allocation')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'asset_allocation' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{language === 'EN' ? 'Asset Alloc.' : '资产配置'}</button>
-
-                   <button onClick={() => setActiveTab('sell_decision')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'sell_decision' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{language === 'EN' ? 'Sell Decision' : '卖房决策'}</button>
-                   <button onClick={() => setActiveTab('autopsy')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'autopsy' ? 'bg-rose-600 text-white shadow-lg shadow-rose-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{language === 'EN' ? 'Decision Autopsy' : '决策尸检室'}</button>
-                   <button onClick={() => setActiveTab('freedom')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'freedom' ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{language === 'EN' ? 'Freedom Analytics' : '未来自由度'}</button>
-                   <button onClick={() => setActiveTab('leverage')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'leverage' ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{language === 'EN' ? 'Life Leverage' : '人生杠杆'}</button>
-                   <button onClick={() => setActiveTab('naval')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'naval' ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{t.navNavalWisdom || 'Naval智慧引擎'}</button>
-                   <button onClick={() => setActiveTab('life_control_panel')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'life_control_panel' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>{language === 'ZH' ? '🧭 人生控制面板' : '🧭 Life Control Panel'}</button>
-                   <button onClick={() => setActiveTab('life_os')} className={`px-4 py-2 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'life_os' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'}`}>Life OS</button>
-
+               <div className="flex flex-wrap gap-3 mb-8">
+                   {[
+                       { id: 'repayment_detail', label: language === 'EN' ? 'Payment Schedule' : '详细还款计划', icon: FileText, color: 'text-blue-500' },
+                       { id: 'chart', label: t.wealthCurve, icon: TrendingUp, color: 'text-emerald-500' },
+                       { id: 'rentVsBuy', label: t.rentVsBuyAnalysis, icon: ArrowRightLeft, color: 'text-orange-500' },
+                       { id: 'stress', label: t.stressTest, icon: Activity, color: 'text-red-500' },
+                       { id: 'risk', label: t.riskAssessment, icon: ShieldAlert, color: 'text-amber-500' },
+                       { id: 'affordability', label: language === 'EN' ? 'Affordability' : '购买力分析', icon: Wallet, color: 'text-indigo-500' },
+                       { id: 'lifePath', label: t.lifePathSimulator || '人生路径模拟', icon: Compass, color: 'text-purple-500' },
+                       { id: 'goal', label: t.goalCalculator || '买房倒计时', icon: Target, color: 'text-cyan-500' },
+                       { id: 'token', label: t.tokenExchange || '财富兑换', icon: Coins, color: 'text-yellow-500' },
+                       { id: 'knowledge', label: t.navKnowledgeTree || '知识树', icon: BookOpen, color: 'text-teal-500' },
+                       { id: 'opportunity', label: t.navOpportunity || '机会成本&股市', icon: BarChart3, color: 'text-rose-500' },
+                       { id: 'journal', label: t.navReview || '决策复盘', icon: History, color: 'text-slate-500' },
+                       { id: 'negotiation', label: t.navNegotiation || '谈判助手', icon: MessageCircle, color: 'text-pink-500' },
+                       { id: 'liquidity', label: t.navLiquidity || '流动性分析', icon: Droplets, color: 'text-blue-400' },
+                       { id: 'life_drag', label: t.lifeDragIndex || '房子拖累指数', icon: ArrowDown, color: 'text-red-400' },
+                       { id: 'community_data', label: language === 'EN' ? 'Community Data' : '小区数据', icon: Building2, color: 'text-indigo-600' },
+                       { id: 'income_threshold', label: language === 'EN' ? 'Income Threshold' : '收入门槛', icon: Landmark, color: 'text-green-600' },
+                       { id: 'car_analysis', label: language === 'EN' ? 'Car Analysis' : '买车分析', icon: Car, color: 'text-blue-600' },
+                       { id: 'asset_allocation', label: language === 'EN' ? 'Asset Alloc.' : '资产配置', icon: PieChartIcon, color: 'text-violet-500' },
+                       { id: 'sell_decision', label: language === 'EN' ? 'Sell Decision' : '卖房决策', icon: LogOut, color: 'text-orange-600' },
+                       { id: 'autopsy', label: language === 'EN' ? 'Decision Autopsy' : '决策尸检室', icon: Skull, color: 'text-rose-600' },
+                       { id: 'freedom', label: language === 'EN' ? 'Freedom Analytics' : '未来自由度', icon: Globe2, color: 'text-sky-500' },
+                       { id: 'leverage', label: language === 'EN' ? 'Life Leverage' : '人生杠杆', icon: Zap, color: 'text-yellow-400' },
+                       { id: 'naval', label: t.navNavalWisdom || 'Naval智慧引擎', icon: BrainCircuit, color: 'text-purple-600' },
+                       { id: 'life_control_panel', label: language === 'ZH' ? '人生控制面板' : 'Life Control Panel', icon: Gamepad2, color: 'text-indigo-500' },
+                       { id: 'life_os', label: 'Life OS', icon: Cpu, color: 'text-slate-400' },
+                   ].map((tab) => (
+                       <button 
+                           key={tab.id}
+                           onClick={() => setActiveTab(tab.id as any)} 
+                           className={`group relative px-5 py-2.5 text-sm font-medium rounded-xl transition-all duration-300 flex items-center gap-2 overflow-hidden border ${
+                               activeTab === tab.id 
+                                   ? 'bg-gradient-to-r from-indigo-600 via-violet-600 to-purple-600 text-white border-transparent shadow-[0_4px_15px_rgba(99,102,241,0.35)] ring-2 ring-indigo-500/20' 
+                                   : 'bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:bg-white dark:hover:bg-slate-800 hover:shadow-md hover:border-slate-300 dark:hover:border-slate-600 hover:-translate-y-0.5'
+                           }`}
+                       >
+                           {/* Glass Shine Effect for Active */}
+                           {activeTab === tab.id && (
+                               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] animate-[shimmer_2s_infinite]" />
+                           )}
+                           
+                           {/* Icon with refined styling */}
+                           <tab.icon className={`w-4 h-4 transition-transform duration-300 ${
+                               activeTab === tab.id ? 'scale-110' : `group-hover:scale-110 ${tab.color} opacity-80`
+                           }`} />
+                           
+                           <span className="relative z-10">{tab.label}</span>
+                       </button>
+                   ))}
                 </div>
 
                {activeTab === 'chart' && (

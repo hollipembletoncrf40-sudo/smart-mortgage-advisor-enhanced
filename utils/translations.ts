@@ -691,7 +691,6 @@ export const TRANSLATIONS = {
     // Appreciation Predictor
     appreciationPredictor: '增值潜力预测',
     cityTier: '城市等级',
-    district: '区域位置',
     propertyTypeLabel: '房产类型',
     policyEnv: '政策环境',
     infrastructure: '基建规划',
@@ -982,7 +981,6 @@ export const TRANSLATIONS = {
     quickNav: "快速导航",
     navHome: "首页/对比分析",
     navAsset: "资产配置/财富大盘",
-    navLifePath: "人生路径模拟",
     navCar: "购车/消费决策",
     navKnowledge: "知识树/词汇百科",
     navStress: "压力测试/情景模拟",
@@ -1298,7 +1296,6 @@ export const TRANSLATIONS = {
     compMedium: "中等",
     compHigh: "高",
     popGrow: "增长",
-    popStable: "稳定",
     popDecline: "下降",
     polFavor: "利好",
     polNeutral: "中性",
@@ -1337,7 +1334,6 @@ export const TRANSLATIONS = {
     
     // Missing Keys
     predictAppreciation: "预测升值",
-    viewHousingTrends: "查看房价走势",
     // Naval Modules
     lifePathSimulator: "人生路径模拟器",
     goalCalculator: "财富目标计算器",
@@ -2010,7 +2006,6 @@ export const TRANSLATIONS = {
     recCashFlow: 'Rec: Choose based on cash flow',
     
     // Stress Test Scenarios
-    stressTest: 'Stress Test',
     scenPriceDrop: 'Price Drop 10%',
     scenPriceDrop20: 'Price Drop 20%',
     scenPriceUp: 'Price Up 20%',
@@ -2158,7 +2153,6 @@ export const TRANSLATIONS = {
     advancedRiskParams: "Advanced Risk Params (Survival Check)",
     
     // Life Path Nav (Vertical)
-    navLifePath: "Life Path Sim",
     navCountdown: "Countdown",
     navWealth: "Wealth Exch",
     navKnowledgeTree: "Knowledge Tree",
@@ -2426,14 +2420,6 @@ export const TRANSLATIONS = {
     dimensionAnalysis: 'Dimension Analysis',
     
     // Header Buttons
-    headerLogin: 'Login',
-    headerPreset: 'Presets',
-    headerSave: 'Save & Review',
-    buyingProcess: 'Buying Process',
-    locationGuide: 'Location Guide',
-    viewHousingTrends: 'Housing Trends',
-    methodology: 'Methodology',
-    tutorial: 'Tutorial',
 
     // Section Headers in Predictor
     sectionLocation: 'Location & Region',
@@ -2695,7 +2681,6 @@ export const TRANSLATIONS = {
     compMedium: "Medium",
     compHigh: "High",
     popGrow: "Growing",
-    popStable: "Stable",
     popDecline: "Declining",
     polFavor: "Favorable",
     polNeutral: "Neutral",
@@ -2717,8 +2702,6 @@ export const TRANSLATIONS = {
     liqRiskPol: 'Restrictive policy, slow transaction',
     
     // House Roast
-    roastTitle: "House's Inner Thoughts",
-    roastSubtitle: "Reality Check: Wake Up",
     roastClose: "Close",
     roastExpand: "View {count} Roasts",
     roastCollapse: "Hide Roasts",
@@ -2754,11 +2737,9 @@ export const TRANSLATIONS = {
 
     // Missing Keys
     predictAppreciation: "Predict Appreciation",
-    viewHousingTrends: "View Housing Trends",
 
     // Property Details
     communityName: "Community Name",
-    district: "District",
     propertyArea: "Property Area (㎡)",
     unitPrice: "Unit Price",
     sharedAreaRatio: "Shared Area Ratio (%)",
@@ -2777,10 +2758,6 @@ export const TRANSLATIONS = {
     tipPropertyRightYears: "Land usage rights, usually 70 years",
 
     // Naval Modules
-    lifePathSimulator: "Life Path Simulator",
-    goalCalculator: "Goal Calculator",
-    tokenExchange: "Token Exchange",
-    lifeDragIndex: "Life Drag Index",
   },
 };
 // Add Chinese keys manually to match structure (inserting before EN starts)

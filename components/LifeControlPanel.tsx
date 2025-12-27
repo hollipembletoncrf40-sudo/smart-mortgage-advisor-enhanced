@@ -239,7 +239,7 @@ const LifeControlPanel: React.FC<LifeControlPanelProps> = ({ language }) => {
                       <XAxis dataKey="year" tick={{fontSize: 10, fill: '#64748b'}} />
                       <YAxis tick={{fontSize: 10, fill: '#64748b'}} />
                       <RechartsTooltip contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', color: '#f8fafc' }} />
-                      <Area type="monotone" dataKey="wealth" stroke="#8b5cf6" strokeWidth={3} fillUrl="url(#gradWealth)" name="Wealth" />
+                      <Area type="monotone" dataKey="wealth" stroke="#8b5cf6" strokeWidth={3} fill="url(#gradWealth)" name="Wealth" />
                       <Area type="monotone" dataKey="health" stroke="#ef4444" strokeWidth={2} fill="transparent" strokeDasharray="5 5" name="Health" />
                       <Area type="monotone" dataKey="cognition" stroke="#06b6d4" strokeWidth={2} fill="transparent" name="Cognition" />
                    </AreaChart>
