@@ -29,6 +29,14 @@ const InvestmentWisdomCard: React.FC<InvestmentWisdomCardProps> = ({ language = 
 
   const currentQuote = WISDOM_QUOTES[currentIndex];
   // Calculate a subtle gradient background based on index to give variety
+  const bgGradients = [
+    'from-blue-600/20 to-indigo-600/20',
+    'from-emerald-600/20 to-teal-600/20', 
+    'from-amber-600/20 to-orange-600/20',
+    'from-purple-600/20 to-pink-600/20'
+  ];
+  const currentBg = bgGradients[currentIndex % bgGradients.length];
+
   const formatQuote = (text: string, isZh: boolean) => {
     if (!isZh) return text;
     // Replace Chinese comma and semicolon with same char + newline
