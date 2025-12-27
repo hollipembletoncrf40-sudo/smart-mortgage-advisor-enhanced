@@ -29,13 +29,13 @@ const InvestmentWisdomCard: React.FC<InvestmentWisdomCardProps> = ({ language = 
 
   const currentQuote = WISDOM_QUOTES[currentIndex];
   // Calculate a subtle gradient background based on index to give variety
-  const bgGradients = [
-    'from-blue-600/20 to-indigo-600/20',
-    'from-emerald-600/20 to-teal-600/20', 
-    'from-amber-600/20 to-orange-600/20',
-    'from-purple-600/20 to-pink-600/20'
-  ];
-  const currentBg = bgGradients[currentIndex % bgGradients.length];
+  const formatQuote = (text: string, isZh: boolean) => {
+    if (!isZh) return text;
+    // Replace Chinese comma and semicolon with same char + newline
+    // Also optional: Period if not last char, question mark etc. 
+    // For now, focus on Comma and Semicolon as requested.
+    return text.replace(/([，；])/g, '$1\n');
+  };
 
   return (
     <div className="perspective-1000 w-full max-w-5xl mx-auto mt-8 mb-16">
@@ -71,8 +71,8 @@ const InvestmentWisdomCard: React.FC<InvestmentWisdomCardProps> = ({ language = 
               ${isAnimating ? 'rotate-x-90 opacity-0' : 'rotate-x-0 opacity-100'}
             `}
           >
-            <h3 className="text-3xl md:text-5xl font-black text-slate-800 dark:text-slate-100 mb-8 drop-shadow-sm dark:drop-shadow-md tracking-wide leading-relaxed" style={{ fontFamily: 'serif', textWrap: 'balance' }}>
-              {language === 'EN' ? currentQuote.textEn : currentQuote.text}
+            <h3 className="text-3xl md:text-5xl font-black text-slate-800 dark:text-slate-100 mb-8 drop-shadow-sm dark:drop-shadow-md tracking-wide leading-relaxed whitespace-pre-line" style={{ fontFamily: 'serif' }}>
+              {formatQuote(language === 'EN' ? currentQuote.textEn : currentQuote.text, language !== 'EN')}
             </h3>
             
             <div className="flex items-center justify-center gap-4">
