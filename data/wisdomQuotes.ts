@@ -592,6 +592,301 @@ export const WISDOM_QUOTES: QuoteItem[] = [
     textEn: "That which does not kill us makes us stronger.",
     author: "尼采",
     authorEn: "Friedrich Nietzsche"
+  },
+  // --- Added to reach 100+ target ---
+  {
+    text: "生活不是等待暴风雨过去，而是学会在雨中跳舞。",
+    textEn: "Life isn't about waiting for the storm to pass, it's about learning to dance in the rain.",
+    author: "薇薇安·格林",
+    authorEn: "Vivian Greene"
+  },
+  {
+    text: "凡是过往，皆为序章。",
+    textEn: "What's past is prologue.",
+    author: "莎士比亚",
+    authorEn: "William Shakespeare"
+  },
+  {
+    text: "你要想得到这世界上最好的东西，先得让世界看到你是最好的。",
+    textEn: "To get what you want, you have to deserve what you want.",
+    author: "查理·芒格",
+    authorEn: "Charlie Munger"
+  },
+  {
+    text: "不要让你的野心超过你的能力。",
+    textEn: "Don't let your ambition outstrip your ability.",
+    author: "无名氏",
+    authorEn: "Anonymous"
+  },
+  {
+    text: "最重要的不是你赚了多少钱，而是你能留住多少钱。",
+    textEn: "It's not how much money you make, but how much money you keep.",
+    author: "罗伯特·清崎",
+    authorEn: "Robert Kiyosaki"
+  },
+  {
+    text: "穷人为了钱而工作，富人让钱为他们工作。",
+    textEn: "The poor and the middle class work for money. The rich have money work for them.",
+    author: "罗伯特·清崎",
+    authorEn: "Robert Kiyosaki"
+  },
+  {
+    text: "你无法连接未来的点滴，只能连接过去的点滴。",
+    textEn: "You can't connect the dots looking forward; you can only connect them looking backwards.",
+    author: "史蒂夫·乔布斯",
+    authorEn: "Steve Jobs"
+  },
+  {
+    text: "保持饥饿，保持愚蠢。",
+    textEn: "Stay hungry, stay foolish.",
+    author: "史蒂夫·乔布斯",
+    authorEn: "Steve Jobs"
+  },
+  {
+    text: "创新区分了领袖和追随者。",
+    textEn: "Innovation distinguishes between a leader and a follower.",
+    author: "史蒂夫·乔布斯",
+    authorEn: "Steve Jobs"
+  },
+  {
+    text: "做伟大的工作的唯一方法是热爱你所做的事。",
+    textEn: "The only way to do great work is to love what you do.",
+    author: "史蒂夫·乔布斯",
+    authorEn: "Steve Jobs"
+  },
+  {
+    text: "如果你没有竞争优势，就不要竞争。",
+    textEn: "If you don't have a competitive advantage, don't compete.",
+    author: "杰克·韦尔奇",
+    authorEn: "Jack Welch"
+  },
+  {
+    text: "愿景是看到不可见之下的艺术。",
+    textEn: "Vision is the art of seeing what is invisible to others.",
+    author: "乔纳森·斯威夫特",
+    authorEn: "Jonathan Swift"
+  },
+  {
+    text: "不要把鸡蛋放在同一个篮子里。",
+    textEn: "Don't put all your eggs in one basket.",
+    author: "投资谚语",
+    authorEn: "Investment Proverb"
+  },
+  {
+    text: "所谓专家，就是在一个非常狭窄的领域里犯过所有可能错误的人。",
+    textEn: "An expert is a person who has made all the mistakes that can be made in a very narrow field.",
+    author: "尼尔斯·玻尔",
+    authorEn: "Niels Bohr"
+  },
+  {
+    text: "预测未来最好的方法就是去创造它。",
+    textEn: "The best way to predict the future is to invent it.",
+    author: "亚伦·凯",
+    authorEn: "Alan Kay"
+  },
+  {
+    text: "当你不再追求确定性，你就开始成长了。",
+    textEn: "When you stop looking for certainty, you start growing.",
+    author: "无名氏",
+    authorEn: "Anonymous"
+  },
+  {
+    text: "如果你想造一艘船，不要召集人们去收集木头，而是教他们向往广阔无边的大海。",
+    textEn: "If you want to build a ship, don't drum up people to collect wood and don't assign them tasks and work, but rather teach them to long for the endless immensity of the sea.",
+    author: "安托万·德·圣埃克苏佩里",
+    authorEn: "Antoine de Saint-Exupéry"
+  },
+  {
+    text: "要在别人搞砸的时候稳住，这就是优势。",
+    textEn: "The edge is in the ability to stay sane when everyone else is going crazy.",
+    author: "无名氏",
+    authorEn: "Anonymous"
+  },
+  {
+    text: "金钱是很好的仆人，但由于它也是绝对的主人。",
+    textEn: "Money is a terrible master but an excellent servant.",
+    author: "P.T. BARNUM",
+    authorEn: "P.T. Barnum"
+  },
+  {
+    text: "如果你买了你不需要的东西，不久你就得卖掉你必须拥有的东西。",
+    textEn: "If you buy things you do not need, soon you will have to sell things you need.",
+    author: "沃伦·巴菲特",
+    authorEn: "Warren Buffett"
+  },
+  {
+    text: "华尔街是唯一一个开着劳斯莱斯的人向坐地铁的人咨询建议的地方。",
+    textEn: "Wall Street is the only place that people ride to in a Rolls Royce to get advice from those who take the subway.",
+    author: "沃伦·巴菲特",
+    authorEn: "Warren Buffett"
+  },
+  {
+    text: "如果你在小事上没有纪律，在大事上也不会有。",
+    textEn: "How you do anything is how you do everything.",
+    author: "禅宗谚语",
+    authorEn: "Zen Proverb"
+  },
+  {
+    text: "宁静是力量。",
+    textEn: "Silence is power.",
+    author: "老子",
+    authorEn: "Lao Tzu"
+  },
+  {
+    text: "千里之行，始于足下。",
+    textEn: "A journey of a thousand miles begins with a single step.",
+    author: "老子",
+    authorEn: "Lao Tzu"
+  },
+  {
+    text: "知者不言，言者不知。",
+    textEn: "Those who know do not speak. Those who speak do not know.",
+    author: "老子",
+    authorEn: "Lao Tzu"
+  },
+  {
+    text: "上善若水。",
+    textEn: "Highest good is like water.",
+    author: "老子",
+    authorEn: "Lao Tzu"
+  },
+  {
+    text: "天下难事，必作于易；天下大事，必作于细。",
+    textEn: "The difficult problems in life must be improved in the easy parts; the great problems must be improved in the small parts.",
+    author: "老子",
+    authorEn: "Lao Tzu"
+  },
+  {
+    text: "君子求诸己，小人求诸人。",
+    textEn: "The superior man seeks what is right; the inferior one, what is profitable.",
+    author: "孔子",
+    authorEn: "Confucius"
+  },
+  {
+    text: "学而不思则罔，思而不学则殆。",
+    textEn: "Learning without thought is labor lost; thought without learning is perilous.",
+    author: "孔子",
+    authorEn: "Confucius"
+  },
+  {
+    text: "三人行，必有我师焉。",
+    textEn: "When I walk along with two others, from at least one I will be able to learn.",
+    author: "孔子",
+    authorEn: "Confucius"
+  },
+  {
+    text: "知之者不如好之者，好之者不如乐之者。",
+    textEn: "They who know the truth are not equal to those who love it, and they who love it are not equal to those who delight in it.",
+    author: "孔子",
+    authorEn: "Confucius"
+  },
+  {
+    text: "我们要追求的不是变得比别人更好，而是比过去的自己更好。",
+    textEn: "There is nothing noble in being superior to your fellow man; true nobility is being superior to your former self.",
+    author: "海明威",
+    authorEn: "Ernest Hemingway"
+  },
+  {
+    text: "勇气不是没有恐惧，而是意识到有比恐惧更重要的东西。",
+    textEn: "Courage is not the absence of fear, but rather the judgement that something else is more important than fear.",
+    author: "安布罗斯·雷德蒙",
+    authorEn: "Ambrose Redmoon"
+  },
+  {
+    text: "生活是10%发生在你身上的事，90%是你如何反应。",
+    textEn: "Life is 10% what happens to you and 90% how you react to it.",
+    author: "查尔斯·斯文多尔",
+    authorEn: "Charles R. Swindoll"
+  },
+  {
+    text: "最好的报复是巨大的成功。",
+    textEn: "The best revenge is massive success.",
+    author: "弗兰克·辛纳屈",
+    authorEn: "Frank Sinatra"
+  },
+    {
+    text: "如果你想由某种改变，自己先成为那种改变。",
+    textEn: "Be the change that you wish to see in the world.",
+    author: "甘地",
+    authorEn: "Mahatma Gandhi"
+  },
+  {
+    text: "弱者永远不会宽恕，宽恕是强者的属性。",
+    textEn: "The weak can never forgive. Forgiveness is the attribute of the strong.",
+    author: "甘地",
+    authorEn: "Mahatma Gandhi"
+  },
+  {
+    text: "幸福是当你的所想、所说、所做和谐一致的时候。",
+    textEn: "Happiness is when what you think, what you say, and what you do are in harmony.",
+    author: "甘地",
+    authorEn: "Mahatma Gandhi"
+  },
+  {
+    text: "教育是你可以用来改变世界的最强大的武器。",
+    textEn: "Education is the most powerful weapon which you can use to change the world.",
+    author: "纳尔逊·曼德拉",
+    authorEn: "Nelson Mandela"
+  },
+  {
+    text: "虽然很难，但那是值得的。",
+    textEn: "It always seems impossible until it's done.",
+    author: "纳尔逊·曼德拉",
+    authorEn: "Nelson Mandela"
+  },
+  {
+    text: "我没有失败，我只是发现了一万种行不通的方法。",
+    textEn: "I have not failed. I've just found 10,000 ways that won't work.",
+    author: "托马斯·爱迪生",
+    authorEn: "Thomas Edison"
+  },
+  {
+    text: "天才就是1%的灵感加上99%的汗水。",
+    textEn: "Genius is one percent inspiration and ninety-nine percent perspiration.",
+    author: "托马斯·爱迪生",
+    authorEn: "Thomas Edison"
+  },
+  {
+    text: "如果你能梦想到，你就能做到。",
+    textEn: "If you can dream it, you can do it.",
+    author: "沃尔特·迪士尼",
+    authorEn: "Walt Disney"
+  },
+  {
+    text: "不要等待。时机永远不会恰到好处。",
+    textEn: "Do not wait; the time will never be 'just right'.",
+    author: "拿破仑·希尔",
+    authorEn: "Napoleon Hill"
+  },
+  {
+    text: "无论人的思想能构思和相信什么，它就能实现什么。",
+    textEn: "Whatever the mind of man can conceive and believe, it can achieve.",
+    author: "拿破仑·希尔",
+    authorEn: "Napoleon Hill"
+  },
+  {
+    text: "每一次逆境，每一次失败，每一次心痛，都蕴含着同等或更大利益的种子。",
+    textEn: "Every adversity, every failure, every heartache carries with it the seed of an equal or greater benefit.",
+    author: "拿破仑·希尔",
+    authorEn: "Napoleon Hill"
+  },
+  {
+    text: "如果你无法做伟大的事，那就用伟大的方式做小事。",
+    textEn: "If you cannot do great things, do small things in a great way.",
+    author: "拿破仑·希尔",
+    authorEn: "Napoleon Hill"
+  },
+  {
+    text: "行动是恐惧的解毒剂。",
+    textEn: "Action is the foundational key to all success.",
+    author: "毕加索",
+    authorEn: "Pablo Picasso"
+  },
+  {
+    text: "能把复杂的事情变简单，是大师。",
+    textEn: "Simplicity is the ultimate sophistication.",
+    author: "达芬奇",
+    authorEn: "Leonardo da Vinci"
   }
 ];
 

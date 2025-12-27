@@ -2,10 +2,12 @@
 import React from 'react';
 import { TrendingUp, LogIn, Calendar, ArrowRight } from 'lucide-react';
 import AmortizationMoodBar from './AmortizationMoodBar';
-import DetailedPaymentTable from './DetailedPaymentTable'; // Check import path
+import DetailedPaymentTable from './DetailedPaymentTable';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import RepaymentCalendar from './RepaymentCalendar';
 import InflationProjection from './InflationProjection';
+import { WealthCompassHeader } from './WealthCompassHeader';
+import InvestmentWisdomCard from './InvestmentWisdomCard';
 
 interface Props {
   t: any;
@@ -34,6 +36,12 @@ const DetailedRepaymentTab: React.FC<Props> = ({
 }) => {
   return (
     <div className="w-full space-y-6 animate-fade-in pb-8" id="repayment-report-content">
+       {/* New Branding Header */}
+       <WealthCompassHeader language={language} />
+
+       {/* Wisdom Card */}
+       <InvestmentWisdomCard language={language} />
+
        {/* Visual Header & Chart Section */}
        <div className="bg-white dark:bg-slate-900/60 backdrop-blur-xl rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-800/50 overflow-hidden relative group">
         <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
