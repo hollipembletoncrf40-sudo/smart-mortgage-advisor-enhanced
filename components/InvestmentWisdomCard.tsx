@@ -71,7 +71,7 @@ const InvestmentWisdomCard: React.FC<InvestmentWisdomCardProps> = ({ language = 
               ${isAnimating ? 'rotate-x-90 opacity-0' : 'rotate-x-0 opacity-100'}
             `}
           >
-            <h3 className="text-3xl md:text-5xl font-black text-slate-800 dark:text-slate-100 mb-8 drop-shadow-sm dark:drop-shadow-md tracking-wide leading-relaxed" style={{ fontFamily: 'serif' }}>
+            <h3 className="text-3xl md:text-5xl font-black text-slate-800 dark:text-slate-100 mb-8 drop-shadow-sm dark:drop-shadow-md tracking-wide leading-relaxed" style={{ fontFamily: 'serif', textWrap: 'balance' }}>
               {language === 'EN' ? currentQuote.textEn : currentQuote.text}
             </h3>
             

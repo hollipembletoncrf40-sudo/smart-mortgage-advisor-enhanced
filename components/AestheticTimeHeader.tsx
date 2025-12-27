@@ -118,9 +118,9 @@ export const AestheticTimeHeader: React.FC<{ language: 'ZH' | 'EN' }> = ({ langu
                    : 'rotate-x-0 opacity-100'
                } text-center flex-1`}
              >
-                <p className="text-xl font-bold bg-gradient-to-r from-amber-200 via-yellow-100 to-amber-200 bg-clip-text text-transparent tracking-wide leading-relaxed font-serif whitespace-nowrap">
-                  {language === 'ZH' ? greetings[greetingIndex].zh : greetings[greetingIndex].en}
-                </p>
+               <p className="text-xl font-bold bg-gradient-to-r from-amber-200 via-yellow-100 to-amber-200 bg-clip-text text-transparent tracking-wide leading-relaxed font-serif">
+                 {language === 'ZH' ? greetings[greetingIndex].zh : greetings[greetingIndex].en}
+               </p>
                <div className="h-0.5 w-1/3 mx-auto bg-gradient-to-r from-transparent via-amber-500/30 to-transparent mt-2"></div>
              </div>
              <Sparkles className="w-5 h-5 text-amber-300 shrink-0 animate-pulse delay-75" />
