@@ -7,7 +7,6 @@ import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianG
 import RepaymentCalendar from './RepaymentCalendar';
 import InflationProjection from './InflationProjection';
 import { WealthCompassHeader } from './WealthCompassHeader';
-import InvestmentWisdomCard from './InvestmentWisdomCard';
 
 interface Props {
   t: any;
@@ -38,9 +37,6 @@ const DetailedRepaymentTab: React.FC<Props> = ({
     <div className="w-full space-y-6 animate-fade-in pb-8" id="repayment-report-content">
        {/* New Branding Header */}
        <WealthCompassHeader language={language} />
-
-       {/* Wisdom Card */}
-       <InvestmentWisdomCard language={language} />
 
        {/* Visual Header & Chart Section */}
        <div className="bg-white dark:bg-slate-900/60 backdrop-blur-xl rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-800/50 overflow-hidden relative group">

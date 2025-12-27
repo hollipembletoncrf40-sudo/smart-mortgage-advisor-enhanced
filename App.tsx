@@ -57,6 +57,7 @@ import DetailedRepaymentTab from './components/DetailedRepaymentTab';
 import LifeOSDashboard from './components/LifeOSDashboard';
 import SectionNav from './components/SectionNav';
 import { loadAIConfig, sendAIMessage, AIMessage, getProviderName } from './utils/aiProvider';
+import { AestheticTimeHeader } from './components/AestheticTimeHeader';
 import { InvestmentParams, RepaymentMethod, CalculationResult, PrepaymentStrategy, StressTestResult, LoanType, PurchaseScenario, LocationFactors, LocationScore, AssetComparisonItem, KnowledgeCardData, Language, Currency, TaxParams, TaxResult, AppreciationPredictorParams, AppreciationPrediction, MonthlyCashFlow, CustomStressTestParams, DecisionSnapshot, BuyTargetParams } from './types';
 import { TRANSLATIONS } from './utils/translations';
 import { calculateInvestment, calculateStressTest, aggregateYearlyPaymentData, calculateLocationScore, calculateTaxes, predictAppreciation, calculateComprehensiveRisk, calculateAffordability, calculateComparison, calculateMarketRadarData } from './utils/calculate';
@@ -2479,6 +2480,7 @@ function App() {
 
   return (
     <div className={`min-h-screen font-sans transition-colors duration-300 ${darkMode ? 'bg-slate-950 text-slate-100' : 'bg-indigo-50/30 text-slate-900'}`}>
+      <AestheticTimeHeader language={language} />
       
       {showTour && <TourGuide onComplete={() => { setShowTour(false); localStorage.setItem('has_seen_tour', 'true'); }} t={t} />}
       {showFeedback && <FeedbackModal onClose={() => setShowFeedback(false)} t={t} user={user} />}
