@@ -105,18 +105,25 @@ export const AestheticTimeHeader: React.FC<{ language: 'ZH' | 'EN' }> = ({ langu
         </div>
 
         {/* Card 2: Rotating Greeting (Center) */}
-        <div className="flex-1 w-full md:w-auto flex justify-center">
-          <div className="bg-gradient-to-r from-slate-900/80 to-slate-800/80 backdrop-blur-2xl border border-white/10 rounded-xl px-6 py-2.5 shadow-[0_0_20px_rgba(251,191,36,0.05)] flex items-center gap-3 min-w-[300px] justify-center relative overflow-hidden group/greeting">
+        <div className="flex-1 w-full md:w-auto flex justify-center perspective-1000">
+          <div className="bg-gradient-to-r from-slate-900/80 to-slate-800/80 backdrop-blur-2xl border border-white/10 rounded-xl px-10 py-5 shadow-[0_0_25px_rgba(251,191,36,0.1)] flex items-center gap-4 min-w-[500px] justify-center relative overflow-hidden group/greeting transform-style-3d transition-all duration-300 hover:scale-[1.02]">
              {/* Shimmer effect */}
              <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover/greeting:animate-shimmer" />
              
-             <Sparkles className="w-4 h-4 text-amber-300 shrink-0" />
-             <div className={`transition-all duration-500 transform ${isTransitioning ? 'opacity-0 translate-y-2' : 'opacity-100 translate-y-0'} text-center`}>
-               <p className="text-sm font-bold bg-gradient-to-r from-amber-200 via-yellow-100 to-amber-200 bg-clip-text text-transparent tracking-wide leading-none">
+             <Sparkles className="w-5 h-5 text-amber-300 shrink-0 animate-pulse" />
+             <div 
+               className={`transition-all duration-700 transform-style-3d ${
+                 isTransitioning 
+                   ? 'rotate-x-90 opacity-0' 
+                   : 'rotate-x-0 opacity-100'
+               } text-center flex-1`}
+             >
+               <p className="text-xl font-bold bg-gradient-to-r from-amber-200 via-yellow-100 to-amber-200 bg-clip-text text-transparent tracking-wide leading-relaxed font-serif">
                  {language === 'ZH' ? greetings[greetingIndex].zh : greetings[greetingIndex].en}
                </p>
+               <div className="h-0.5 w-1/3 mx-auto bg-gradient-to-r from-transparent via-amber-500/30 to-transparent mt-2"></div>
              </div>
-             <Sparkles className="w-4 h-4 text-amber-300 shrink-0" />
+             <Sparkles className="w-5 h-5 text-amber-300 shrink-0 animate-pulse delay-75" />
           </div>
         </div>
 
@@ -153,6 +160,18 @@ export const AestheticTimeHeader: React.FC<{ language: 'ZH' | 'EN' }> = ({ langu
         }
         .animate-shimmer {
           animation: shimmer 2s infinite;
+        }
+        .perspective-1000 {
+          perspective: 1000px;
+        }
+        .transform-style-3d {
+          transform-style: preserve-3d;
+        }
+        .rotate-x-90 {
+          transform: rotateX(90deg);
+        }
+        .rotate-x-0 {
+          transform: rotateX(0deg);
         }
       `}</style>
     </div>
